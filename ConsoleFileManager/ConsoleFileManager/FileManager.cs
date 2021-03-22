@@ -39,15 +39,16 @@ namespace ConsoleFileManager
             Console.SetWindowSize(ConsoleWidth, ConsoleHeight);
             Console.SetBufferSize(ConsoleWidth, ConsoleHeight);
 
-            FilePanel filePanel = new FilePanel(StartDirectory);
-            filePanel.PanelHeight = ConsoleHeight;
-            filePanel.PanelWidth = ConsoleWidth / 2 - 1;
+            //FilePanel filePanel = new FilePanel(StartDirectory);
+            //filePanel.PanelHeight = ConsoleHeight;
+            //filePanel.PanelWidth = ConsoleWidth / 2 - 1;
 
-            filePanel.ShowDirectoryContent(StartDirectory);
+            //filePanel.ShowDirectoryContent(StartDirectory);
             //ShowDirAndFiles();
+
         }
 
-        public void GetUserCommands(FilePanel filePanel)
+        public void GetUserCommands(FilePanel filePanelLeft, FilePanel filePanelRight)
         {
             bool exit = false;
             while (!exit)
@@ -55,12 +56,15 @@ namespace ConsoleFileManager
                 if (Console.WindowWidth != ConsoleWidth)
                 {
                     ConsoleWidth = Console.WindowWidth;
-                    //FilePanel filePanel = new FilePanel(StartDirectory);
-                    //filePanel.PanelHeight = ConsoleHeight;
-                    filePanel.PanelWidth = ConsoleWidth / 2 - 1;
+                    Console.Clear();
 
-                    filePanel.ShowDirectoryContent(StartDirectory);
+                    //filePanelLeft.PanelWidth = ConsoleWidth / 2 - 1;
+                    filePanelLeft.UntilX = ConsoleWidth / 2 - 1;
+                    filePanelLeft.ShowDirectoryContent(StartDirectory);
 
+                    filePanelRight.FromX = ConsoleWidth / 2 + 1;
+                    filePanelRight.UntilX = ConsoleWidth - 1;
+                    filePanelRight.ShowDirectoryContent(StartDirectory);
                 }
 
                 if (Console.KeyAvailable)

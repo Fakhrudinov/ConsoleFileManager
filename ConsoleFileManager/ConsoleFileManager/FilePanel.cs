@@ -10,23 +10,31 @@ namespace ConsoleFileManager
         public string StartDirectory { get; set; }
         public string CurrentItem { get; set; }
         public int PanelWidth { get; set; }
+        public int FromX { get; set; }
+        public int UntilX { get; set; }
         public int PanelHeight { get; set; }
-        //public int ItemNameSize { get; set; }
 
-        public FilePanel(string StartDir)
+        //public FilePanel(string StartDir)
+        //{
+        //    StartDirectory = StartDir;
+        //}
+
+        public FilePanel(string StartDir, int fromX, int untilX)
         {
             StartDirectory = StartDir;
-
-            //ShowDirectoryContent(StartDirectory);            
+            FromX = fromX;
+            UntilX = untilX;
         }
 
         public void ShowDirectoryContent(string startDirectory)
         {
-            Console.Clear();
+            Console.SetCursorPosition(FromX, 0);
+            Console.WriteLine("StartDir: " + startDirectory + " PanelWidth: " + PanelWidth + " PanelHeight: " + PanelHeight + "untilX: " + UntilX);
+            Console.SetCursorPosition(FromX, 1);
+            Console.WriteLine("123456789012345678901234567890123456789012345678901234567890123456789012345");
             string dirName = startDirectory;
 
-            Console.WriteLine("StartDir: " + startDirectory + " PanelWidth: " + PanelWidth + " PanelHeight: " + PanelHeight);
-            Console.WriteLine("123456789012345678901234567890123456789012345678901234567890123456789012345=75");
+            Console.CursorTop = 3;
 
             if (Directory.Exists(dirName))
             {
@@ -36,14 +44,12 @@ namespace ConsoleFileManager
                     DirectoryInfo dirInfo = new DirectoryInfo(s);
 
                     string formatted = PrintStringToConsole(dirInfo.Name, dirInfo.Attributes.ToString(), dirInfo.CreationTime, 0);
-
                 }
 
                 string[] files = Directory.GetFiles(dirName);
                 foreach (string s in files)
                 {
                     FileInfo fileInf = new FileInfo(s);
-                    //Console.WriteLine(fileInf.Name.PadRight(maxNameLenght) + fileInf.CreationTime +  " " + fileInf.Length);
 
                     string formatted = PrintStringToConsole(fileInf.Name, null, fileInf.CreationTime, fileInf.Length);
                 }
@@ -53,29 +59,36 @@ namespace ConsoleFileManager
         private string PrintStringToConsole(string name, string attributes, DateTime creationTime, long fileSize)
         {
             string attr = "<DIR>";
-            //if (attributes == null)
-            //{
-            //    attr = GetFileSize(fileSize);
-            //}
 
-            if (name.Length <= PanelWidth - 28)
+            if (name.Length <= UntilX - (28 + FromX))
             {
-                name = name.PadRight(PanelWidth - 28);
+                name = name.PadRight(UntilX - (28 + FromX));
             }
-            else if (attributes == null) // files name shortening - extension always visible
+            else if (name.Length > UntilX - (28 + FromX) && attributes == null ) // files name shortening - extension always visible
             {
                 string extension = name.Substring(name.LastIndexOf('.'));
-                name = name.Substring(0, PanelWidth - (30 + extension.Length));
+                name = name.Substring(0, UntilX - ((30 + FromX) + extension.Length));
                 name = name + ".." + extension;
+
+                attr = GetFileSize(fileSize);
+            }
+            else if (name.Length <= UntilX - (28 + FromX) && attributes == null) // files 
+            {
+                // продебаж это name.Length <= UntilX - (28 + FromX)
+
+                //string extension = name.Substring(name.LastIndexOf('.'));
+                //name = name.Substring(0, UntilX - ((30 + FromX) + extension.Length));
+                //name = name + ".." + extension;
 
                 attr = GetFileSize(fileSize);
             }
             else // folders name shortening
             {
-                name = name.Substring(0, PanelWidth - 31);
+                name = name.Substring(0, UntilX - (31 + FromX));
                 name = name + "...";
             }
 
+            Console.CursorLeft = FromX;
             Console.WriteLine(name + creationTime.ToString(" yy/MM/dd HH:mm:ss ") + attr.PadLeft(9)); // dt.lenght = 19 
 
             return name;
