@@ -22,7 +22,7 @@ namespace ConsoleFileManager.Properties {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace ConsoleFileManager.Properties {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("ConsoleFileManager.Properties.Resources", typeof(Resources).Assembly);
@@ -51,35 +51,12 @@ namespace ConsoleFileManager.Properties {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
             set {
                 resourceCulture = value;
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
-        ///&lt;Settings&gt;
-        ///  &lt;OracleServerSelect&gt;M&lt;/OracleServerSelect&gt;
-        ///  &lt;SaveFilePath&gt;
-        ///    &lt;UseDefault&gt;True&lt;/UseDefault&gt;
-        ///    &lt;AllClientsLim&gt;Output&lt;/AllClientsLim&gt;
-        ///    &lt;SingleClientLim&gt;c:\temp\123&lt;/SingleClientLim&gt;
-        ///    &lt;DeliveryLim&gt;c:\temp\12345&lt;/DeliveryLim&gt;
-        ///    &lt;AllClientsList&gt;Output&lt;/AllClientsList&gt;
-        ///    &lt;BlockedList&gt;Output2&lt;/BlockedList&gt;
-        ///    &lt;InstrTWPath&gt;Output&lt;/InstrTWPath&gt;
-        ///  &lt;/SaveFilePath&gt;
-        ///  &lt;CommaOrDot&gt;.&lt;/CommaOrDot&gt;
-        ///  &lt;LastSingleClient&gt;
-        ///    &lt;ClientType&gt;P&lt;/Client [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string Config {
-            get {
-                return ResourceManager.GetString("Config", resourceCulture);
             }
         }
     }

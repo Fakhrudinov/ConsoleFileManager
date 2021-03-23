@@ -11,7 +11,8 @@ namespace ConsoleFileManager
     {
         public int XMLConsoleWidth { get; set; }
         public int XMLConsoleHeight { get; set; }
-        public string XMLStartDirectory { get; set; }
+        public string XMLStartDirectoryLeft { get; set; }
+        public string XMLStartDirectoryRight { get; set; }
 
         public void GetDataFromXML()
         {
@@ -26,7 +27,9 @@ namespace ConsoleFileManager
 
                 XMLConsoleWidth = 100;//default value
                 XMLConsoleHeight = 40;//default value
-                XMLStartDirectory = "C:\\";
+                XMLStartDirectoryLeft = "C:\\";
+                XMLStartDirectoryRight = "C:\\";
+                //надо отвязаться от хардкода С и брать первый диск из имеющихся
 
                 CreateFile(pathConfigXML);
             }
@@ -102,26 +105,48 @@ namespace ConsoleFileManager
                     CreateNodeXML(xmlConfig, pathConfigXML, "Height", "40");
                 }
 
-                //file manager last directory
-                XmlNode nodeLastDir = xmlConfig.SelectSingleNode("//LastDir");
-                if (nodeLastDir != null)
+                //file manager last left directory 
+                XmlNode nodeLastDirL = xmlConfig.SelectSingleNode("//StartDirLeft");
+                if (nodeLastDirL != null)
                 {
-                    string LastDir = nodeLastDir.InnerText;
+                    string LastDir = nodeLastDirL.InnerText;
                     if (Directory.Exists(LastDir))
                     {
-                        XMLStartDirectory = LastDir;
+                        XMLStartDirectoryLeft = LastDir;
                     }
                     else
                     {
-                        XMLStartDirectory = "C:\\";//default value
-                        SetValueToXML(xmlConfig, nodeLastDir, pathConfigXML, "C:\\");
+                        XMLStartDirectoryLeft = "C:\\";//default value
+                        SetValueToXML(xmlConfig, nodeLastDirL, pathConfigXML, "C:\\");
                     }
                 }
                 else
                 {
-                    XMLStartDirectory = "C:\\";//default value
+                    XMLStartDirectoryLeft = "C:\\";//default value
 
-                    CreateNodeXML(xmlConfig, pathConfigXML, "LastDir", "c:\\");
+                    CreateNodeXML(xmlConfig, pathConfigXML, "StartDirLeft", "c:\\");
+                }
+
+                //file manager last right directory  
+                XmlNode nodeLastDirR = xmlConfig.SelectSingleNode("//StartDirRight");
+                if (nodeLastDirR != null)
+                {
+                    string LastDir = nodeLastDirR.InnerText;
+                    if (Directory.Exists(LastDir))
+                    {
+                        XMLStartDirectoryRight = LastDir;
+                    }
+                    else
+                    {
+                        XMLStartDirectoryRight = "C:\\";//default value
+                        SetValueToXML(xmlConfig, nodeLastDirR, pathConfigXML, "C:\\");
+                    }
+                }
+                else
+                {
+                    XMLStartDirectoryRight = "C:\\";//default value
+
+                    CreateNodeXML(xmlConfig, pathConfigXML, "StartDirRight", "c:\\");
                 }
             }
         }

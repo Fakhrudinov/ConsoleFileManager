@@ -14,11 +14,6 @@ namespace ConsoleFileManager
         public int UntilX { get; set; }
         public int PanelHeight { get; set; }
 
-        //public FilePanel(string StartDir)
-        //{
-        //    StartDirectory = StartDir;
-        //}
-
         public FilePanel(string StartDir, int fromX, int untilX)
         {
             StartDirectory = StartDir;
@@ -29,16 +24,20 @@ namespace ConsoleFileManager
         public void ShowDirectoryContent(string startDirectory)
         {
             Console.SetCursorPosition(FromX, 0);
-            Console.WriteLine("StartDir: " + startDirectory + " PanelWidth: " + PanelWidth + " PanelHeight: " + PanelHeight + "untilX: " + UntilX);
+            Console.WriteLine("StartDir: " + startDirectory + " PWidth: " + PanelWidth + " PHeight: " + PanelHeight + " From/to x " + FromX + "/" + UntilX);
             Console.SetCursorPosition(FromX, 1);
             Console.WriteLine("123456789012345678901234567890123456789012345678901234567890123456789012345");
             string dirName = startDirectory;
+            int dirsCount = 0;
+            int filesCount = 0;
+            long filesTotalSize = 0;
 
             Console.CursorTop = 3;
 
             if (Directory.Exists(dirName))
             {
                 string[] dirs = Directory.GetDirectories(dirName);
+                dirsCount = dirs.Length;
                 foreach (string s in dirs)
                 {
                     DirectoryInfo dirInfo = new DirectoryInfo(s);
@@ -47,20 +46,32 @@ namespace ConsoleFileManager
                 }
 
                 string[] files = Directory.GetFiles(dirName);
+                filesCount = files.Length;
                 foreach (string s in files)
                 {
                     FileInfo fileInf = new FileInfo(s);
 
                     string formatted = PrintStringToConsole(fileInf.Name, null, fileInf.CreationTime, fileInf.Length);
+
+                    filesTotalSize = filesTotalSize + fileInf.Length;
                 }
             }
+
+            
+            Console.SetCursorPosition(FromX, PanelHeight - 3);
+            Console.WriteLine($"{Console.CursorTop}DIRs/Files {dirsCount}/{filesCount}, Total files size = {GetFileSize(filesTotalSize)}");
         }
 
         private string PrintStringToConsole(string name, string attributes, DateTime creationTime, long fileSize)
         {
             string attr = "<DIR>";
 
-            if (name.Length <= UntilX - (28 + FromX))
+            if (name.Length <= UntilX - (28 + FromX) && attributes == null) // files 
+            {
+                name = name.PadRight(UntilX - (28 + FromX));
+                attr = GetFileSize(fileSize);
+            }
+            else if (name.Length <= UntilX - (28 + FromX))
             {
                 name = name.PadRight(UntilX - (28 + FromX));
             }
@@ -69,16 +80,6 @@ namespace ConsoleFileManager
                 string extension = name.Substring(name.LastIndexOf('.'));
                 name = name.Substring(0, UntilX - ((30 + FromX) + extension.Length));
                 name = name + ".." + extension;
-
-                attr = GetFileSize(fileSize);
-            }
-            else if (name.Length <= UntilX - (28 + FromX) && attributes == null) // files 
-            {
-                // продебаж это name.Length <= UntilX - (28 + FromX)
-
-                //string extension = name.Substring(name.LastIndexOf('.'));
-                //name = name.Substring(0, UntilX - ((30 + FromX) + extension.Length));
-                //name = name + ".." + extension;
 
                 attr = GetFileSize(fileSize);
             }

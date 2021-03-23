@@ -8,7 +8,9 @@ namespace ConsoleFileManager
 {
     public class FileManager
     {
-        public string StartDirectory { get; set; }
+        public string StartDirectoryLeft { get; set; }
+
+        public string StartDirectoryRight { get; set; }
 
         string newCommandText;
         string NewCommandText 
@@ -33,7 +35,8 @@ namespace ConsoleFileManager
 
             ConsoleWidth = xml.XMLConsoleWidth;
             ConsoleHeight = xml.XMLConsoleHeight;
-            StartDirectory = xml.XMLStartDirectory;
+            StartDirectoryLeft = xml.XMLStartDirectoryLeft;
+            StartDirectoryRight = xml.XMLStartDirectoryRight;
 
             //Console.CursorVisible = false;
             Console.SetWindowSize(ConsoleWidth, ConsoleHeight);
@@ -53,18 +56,20 @@ namespace ConsoleFileManager
             bool exit = false;
             while (!exit)
             {
-                if (Console.WindowWidth != ConsoleWidth)
+                if (Console.WindowWidth != ConsoleWidth || Console.WindowHeight != ConsoleHeight)
                 {
                     ConsoleWidth = Console.WindowWidth;
+                    ConsoleHeight = Console.WindowHeight;
                     Console.Clear();
 
-                    //filePanelLeft.PanelWidth = ConsoleWidth / 2 - 1;
+                    filePanelLeft.PanelHeight = ConsoleHeight;
                     filePanelLeft.UntilX = ConsoleWidth / 2 - 1;
-                    filePanelLeft.ShowDirectoryContent(StartDirectory);
+                    filePanelLeft.ShowDirectoryContent(StartDirectoryLeft);
 
+                    filePanelRight.PanelHeight = ConsoleHeight;
                     filePanelRight.FromX = ConsoleWidth / 2 + 1;
                     filePanelRight.UntilX = ConsoleWidth - 1;
-                    filePanelRight.ShowDirectoryContent(StartDirectory);
+                    filePanelRight.ShowDirectoryContent(StartDirectoryRight);
                 }
 
                 if (Console.KeyAvailable)

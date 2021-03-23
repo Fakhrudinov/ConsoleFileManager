@@ -14,15 +14,13 @@ namespace ConsoleFileManager
 
             FileManager fm = new FileManager();
 
-            FilePanel filePanelLeft = new FilePanel(fm.StartDirectory, 1, fm.ConsoleWidth / 2 - 1);
+            FilePanel filePanelLeft = new FilePanel(fm.StartDirectoryLeft, 1, fm.ConsoleWidth / 2 - 1);
             filePanelLeft.PanelHeight = fm.ConsoleHeight;
-            //filePanel.PanelWidth = fm.ConsoleWidth / 2 - 1;
-            filePanelLeft.ShowDirectoryContent(fm.StartDirectory);
+            filePanelLeft.ShowDirectoryContent(fm.StartDirectoryLeft);
 
-            FilePanel filePanelRight = new FilePanel(fm.StartDirectory, fm.ConsoleWidth / 2 + 1, fm.ConsoleWidth - 1);
+            FilePanel filePanelRight = new FilePanel(fm.StartDirectoryRight, fm.ConsoleWidth / 2 + 1, fm.ConsoleWidth - 1);
             filePanelRight.PanelHeight = fm.ConsoleHeight;
-            //filePanel.PanelWidth = fm.ConsoleWidth / 2 - 1;
-            filePanelRight.ShowDirectoryContent(fm.StartDirectory);
+            filePanelRight.ShowDirectoryContent(fm.StartDirectoryRight);
 
             fm.GetUserCommands(filePanelLeft, filePanelRight);
         }
