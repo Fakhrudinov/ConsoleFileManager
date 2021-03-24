@@ -18,6 +18,19 @@ namespace ConsoleFileManager
         {
             string pathConfigXML = "Resources/Config.xml";
 
+            //Get first 'ready' drive and set it as default
+            string defaultDrive = "";
+            DriveInfo[] drives = DriveInfo.GetDrives();
+            foreach (DriveInfo drive in drives)
+            {
+                if (drive.IsReady)
+                {
+                    defaultDrive = drive.Name;
+
+                    break;
+                }
+            }
+
             XmlDocument xmlConfig = new XmlDocument();            
 
             //Config XML Exist?
@@ -27,11 +40,10 @@ namespace ConsoleFileManager
 
                 XMLConsoleWidth = 100;//default value
                 XMLConsoleHeight = 40;//default value
-                XMLStartDirectoryLeft = "C:\\";
-                XMLStartDirectoryRight = "C:\\";
-                //надо отвязаться от хардкода С и брать первый диск из имеющихся
+                XMLStartDirectoryLeft = defaultDrive;
+                XMLStartDirectoryRight = defaultDrive;
 
-                CreateFile(pathConfigXML);
+                CreateFile(pathConfigXML, defaultDrive);
             }
             else
             {
@@ -116,15 +128,15 @@ namespace ConsoleFileManager
                     }
                     else
                     {
-                        XMLStartDirectoryLeft = "C:\\";//default value
-                        SetValueToXML(xmlConfig, nodeLastDirL, pathConfigXML, "C:\\");
+                        XMLStartDirectoryLeft = defaultDrive;//default value
+                        SetValueToXML(xmlConfig, nodeLastDirL, pathConfigXML, defaultDrive);
                     }
                 }
                 else
                 {
-                    XMLStartDirectoryLeft = "C:\\";//default value
+                    XMLStartDirectoryLeft = defaultDrive;//default value
 
-                    CreateNodeXML(xmlConfig, pathConfigXML, "StartDirLeft", "c:\\");
+                    CreateNodeXML(xmlConfig, pathConfigXML, "StartDirLeft", defaultDrive);
                 }
 
                 //file manager last right directory  
@@ -138,26 +150,26 @@ namespace ConsoleFileManager
                     }
                     else
                     {
-                        XMLStartDirectoryRight = "C:\\";//default value
-                        SetValueToXML(xmlConfig, nodeLastDirR, pathConfigXML, "C:\\");
+                        XMLStartDirectoryRight = defaultDrive;//default value
+                        SetValueToXML(xmlConfig, nodeLastDirR, pathConfigXML, defaultDrive);
                     }
                 }
                 else
                 {
-                    XMLStartDirectoryRight = "C:\\";//default value
+                    XMLStartDirectoryRight = defaultDrive;//default value
 
-                    CreateNodeXML(xmlConfig, pathConfigXML, "StartDirRight", "c:\\");
+                    CreateNodeXML(xmlConfig, pathConfigXML, "StartDirRight", defaultDrive);
                 }
             }
         }
 
-        private void CreateFile(string pathConfigXML)
+        private void CreateFile(string pathConfigXML, string defaultDrive)
         {
             string text = $"" +
                 $"<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" +
                 "<Settings>\r\n" +
-                "   <StartDirLeft>e:\\manga\\</StartDirLeft>\r\n" +
-                "   <StartDirRight>e:\\_anime\\</StartDirRight>\r\n" +
+                "   <StartDirLeft>" + defaultDrive + "</StartDirLeft>\r\n" +
+                "   <StartDirRight>" + defaultDrive + "</StartDirRight>\r\n" +
                 "   <!--<ShowHiddenFiles>1</ShowHiddenFiles>-->\r\n" +
                 "   <Width>120</Width>\r\n" +
                 "   <Height>55</Height>\r\n" +
