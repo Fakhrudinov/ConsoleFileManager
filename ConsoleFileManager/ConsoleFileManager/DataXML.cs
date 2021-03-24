@@ -26,7 +26,6 @@ namespace ConsoleFileManager
                 if (drive.IsReady)
                 {
                     defaultDrive = drive.Name;
-
                     break;
                 }
             }
@@ -171,8 +170,8 @@ namespace ConsoleFileManager
                 "   <StartDirLeft>" + defaultDrive + "</StartDirLeft>\r\n" +
                 "   <StartDirRight>" + defaultDrive + "</StartDirRight>\r\n" +
                 "   <!--<ShowHiddenFiles>1</ShowHiddenFiles>-->\r\n" +
-                "   <Width>120</Width>\r\n" +
-                "   <Height>55</Height>\r\n" +
+                "   <Width>100</Width>\r\n" +
+                "   <Height>40</Height>\r\n" +
                 "</Settings>\r\n";
             try
             {

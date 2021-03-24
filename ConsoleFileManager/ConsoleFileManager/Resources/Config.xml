@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Settings>
   <StartDirLeft>c:\test\</StartDirLeft>
-  <StartDirRight>e:\_anime\</StartDirRight>
+  <StartDirRight>e:\Downloads\Обучение\C#\Часть 2 Алгоритмы\</StartDirRight>
   <!--<ShowHiddenFiles>1</ShowHiddenFiles>-->
   <Width>130</Width>
   <Height>30</Height>

@@ -24,7 +24,7 @@ namespace ConsoleFileManager
         public void ShowDirectoryContent(string startDirectory)
         {
             Console.SetCursorPosition(FromX, 1);
-            Console.WriteLine("Current Directory: " + startDirectory); // + " PW: " + PanelWidth + " PH: " + PanelHeight + " From/to x " + FromX + "/" + UntilX);
+            Console.WriteLine("Current Dir: " + startDirectory); // + " PW: " + PanelWidth + " PH: " + PanelHeight + " From/to x " + FromX + "/" + UntilX);
             Console.SetCursorPosition(FromX, 2);
             //Console.WriteLine("123456789012345678901234567890123456789012345678901234567890123456789012345");
 
@@ -41,7 +41,7 @@ namespace ConsoleFileManager
                 {
                     if (drive.Name.ToLower().Contains(startDirectory.ToLower().Substring(0, startDirectory.IndexOf('\\'))))
                     {
-                        Console.WriteLine($"Current Disk: {drive.Name}, Size Total:{GetFileSize(drive.TotalSize)} Free:{ GetFileSize(drive.TotalFreeSpace)}");
+                        Console.WriteLine($"Current Disk: {drive.Name} Total:{GetFileSize(drive.TotalSize)} Free:{ GetFileSize(drive.TotalFreeSpace)}");
                     }
                 }
 
@@ -73,7 +73,7 @@ namespace ConsoleFileManager
             }
 
             
-            Console.SetCursorPosition(FromX, PanelHeight - 3);
+            Console.SetCursorPosition(FromX, PanelHeight - 4);
             Console.WriteLine($"DIRs/Files {dirsCount}/{filesCount}, Total files size = {GetFileSize(filesTotalSize)}");
             
 
@@ -83,31 +83,31 @@ namespace ConsoleFileManager
         {
             string attr = "<DIR>";
 
-            if (name.Length <= UntilX - (28 + FromX) && attributes == null) // files 
+            if (name.Length <= UntilX - (27 + FromX) && attributes == null) // files 
             {
-                name = name.PadRight(UntilX - (28 + FromX));
+                name = name.PadRight(UntilX - (27 + FromX));
                 attr = GetFileSize(fileSize);
             }
-            else if (name.Length <= UntilX - (28 + FromX))
+            else if (name.Length <= UntilX - (27 + FromX))
             {
-                name = name.PadRight(UntilX - (28 + FromX));
+                name = name.PadRight(UntilX - (27 + FromX));
             }
-            else if (name.Length > UntilX - (28 + FromX) && attributes == null ) // files name shortening - extension always visible
+            else if (name.Length > UntilX - (27 + FromX) && attributes == null ) // files name shortening - extension always visible
             {
                 string extension = name.Substring(name.LastIndexOf('.'));
-                name = name.Substring(0, UntilX - ((30 + FromX) + extension.Length));
+                name = name.Substring(0, UntilX - ((29 + FromX) + extension.Length));
                 name = name + ".." + extension;
 
                 attr = GetFileSize(fileSize);
             }
             else // folders name shortening
             {
-                name = name.Substring(0, UntilX - (31 + FromX));
+                name = name.Substring(0, UntilX - (30 + FromX));
                 name = name + "...";
             }
 
             Console.CursorLeft = FromX;
-            Console.WriteLine(name + creationTime.ToString(" yy/MM/dd HH:mm:ss ") + attr.PadLeft(9)); // dt.lenght = 19 
+            Console.WriteLine(name + creationTime.ToString(" yy/MM/dd HH:mm:ss ") + attr.PadLeft(8)); // dt.lenght = 19 
 
             return name;
         }
@@ -126,7 +126,7 @@ namespace ConsoleFileManager
                 i++;
             }
 
-            return string.Format("{0:n2} {1}", dValue, SizeSuffixes[i]);
+            return string.Format("{0:n2}{1}", dValue, SizeSuffixes[i]);
         }
     }
 }

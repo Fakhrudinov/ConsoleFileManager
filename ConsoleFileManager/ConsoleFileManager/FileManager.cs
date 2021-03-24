@@ -49,9 +49,11 @@ namespace ConsoleFileManager
             filePanelRight.PanelHeight = ConsoleHeight;
             filePanelRight.ShowDirectoryContent(StartDirectoryRight);
 
-            GetUserCommands(filePanelLeft, filePanelRight);
+            PrintSingleKeyCommands(); // like F1 F2 etc.
 
             PrintUserCommand();
+
+            GetUserCommands(filePanelLeft, filePanelRight);// Don't add any command after call this method - because endless while!
         }
 
         public void GetUserCommands(FilePanel filePanelLeft, FilePanel filePanelRight)
@@ -73,7 +75,8 @@ namespace ConsoleFileManager
                     filePanelRight.FromX = ConsoleWidth / 2 + 1;
                     filePanelRight.UntilX = ConsoleWidth - 1;
                     filePanelRight.ShowDirectoryContent(StartDirectoryRight);
-
+                    
+                    PrintSingleKeyCommands();
                     PrintUserCommand();
                 }
 
@@ -119,11 +122,29 @@ namespace ConsoleFileManager
             }
         }
 
+
+        private void PrintSingleKeyCommands()
+        {
+            Console.SetCursorPosition(1, ConsoleHeight - 3);
+
+            int padding = ConsoleWidth  / 9; // delimeter = to 1 more than actual command amount. Just for good look
+
+            Console.Write("[F1 Help]".PadRight(padding));
+            Console.Write("[F3 View]".PadRight(padding));
+            Console.Write("[F4 Edit]".PadRight(padding));
+            Console.Write("[F5 Copy]".PadRight(padding));
+            Console.Write("[F6 Move]".PadRight(padding));
+            Console.Write("[F7 MkDir]".PadRight(padding));
+            Console.Write("[F8 Del]");
+
+            Console.SetCursorPosition(ConsoleWidth - 14, ConsoleHeight - 3);
+            Console.Write("[Alt F4 Exit]"); // lenght = 13
+        }
+
         private void PrintUserCommand()
         {
             Console.SetCursorPosition(1, ConsoleHeight - 2);
             Console.Write("Command: " + NewCommandText);
-            //Console.SetCursorPosition(10, ConsoleHeight - 2);
         }
     }
 }
