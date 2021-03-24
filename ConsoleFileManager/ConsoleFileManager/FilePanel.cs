@@ -23,43 +23,60 @@ namespace ConsoleFileManager
 
         public void ShowDirectoryContent(string startDirectory)
         {
-            Console.SetCursorPosition(FromX, 0);
-            Console.WriteLine("StartDir: " + startDirectory + " PWidth: " + PanelWidth + " PHeight: " + PanelHeight + " From/to x " + FromX + "/" + UntilX);
             Console.SetCursorPosition(FromX, 1);
-            Console.WriteLine("123456789012345678901234567890123456789012345678901234567890123456789012345");
-            string dirName = startDirectory;
+            Console.WriteLine("Current Directory: " + startDirectory); // + " PW: " + PanelWidth + " PH: " + PanelHeight + " From/to x " + FromX + "/" + UntilX);
+            Console.SetCursorPosition(FromX, 2);
+            //Console.WriteLine("123456789012345678901234567890123456789012345678901234567890123456789012345");
+
             int dirsCount = 0;
             int filesCount = 0;
             long filesTotalSize = 0;
 
-            Console.CursorTop = 3;
+            DriveInfo[] drives = DriveInfo.GetDrives();
 
-            if (Directory.Exists(dirName))
+            if (Directory.Exists(startDirectory))
             {
-                string[] dirs = Directory.GetDirectories(dirName);
+                //Console.SetCursorPosition(FromX, 2);
+                foreach (DriveInfo drive in drives)
+                {
+                    if (drive.Name.ToLower().Contains(startDirectory.ToLower().Substring(0, startDirectory.IndexOf('\\'))))
+                    {
+                        Console.WriteLine($"Current Disk: {drive.Name}, Size Total:{GetFileSize(drive.TotalSize)} Free:{ GetFileSize(drive.TotalFreeSpace)}");
+                    }
+                }
+
+                Console.CursorTop = 3;
+
+                string[] dirs = Directory.GetDirectories(startDirectory);
                 dirsCount = dirs.Length;
                 foreach (string s in dirs)
                 {
                     DirectoryInfo dirInfo = new DirectoryInfo(s);
 
-                    string formatted = PrintStringToConsole(dirInfo.Name, dirInfo.Attributes.ToString(), dirInfo.CreationTime, 0);
+                    PrintStringToConsole(dirInfo.Name, dirInfo.Attributes.ToString(), dirInfo.CreationTime, 0);
                 }
 
-                string[] files = Directory.GetFiles(dirName);
+                string[] files = Directory.GetFiles(startDirectory);
                 filesCount = files.Length;
                 foreach (string s in files)
                 {
                     FileInfo fileInf = new FileInfo(s);
 
-                    string formatted = PrintStringToConsole(fileInf.Name, null, fileInf.CreationTime, fileInf.Length);
+                    PrintStringToConsole(fileInf.Name, null, fileInf.CreationTime, fileInf.Length);
 
                     filesTotalSize = filesTotalSize + fileInf.Length;
                 }
             }
+            else
+            {
+                Console.WriteLine("Path not found: " + startDirectory);
+            }
 
             
             Console.SetCursorPosition(FromX, PanelHeight - 3);
-            Console.WriteLine($"{Console.CursorTop}DIRs/Files {dirsCount}/{filesCount}, Total files size = {GetFileSize(filesTotalSize)}");
+            Console.WriteLine($"DIRs/Files {dirsCount}/{filesCount}, Total files size = {GetFileSize(filesTotalSize)}");
+            
+
         }
 
         private string PrintStringToConsole(string name, string attributes, DateTime creationTime, long fileSize)

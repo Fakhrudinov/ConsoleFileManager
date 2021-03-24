@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Settings>
-  <StartDirLeft>e:\manga\</StartDirLeft>
+  <StartDirLeft>c:\test\</StartDirLeft>
   <StartDirRight>e:\_anime\</StartDirRight>
   <!--<ShowHiddenFiles>1</ShowHiddenFiles>-->
-  <Width>120</Width>
-  <Height>43</Height>
+  <Width>130</Width>
+  <Height>40</Height>
 </Settings>

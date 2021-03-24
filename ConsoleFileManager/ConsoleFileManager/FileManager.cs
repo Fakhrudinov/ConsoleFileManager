@@ -38,17 +38,20 @@ namespace ConsoleFileManager
             StartDirectoryLeft = xml.XMLStartDirectoryLeft;
             StartDirectoryRight = xml.XMLStartDirectoryRight;
 
-            //Console.CursorVisible = false;
             Console.SetWindowSize(ConsoleWidth, ConsoleHeight);
             Console.SetBufferSize(ConsoleWidth, ConsoleHeight);
 
-            //FilePanel filePanel = new FilePanel(StartDirectory);
-            //filePanel.PanelHeight = ConsoleHeight;
-            //filePanel.PanelWidth = ConsoleWidth / 2 - 1;
+            FilePanel filePanelLeft = new FilePanel(StartDirectoryLeft, 1, ConsoleWidth / 2 - 1);
+            filePanelLeft.PanelHeight = ConsoleHeight;
+            filePanelLeft.ShowDirectoryContent(StartDirectoryLeft);
 
-            //filePanel.ShowDirectoryContent(StartDirectory);
-            //ShowDirAndFiles();
+            FilePanel filePanelRight = new FilePanel(StartDirectoryRight, ConsoleWidth / 2 + 1, ConsoleWidth - 1);
+            filePanelRight.PanelHeight = ConsoleHeight;
+            filePanelRight.ShowDirectoryContent(StartDirectoryRight);
 
+            GetUserCommands(filePanelLeft, filePanelRight);
+
+            PrintUserCommand();
         }
 
         public void GetUserCommands(FilePanel filePanelLeft, FilePanel filePanelRight)
@@ -70,6 +73,8 @@ namespace ConsoleFileManager
                     filePanelRight.FromX = ConsoleWidth / 2 + 1;
                     filePanelRight.UntilX = ConsoleWidth - 1;
                     filePanelRight.ShowDirectoryContent(StartDirectoryRight);
+
+                    PrintUserCommand();
                 }
 
                 if (Console.KeyAvailable)
@@ -86,6 +91,12 @@ namespace ConsoleFileManager
                             case ConsoleKey.Enter:
                                 Console.WriteLine("Execute command " + NewCommandText);
                                 NewCommandText = "";
+
+                                Console.Clear();
+                                filePanelLeft.ShowDirectoryContent(StartDirectoryLeft);
+                                filePanelRight.ShowDirectoryContent(StartDirectoryRight);
+
+                                PrintUserCommand();
                                 break;
                             default:
                                 break;
@@ -106,6 +117,13 @@ namespace ConsoleFileManager
                     }                   
                 }
             }
+        }
+
+        private void PrintUserCommand()
+        {
+            Console.SetCursorPosition(1, ConsoleHeight - 2);
+            Console.Write("Command: " + NewCommandText);
+            //Console.SetCursorPosition(10, ConsoleHeight - 2);
         }
     }
 }

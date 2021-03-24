@@ -156,10 +156,11 @@ namespace ConsoleFileManager
             string text = $"" +
                 $"<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" +
                 "<Settings>\r\n" +
-                "   <LastDir>d:\\Test\\</LastDir>\r\n" +
+                "   <StartDirLeft>e:\\manga\\</StartDirLeft>\r\n" +
+                "   <StartDirRight>e:\\_anime\\</StartDirRight>\r\n" +
                 "   <!--<ShowHiddenFiles>1</ShowHiddenFiles>-->\r\n" +
-                "   <Width>130</Width>\r\n" +
-                "   <Height>45</Height>\r\n" +
+                "   <Width>120</Width>\r\n" +
+                "   <Height>55</Height>\r\n" +
                 "</Settings>\r\n";
             try
             {
