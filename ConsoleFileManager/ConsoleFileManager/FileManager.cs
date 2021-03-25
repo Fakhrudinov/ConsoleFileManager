@@ -45,7 +45,7 @@ namespace ConsoleFileManager
             filePanelLeft.PanelHeight = ConsoleHeight;
             filePanelLeft.ShowDirectoryContent(StartDirectoryLeft);
 
-            FilePanel filePanelRight = new FilePanel(StartDirectoryRight, ConsoleWidth / 2 + 1, ConsoleWidth - 1);
+            FilePanel filePanelRight = new FilePanel(StartDirectoryRight, ConsoleWidth / 2, ConsoleWidth - 1);
             filePanelRight.PanelHeight = ConsoleHeight;
             filePanelRight.ShowDirectoryContent(StartDirectoryRight);
 
@@ -72,7 +72,7 @@ namespace ConsoleFileManager
                     filePanelLeft.ShowDirectoryContent(StartDirectoryLeft);
 
                     filePanelRight.PanelHeight = ConsoleHeight;
-                    filePanelRight.FromX = ConsoleWidth / 2 + 1;
+                    filePanelRight.FromX = ConsoleWidth / 2;
                     filePanelRight.UntilX = ConsoleWidth - 1;
                     filePanelRight.ShowDirectoryContent(StartDirectoryRight);
                     
