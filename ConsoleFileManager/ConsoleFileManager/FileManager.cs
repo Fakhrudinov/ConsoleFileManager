@@ -43,8 +43,11 @@ namespace ConsoleFileManager
 
             Borders border = new Borders();
             FilePanel filePanelLeft = new FilePanel(StartDirectoryLeft, 1, ConsoleWidth / 2 - 1);
+            filePanelLeft.PaginationStart = 0;
+            
             FilePanel filePanelRight = new FilePanel(StartDirectoryRight, ConsoleWidth / 2, ConsoleWidth - 1);
-
+            filePanelRight.PaginationStart = 0;
+            
             PrintFileManager(filePanelLeft, filePanelRight, border);
 
 

@@ -10,6 +10,7 @@ namespace ConsoleFileManager
         public string StartDirectory { get; set; }
         //public string CurrentItem { get; set; }
         //public int PanelWidth { get; set; }
+        public int PaginationStart { get; set; }
         public int FromX { get; set; }
         public int UntilX { get; set; }
         public int PanelHeight { get; set; }
@@ -30,9 +31,13 @@ namespace ConsoleFileManager
 
             Console.Write(currDir + startDirectory);
 
+            int totalItems = 1;  // 1 for root directory output: ..
             int dirsCount = 0;
             int filesCount = 0;
             long filesTotalSize = 0;
+            int pagesCount = 0;
+            int itemsOnPage = 0;
+            int currentPage = 0;
 
             DriveInfo[] drives = DriveInfo.GetDrives();
 
@@ -54,22 +59,77 @@ namespace ConsoleFileManager
 
                 string[] dirs = Directory.GetDirectories(startDirectory);
                 dirsCount = dirs.Length;
-                foreach (string s in dirs)
-                {
-                    DirectoryInfo dirInfo = new DirectoryInfo(s);
-
-                    PrintStringToConsole(dirInfo.Name, dirInfo.Attributes.ToString(), dirInfo.CreationTime, 0);
-                }
+                totalItems = totalItems + dirs.Length;
 
                 string[] files = Directory.GetFiles(startDirectory);
                 filesCount = files.Length;
-                foreach (string s in files)
+                totalItems = totalItems + files.Length;
+
+                int linesAmount = PanelHeight - 11; //default -11
+                itemsOnPage = PanelHeight - 11;
+                pagesCount = totalItems / linesAmount;
+
+                if (totalItems % linesAmount > 0)
+                    pagesCount++;
+
+                currentPage = (PaginationStart / itemsOnPage) + 1;
+                //current page = current item/itemsOnPage
+
+
+
+
+
+
+
+                if (PaginationStart == 0)
                 {
-                    FileInfo fileInf = new FileInfo(s);
+                    Console.SetCursorPosition(FromX, PanelHeight - (linesAmount + 7));
+                    Console.WriteLine("..");// root dir 
+                    linesAmount--;
+                }
 
-                    PrintStringToConsole(fileInf.Name, null, fileInf.CreationTime, fileInf.Length);
+                if (linesAmount >= dirsCount)
+                {
+                    // show all dirs
+                    foreach (string s in dirs)
+                    {
+                        DirectoryInfo dirInfo = new DirectoryInfo(s);
+                        PrintStringToConsole(dirInfo.Name, dirInfo.Attributes.ToString(), dirInfo.CreationTime, 0, linesAmount);
+                        linesAmount--;
+                    }
+                }
+                else
+                {
+                    for (int dir = 0; dir < linesAmount; dir++)
+                    {
+                        DirectoryInfo dirInfo = new DirectoryInfo(dirs[dir]);
+                        PrintStringToConsole(dirInfo.Name, dirInfo.Attributes.ToString(), dirInfo.CreationTime, 0, linesAmount);
+                    }
+                }
 
-                    filesTotalSize = filesTotalSize + fileInf.Length;
+                if (linesAmount > 0)
+                {
+                    if (linesAmount >= filesCount)
+                    {
+                        //show all files
+                        foreach (string s in files)
+                        {
+                            FileInfo fileInf = new FileInfo(s);
+                            PrintStringToConsole(fileInf.Name, null, fileInf.CreationTime, fileInf.Length, linesAmount);
+                            filesTotalSize = filesTotalSize + fileInf.Length;
+
+                            linesAmount--;
+                        }
+                    }
+                    else
+                    {
+                        for (int file = 0; file < linesAmount; file++)
+                        {
+                            FileInfo fileInf = new FileInfo(files[file]);
+                            PrintStringToConsole(fileInf.Name, null, fileInf.CreationTime, fileInf.Length, linesAmount - file);
+                            filesTotalSize = filesTotalSize + fileInf.Length;
+                        }
+                    }
                 }
             }
             else
@@ -77,18 +137,18 @@ namespace ConsoleFileManager
                 Console.SetCursorPosition(FromX, 2);
                 Console.Write("Path not found: " + startDirectory);
             }
-
             
             Console.SetCursorPosition(FromX, PanelHeight - 7);
-            Console.Write(Console.BufferWidth + "/" + Console.WindowWidth + "//" + Console.BufferHeight + "/" + Console.WindowHeight);//$"Pagination: Shown (X dirs / Y files) from {dirsCount}/{filesCount},");
+            Console.WriteLine($"ttl itm{totalItems} itmOnPg{itemsOnPage} Page {currentPage}/{pagesCount}  {dirsCount}/{filesCount}");
+            //Console.Write(Console.BufferWidth + "/" + Console.WindowWidth + "//" + Console.BufferHeight + "/" + Console.WindowHeight);
+            //Console.Write($"Pagination: Shown ({totalItems} / {pagesCount}) from {dirsCount}/{filesCount} amnt:{PanelHeight - 18}");
             //Console.SetCursorPosition(FromX, PanelHeight - 5);
             //Console.WriteLine($"DIRs/Files {dirsCount}/{filesCount}, Total files size = {GetFileSize(filesTotalSize)}");
             //Console.WriteLine($"DIRs/Files {dirsCount}/{filesCount}, Total files size = {GetFileSize(filesTotalSize)}");
 
-
         }
 
-        private string PrintStringToConsole(string name, string attributes, DateTime creationTime, long fileSize)
+        private string PrintStringToConsole(string name, string attributes, DateTime creationTime, long fileSize, int linesAmount)
         {
             string attr = "<DIR>";
 
@@ -115,7 +175,7 @@ namespace ConsoleFileManager
                 name = name + "...";
             }
 
-            Console.CursorLeft = FromX;
+            Console.SetCursorPosition(FromX, PanelHeight - (linesAmount + 7));
             Console.Write(name + creationTime.ToString(" yy/MM/dd HH:mm:ss ") + attr.PadLeft(8)); // dt.lenght = 19 
 
             return name;
