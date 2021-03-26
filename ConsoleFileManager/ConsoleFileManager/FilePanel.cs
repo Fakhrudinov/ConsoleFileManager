@@ -8,8 +8,8 @@ namespace ConsoleFileManager
     public class FilePanel
     {
         public string StartDirectory { get; set; }
-        public string CurrentItem { get; set; }
-        public int PanelWidth { get; set; }
+        //public string CurrentItem { get; set; }
+        //public int PanelWidth { get; set; }
         public int FromX { get; set; }
         public int UntilX { get; set; }
         public int PanelHeight { get; set; }
@@ -24,9 +24,11 @@ namespace ConsoleFileManager
         public void ShowDirectoryContent(string startDirectory)
         {
             Console.SetCursorPosition(FromX, 1);
-            Console.WriteLine("Current Dir: " + startDirectory); // + " PW: " + PanelWidth + " PH: " + PanelHeight + " From/to x " + FromX + "/" + UntilX);
-            Console.SetCursorPosition(FromX, 2);
-            //Console.WriteLine("123456789012345678901234567890123456789012345678901234567890123456789012345");
+            string currDir = "Current Dir: ";
+            if ((currDir + startDirectory).Length > UntilX - FromX)
+                currDir = "";
+
+            Console.Write(currDir + startDirectory);
 
             int dirsCount = 0;
             int filesCount = 0;
@@ -36,16 +38,19 @@ namespace ConsoleFileManager
 
             if (Directory.Exists(startDirectory))
             {
-                //Console.SetCursorPosition(FromX, 2);
                 foreach (DriveInfo drive in drives)
                 {
                     if (drive.Name.ToLower().Contains(startDirectory.ToLower().Substring(0, startDirectory.IndexOf('\\'))))
                     {
-                        Console.WriteLine($"Current Disk: {drive.Name} Total:{GetFileSize(drive.TotalSize)} Free:{ GetFileSize(drive.TotalFreeSpace)}");
+                        Console.SetCursorPosition(FromX, 2);
+                        string currDisk = $"Current Disk: ";
+                        if((currDisk + $"{drive.Name} Total:{GetFileSize(drive.TotalSize)} Free:{ GetFileSize(drive.TotalFreeSpace)}").Length > UntilX - FromX)
+                            currDisk = "";
+                        Console.Write(currDisk + $"{drive.Name} Total:{GetFileSize(drive.TotalSize)} Free:{ GetFileSize(drive.TotalFreeSpace)}");
                     }
                 }
 
-                Console.CursorTop = 3;
+                Console.SetCursorPosition(FromX, 4);
 
                 string[] dirs = Directory.GetDirectories(startDirectory);
                 dirsCount = dirs.Length;
@@ -69,13 +74,17 @@ namespace ConsoleFileManager
             }
             else
             {
-                Console.WriteLine("Path not found: " + startDirectory);
+                Console.SetCursorPosition(FromX, 2);
+                Console.Write("Path not found: " + startDirectory);
             }
 
             
-            Console.SetCursorPosition(FromX, PanelHeight - 4);
-            Console.WriteLine($"DIRs/Files {dirsCount}/{filesCount}, Total files size = {GetFileSize(filesTotalSize)}");
-            
+            Console.SetCursorPosition(FromX, PanelHeight - 7);
+            Console.Write(Console.BufferWidth + "/" + Console.WindowWidth + "//" + Console.BufferHeight + "/" + Console.WindowHeight);//$"Pagination: Shown (X dirs / Y files) from {dirsCount}/{filesCount},");
+            //Console.SetCursorPosition(FromX, PanelHeight - 5);
+            //Console.WriteLine($"DIRs/Files {dirsCount}/{filesCount}, Total files size = {GetFileSize(filesTotalSize)}");
+            //Console.WriteLine($"DIRs/Files {dirsCount}/{filesCount}, Total files size = {GetFileSize(filesTotalSize)}");
+
 
         }
 
@@ -107,7 +116,7 @@ namespace ConsoleFileManager
             }
 
             Console.CursorLeft = FromX;
-            Console.WriteLine(name + creationTime.ToString(" yy/MM/dd HH:mm:ss ") + attr.PadLeft(8)); // dt.lenght = 19 
+            Console.Write(name + creationTime.ToString(" yy/MM/dd HH:mm:ss ") + attr.PadLeft(8)); // dt.lenght = 19 
 
             return name;
         }
