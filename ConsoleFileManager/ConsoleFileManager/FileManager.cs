@@ -39,45 +39,52 @@ namespace ConsoleFileManager
             StartDirectoryRight = xml.XMLStartDirectoryRight;
 
             Console.SetWindowSize(ConsoleWidth, ConsoleHeight);
-            Console.SetBufferSize(ConsoleWidth, ConsoleHeight);
+            //Console.SetBufferSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
 
+            Borders border = new Borders();
             FilePanel filePanelLeft = new FilePanel(StartDirectoryLeft, 1, ConsoleWidth / 2 - 1);
+            FilePanel filePanelRight = new FilePanel(StartDirectoryRight, ConsoleWidth / 2, ConsoleWidth - 1);
+
+            PrintFileManager(filePanelLeft, filePanelRight, border);
+
+
+            GetUserCommands(filePanelLeft, filePanelRight, border);// Don't add any command after call this method - because endless while!
+        }
+
+        private void PrintFileManager(FilePanel filePanelLeft, FilePanel filePanelRight, Borders border)
+        {
+            border.BorderWidth = ConsoleWidth;
+            border.BorderHeight = ConsoleHeight;
+            border.PrintBorders();
+
             filePanelLeft.PanelHeight = ConsoleHeight;
+            filePanelLeft.UntilX = ConsoleWidth / 2 - 1;
             filePanelLeft.ShowDirectoryContent(StartDirectoryLeft);
 
-            FilePanel filePanelRight = new FilePanel(StartDirectoryRight, ConsoleWidth / 2, ConsoleWidth - 1);
             filePanelRight.PanelHeight = ConsoleHeight;
+            filePanelRight.FromX = ConsoleWidth / 2;
+            filePanelRight.UntilX = ConsoleWidth - 1;
             filePanelRight.ShowDirectoryContent(StartDirectoryRight);
 
             PrintSingleKeyCommands(); // like F1 F2 etc.
 
             PrintUserCommand();
-
-            GetUserCommands(filePanelLeft, filePanelRight);// Don't add any command after call this method - because endless while!
         }
 
-        public void GetUserCommands(FilePanel filePanelLeft, FilePanel filePanelRight)
+        public void GetUserCommands(FilePanel filePanelLeft, FilePanel filePanelRight, Borders border)
         {
             bool exit = false;
             while (!exit)
             {
                 if (Console.WindowWidth != ConsoleWidth || Console.WindowHeight != ConsoleHeight)
                 {
+                    Console.Clear();
+                    //Console.SetBufferSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
+
                     ConsoleWidth = Console.WindowWidth;
                     ConsoleHeight = Console.WindowHeight;
-                    Console.Clear();
 
-                    filePanelLeft.PanelHeight = ConsoleHeight;
-                    filePanelLeft.UntilX = ConsoleWidth / 2 - 1;
-                    filePanelLeft.ShowDirectoryContent(StartDirectoryLeft);
-
-                    filePanelRight.PanelHeight = ConsoleHeight;
-                    filePanelRight.FromX = ConsoleWidth / 2;
-                    filePanelRight.UntilX = ConsoleWidth - 1;
-                    filePanelRight.ShowDirectoryContent(StartDirectoryRight);
-                    
-                    PrintSingleKeyCommands();
-                    PrintUserCommand();
+                    PrintFileManager(filePanelLeft, filePanelRight, border);
                 }
 
                 if (Console.KeyAvailable)
@@ -89,17 +96,13 @@ namespace ConsoleFileManager
                         switch (userKey.Key)
                         {
                             case ConsoleKey.Tab:
-                                Console.WriteLine("tab? " + userKey.Key);
+                                Console.Write("tab? " + userKey.Key);
                                 break;
                             case ConsoleKey.Enter:
-                                Console.WriteLine("Execute command " + NewCommandText);
+                                Console.Write("Execute command " + NewCommandText);
                                 NewCommandText = "";
-
                                 Console.Clear();
-                                filePanelLeft.ShowDirectoryContent(StartDirectoryLeft);
-                                filePanelRight.ShowDirectoryContent(StartDirectoryRight);
-
-                                PrintUserCommand();
+                                PrintFileManager(filePanelLeft, filePanelRight, border);
                                 break;
                             default:
                                 break;
@@ -125,7 +128,7 @@ namespace ConsoleFileManager
 
         private void PrintSingleKeyCommands()
         {
-            Console.SetCursorPosition(1, ConsoleHeight - 3);
+            Console.SetCursorPosition(1, ConsoleHeight - 6);
 
             int padding = ConsoleWidth  / 9; // delimeter = to 1 more than actual command amount. Just for good look
 
@@ -137,13 +140,22 @@ namespace ConsoleFileManager
             Console.Write("[F7 MkDir]".PadRight(padding));
             Console.Write("[F8 Del]");
 
-            Console.SetCursorPosition(ConsoleWidth - 14, ConsoleHeight - 3);
+            try
+            {
+                Console.SetCursorPosition(ConsoleWidth - 14, ConsoleHeight - 6);
+            }
+            catch (System.ArgumentOutOfRangeException)
+            {
+                Console.SetCursorPosition(0, 0);
+            }            
             Console.Write("[Alt F4 Exit]"); // lenght = 13
         }
 
         private void PrintUserCommand()
         {
-            Console.SetCursorPosition(1, ConsoleHeight - 2);
+            Console.SetCursorPosition(1, ConsoleHeight - 4);
+            Console.Write("Info: " + NewCommandText);
+            Console.SetCursorPosition(1, ConsoleHeight - 3);
             Console.Write("Command: " + NewCommandText);
         }
     }
