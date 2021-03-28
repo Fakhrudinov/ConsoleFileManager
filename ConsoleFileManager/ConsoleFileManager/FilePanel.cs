@@ -9,12 +9,10 @@ namespace ConsoleFileManager
     {
         public string StartDirectory { get; set; }
         public bool IsActive { get; set; }
-
-        //public int PanelWidth { get; set; }
         public int CurrentItem { get; set; }
+        string CurrentItemName { get; set; }
         public int TotalItems { get; set; }
         int ItemsOnPage { get; set; }
-
         public int FromX { get; set; }
         public int UntilX { get; set; }
         public int PanelHeight { get; set; }
@@ -138,9 +136,11 @@ namespace ConsoleFileManager
                     else 
                     {
                         DirectoryInfo dirInfo = new DirectoryInfo(allItems[itemsToShow[i]]);
-                        
 
-                        string attr = dirInfo.Attributes.ToString();
+                        if (arrCurrent == i && IsActive)
+                            CurrentItemName = dirInfo.Name;
+
+                            string attr = dirInfo.Attributes.ToString();
                         if (!dirInfo.Attributes.ToString().Contains("Directory")) //  files
                         {
                             FileInfo fileInf = new FileInfo(allItems[itemsToShow[i]]);
@@ -190,6 +190,63 @@ namespace ConsoleFileManager
 
             Console.ResetColor();
         }
+
+        internal void CopyItemTo(string sourceDir, string targetDirectory)
+        {
+            string sourceItem = Path.Combine(sourceDir, CurrentItemName);
+            string targetItem = Path.Combine(targetDirectory, CurrentItemName);
+
+            if (CurrentItem != 0) // not a parent Dir
+            {
+                DirectoryInfo dirInfo = new DirectoryInfo(sourceItem);
+                if (!dirInfo.Attributes.ToString().Contains("Directory")) // file copy
+                {                    
+                    try
+                    {
+                        Directory.CreateDirectory(targetDirectory);
+                        File.Copy(sourceItem, targetItem, true);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Show Alert ?
+                    }
+                }
+                else // dir copy
+                {
+                    if (!dirInfo.Exists)
+                    {
+                        throw new DirectoryNotFoundException(
+                            "Source directory does not exist or could not be found: "
+                            + sourceItem);
+                    }
+
+                    DirectoryInfo[] dirs = dirInfo.GetDirectories();
+
+                    // If the destination directory doesn't exist, create it.       
+                    Directory.CreateDirectory(targetItem);
+
+                    // Get the files in the directory and copy them to the new location.
+                    FileInfo[] files = dirInfo.GetFiles();
+                    foreach (FileInfo file in files)
+                    {
+                        string tempPath = Path.Combine(targetItem, file.Name);
+                        file.CopyTo(tempPath, false);
+                    }
+
+                    // copying subdirectories, copy them and their contents to new location.
+                    foreach (DirectoryInfo subdir in dirs)
+                    {
+                        string tempPath = Path.Combine(targetItem, subdir.Name);
+                        CopyItemTo(subdir.FullName, tempPath);
+                    }                  
+                }
+            }
+            else
+            {
+                // Show Alert ?
+            }
+        }
+
         /// <summary>
         /// Action when pressed UpArrow DownArrow PageDown PageUp Home End
         /// </summary>
@@ -274,78 +331,3 @@ namespace ConsoleFileManager
         }
     }
 }
-
-//if (CurrentItem < itemsOnPage)
-//{
-//    Console.SetCursorPosition(FromX, PanelHeight - (linesAmount + 7));
-//    if (CurrentItem == 0)
-//        Console.BackgroundColor = ConsoleColor.DarkGray;
-
-//    Console.WriteLine("..");// root dir 
-
-//    Console.BackgroundColor = ConsoleColor.Black;
-//    linesAmount--;
-//}
-
-//if (linesAmount >= dirsCount)
-//{
-//    // show all dirs
-//    foreach (string s in dirs)
-//    {
-//        if (CurrentItem == currentPage * itemsOnPage - linesAmount)
-//            Console.BackgroundColor = ConsoleColor.DarkGray;
-
-//        DirectoryInfo dirInfo = new DirectoryInfo(s);
-//        PrintStringToConsole(dirInfo.Name, dirInfo.Attributes.ToString(), dirInfo.CreationTime, 0, linesAmount);
-//        linesAmount--;
-
-//        Console.BackgroundColor = ConsoleColor.Black;
-//    }
-//}
-//else
-//{
-//    for (int dir = 0; dir < linesAmount; dir++)
-//    {
-//        if (CurrentItem == currentPage * itemsOnPage - linesAmount)
-//            Console.BackgroundColor = ConsoleColor.DarkGray;
-
-//        DirectoryInfo dirInfo = new DirectoryInfo(dirs[dir]);
-//        PrintStringToConsole(dirInfo.Name, dirInfo.Attributes.ToString(), dirInfo.CreationTime, 0, linesAmount);
-
-//        Console.BackgroundColor = ConsoleColor.Black;
-//    }
-//}
-
-//if (linesAmount > 0)
-//{
-//    if (linesAmount >= filesCount)
-//    {
-//        //show all files
-//        foreach (string s in files)
-//        {
-//            if (CurrentItem == currentPage * itemsOnPage - linesAmount)
-//                Console.BackgroundColor = ConsoleColor.DarkGray;
-
-//            FileInfo fileInf = new FileInfo(s);
-//            PrintStringToConsole(fileInf.Name, null, fileInf.CreationTime, fileInf.Length, linesAmount);
-//            filesTotalSize = filesTotalSize + fileInf.Length;
-
-//            linesAmount--;
-//            Console.BackgroundColor = ConsoleColor.Black;
-//        }
-//    }
-//    else
-//    {
-//        for (int file = 0; file < linesAmount; file++)
-//        {
-//            if (CurrentItem == currentPage * itemsOnPage - linesAmount)
-//                Console.BackgroundColor = ConsoleColor.DarkGray;
-
-//            FileInfo fileInf = new FileInfo(files[file]);
-//            PrintStringToConsole(fileInf.Name, null, fileInf.CreationTime, fileInf.Length, linesAmount - file);
-//            filesTotalSize = filesTotalSize + fileInf.Length;
-
-//            Console.BackgroundColor = ConsoleColor.Black;
-//        }
-//    }
-//}
