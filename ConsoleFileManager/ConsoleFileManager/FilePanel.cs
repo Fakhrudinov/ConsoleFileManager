@@ -8,9 +8,12 @@ namespace ConsoleFileManager
     public class FilePanel
     {
         public string StartDirectory { get; set; }
-        //public string CurrentItem { get; set; }
+        public bool IsActive { get; set; }
+
         //public int PanelWidth { get; set; }
-        public int PaginationStart { get; set; }
+        public int CurrentItem { get; set; }
+        public int TotalItems { get; set; }
+
         public int FromX { get; set; }
         public int UntilX { get; set; }
         public int PanelHeight { get; set; }
@@ -22,30 +25,34 @@ namespace ConsoleFileManager
             UntilX = untilX;
         }
 
-        public void ShowDirectoryContent(string startDirectory)
+        public void ShowDirectoryContent()
         {
+            if (!IsActive)
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+
             Console.SetCursorPosition(FromX, 1);
             string currDir = "Current Dir: ";
-            if ((currDir + startDirectory).Length > UntilX - FromX)
+            if ((currDir + StartDirectory).Length > UntilX - FromX)
                 currDir = "";
 
-            Console.Write(currDir + startDirectory);
+            Console.Write(currDir + StartDirectory);
 
-            int totalItems = 1;  // 1 for root directory output: ..
+            TotalItems = 0;
+            List<string> allItems = new List<string>();
             int dirsCount = 0;
             int filesCount = 0;
-            long filesTotalSize = 0;
+            //long filesTotalSize = 0;
             int pagesCount = 0;
             int itemsOnPage = 0;
             int currentPage = 0;
 
             DriveInfo[] drives = DriveInfo.GetDrives();
 
-            if (Directory.Exists(startDirectory))
+            if (Directory.Exists(StartDirectory))
             {
                 foreach (DriveInfo drive in drives)
                 {
-                    if (drive.Name.ToLower().Contains(startDirectory.ToLower().Substring(0, startDirectory.IndexOf('\\'))))
+                    if (drive.Name.ToLower().Contains(StartDirectory.ToLower().Substring(0, StartDirectory.IndexOf('\\'))))
                     {
                         Console.SetCursorPosition(FromX, 2);
                         string currDisk = $"Current Disk: ";
@@ -55,130 +62,198 @@ namespace ConsoleFileManager
                     }
                 }
 
-                Console.SetCursorPosition(FromX, 4);
-
-                string[] dirs = Directory.GetDirectories(startDirectory);
+                // ++ все дир и файлы запихать в один лист
+                string[] dirs = Directory.GetDirectories(StartDirectory);
+                string[] files = Directory.GetFiles(StartDirectory);
                 dirsCount = dirs.Length;
-                totalItems = totalItems + dirs.Length;
-
-                string[] files = Directory.GetFiles(startDirectory);
                 filesCount = files.Length;
-                totalItems = totalItems + files.Length;
+                allItems.Add("..");
+                allItems.AddRange(dirs);
+                allItems.AddRange(files);
 
-                int linesAmount = PanelHeight - 11; //default -11
+                TotalItems = allItems.Count;
+                if (CurrentItem > TotalItems)
+                    CurrentItem = 0;
                 itemsOnPage = PanelHeight - 11;
-                pagesCount = totalItems / linesAmount;
 
-                if (totalItems % linesAmount > 0)
-                    pagesCount++;
-
-                currentPage = (PaginationStart / itemsOnPage) + 1;
-                //current page = current item/itemsOnPage
-
-
-
-
-
-
-
-                if (PaginationStart == 0)
+                //++ понять на какой странице CurrentItem
+                //вывести эту страницу
+                if (itemsOnPage > TotalItems)
                 {
-                    Console.SetCursorPosition(FromX, PanelHeight - (linesAmount + 7));
-                    Console.WriteLine("..");// root dir 
-                    linesAmount--;
-                }
-
-                if (linesAmount >= dirsCount)
-                {
-                    // show all dirs
-                    foreach (string s in dirs)
-                    {
-                        DirectoryInfo dirInfo = new DirectoryInfo(s);
-                        PrintStringToConsole(dirInfo.Name, dirInfo.Attributes.ToString(), dirInfo.CreationTime, 0, linesAmount);
-                        linesAmount--;
-                    }
+                    itemsOnPage = TotalItems;
+                    pagesCount = 1;
+                    currentPage = 1;
                 }
                 else
                 {
-                    for (int dir = 0; dir < linesAmount; dir++)
-                    {
-                        DirectoryInfo dirInfo = new DirectoryInfo(dirs[dir]);
-                        PrintStringToConsole(dirInfo.Name, dirInfo.Attributes.ToString(), dirInfo.CreationTime, 0, linesAmount);
-                    }
+                    pagesCount = TotalItems / itemsOnPage;
+
+                    if (TotalItems % itemsOnPage > 0)
+                        pagesCount++;
+
+                    currentPage = (CurrentItem / itemsOnPage) + 1;
                 }
 
-                if (linesAmount > 0)
+                //fill array which contain line numbers to show
+                int[] itemsToShow = new int[itemsOnPage];
+                // if page is last - shrink numberes of lines
+                if (currentPage > 1 && currentPage == pagesCount)
                 {
-                    if (linesAmount >= filesCount)
+                    itemsToShow = new int[TotalItems % itemsOnPage];
+                }
+                //fill 
+                for (int i = 0; i < itemsToShow.Length; i++)
+                {
+                    if (currentPage > 1)
                     {
-                        //show all files
-                        foreach (string s in files)
-                        {
-                            FileInfo fileInf = new FileInfo(s);
-                            PrintStringToConsole(fileInf.Name, null, fileInf.CreationTime, fileInf.Length, linesAmount);
-                            filesTotalSize = filesTotalSize + fileInf.Length;
-
-                            linesAmount--;
-                        }
+                        itemsToShow[i] = ((currentPage - 1) * itemsOnPage) + i; 
                     }
                     else
                     {
-                        for (int file = 0; file < linesAmount; file++)
-                        {
-                            FileInfo fileInf = new FileInfo(files[file]);
-                            PrintStringToConsole(fileInf.Name, null, fileInf.CreationTime, fileInf.Length, linesAmount - file);
-                            filesTotalSize = filesTotalSize + fileInf.Length;
-                        }
+                        itemsToShow[i] = i;
                     }
                 }
+
+                //understand where is CurrentItem in array itemsToShow
+                int arrCurrent = CurrentItem % itemsOnPage;
+
+                //print lines og current page
+                for (int i = 0; i < itemsToShow.Length; i++)
+                {
+                    if(arrCurrent == i)
+                    {
+                        Console.BackgroundColor = ConsoleColor.DarkGray;
+
+                        if (!IsActive)
+                            Console.ForegroundColor = ConsoleColor.Black;
+                    }                        
+                    
+                    if (allItems[itemsToShow[i]].Equals("..")) // print parent Directory
+                    {
+                        PrintStringToConsole("..", null, DateTime.MinValue, 0, i);
+                    }
+                    else 
+                    {
+                        DirectoryInfo dirInfo = new DirectoryInfo(allItems[itemsToShow[i]]);
+                        
+
+                        string attr = dirInfo.Attributes.ToString();
+                        if (!dirInfo.Attributes.ToString().Contains("Directory")) //  files
+                        {
+                            FileInfo fileInf = new FileInfo(allItems[itemsToShow[i]]);
+
+                            PrintStringToConsole(dirInfo.Name, null, dirInfo.CreationTime, fileInf.Length, i);
+                        }
+                        else // dirs
+                        {
+                            PrintStringToConsole(dirInfo.Name, dirInfo.Attributes.ToString(), dirInfo.CreationTime, 0, i);
+                        }
+                    }
+
+                    Console.BackgroundColor = ConsoleColor.Black;
+                    if (!IsActive)
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkGray;
+                    }
+                    else
+                    {
+                        Console.ResetColor();
+                    }
+                        
+                }
+
+                //fill all empty lines with spaces - delete previous data
+
+                if (currentPage > 1 && currentPage == pagesCount)
+                {
+                    for (int i = itemsToShow.Length; i < itemsOnPage; i++)
+                    {
+                        Console.SetCursorPosition(FromX, 4 + i);
+
+                        Console.WriteLine(" ".PadRight(UntilX - FromX));
+                    }
+                }
+
+
+                //
+                //CurrentItem в пределах очереди
+                //CurrentItem выходит вниз 
+                //  очередь убавить сверху, прибавить снизу - нижний CurrentItem
+
+                    //CurrentItem выходит ввверх 
+                    //  очередь убавить снизу, прибавить сверху - верхний CurrentItem
+
+                    //itemsOnPage увеличился - добавить к очереди снизу. если нет снизу - добавить сверху.
+
+                    //itemsOnPage уменьшился -
+                    //  убавлять снизу пока не достигнем CurrentItem.
+                    //  достигнут CurrentItem - убавлять сверху
+
             }
             else
             {
                 Console.SetCursorPosition(FromX, 2);
-                Console.Write("Path not found: " + startDirectory);
+                Console.Write("Path not found: " + StartDirectory);
             }
             
             Console.SetCursorPosition(FromX, PanelHeight - 7);
-            Console.WriteLine($"ttl itm{totalItems} itmOnPg{itemsOnPage} Page {currentPage}/{pagesCount}  {dirsCount}/{filesCount}");
+            Console.WriteLine($"ttl itm{TotalItems} itmOnPg{itemsOnPage} Page {currentPage}/{pagesCount} Curr{CurrentItem} dir{dirsCount}/files{filesCount}");
             //Console.Write(Console.BufferWidth + "/" + Console.WindowWidth + "//" + Console.BufferHeight + "/" + Console.WindowHeight);
             //Console.Write($"Pagination: Shown ({totalItems} / {pagesCount}) from {dirsCount}/{filesCount} amnt:{PanelHeight - 18}");
-            //Console.SetCursorPosition(FromX, PanelHeight - 5);
-            //Console.WriteLine($"DIRs/Files {dirsCount}/{filesCount}, Total files size = {GetFileSize(filesTotalSize)}");
-            //Console.WriteLine($"DIRs/Files {dirsCount}/{filesCount}, Total files size = {GetFileSize(filesTotalSize)}");
 
+            Console.ResetColor();
         }
 
-        private string PrintStringToConsole(string name, string attributes, DateTime creationTime, long fileSize, int linesAmount)
+        internal void ChangeCurrentItem(int sizeOfChange)
+        {
+            CurrentItem += sizeOfChange;
+
+            if (CurrentItem < 0)
+                CurrentItem = 0;
+
+            if (CurrentItem > TotalItems - 1)
+                CurrentItem = TotalItems - 1;
+
+            ShowDirectoryContent();
+        }
+
+        private void PrintStringToConsole(string name, string attributes, DateTime creationTime, long fileSize, int lineNum)
         {
             string attr = "<DIR>";
 
-            if (name.Length <= UntilX - (27 + FromX) && attributes == null) // files 
-            {
-                name = name.PadRight(UntilX - (27 + FromX));
-                attr = GetFileSize(fileSize);
-            }
-            else if (name.Length <= UntilX - (27 + FromX))
-            {
-                name = name.PadRight(UntilX - (27 + FromX));
-            }
-            else if (name.Length > UntilX - (27 + FromX) && attributes == null ) // files name shortening - extension always visible
-            {
-                string extension = name.Substring(name.LastIndexOf('.'));
-                name = name.Substring(0, UntilX - ((29 + FromX) + extension.Length));
-                name = name + ".." + extension;
+            Console.SetCursorPosition(FromX, 4 + lineNum);
 
-                attr = GetFileSize(fileSize);
-            }
-            else // folders name shortening
+            if (name.Equals(".."))
             {
-                name = name.Substring(0, UntilX - (30 + FromX));
-                name = name + "...";
+                Console.WriteLine(".." + "<ParentDIR>".PadLeft(UntilX - (FromX + 2)));
             }
+            else
+            {
+                if (name.Length <= UntilX - (27 + FromX) && attributes == null) // files 
+                {
+                    name = name.PadRight(UntilX - (27 + FromX));
+                    attr = GetFileSize(fileSize);
+                }
+                else if (name.Length <= UntilX - (27 + FromX))
+                {
+                    name = name.PadRight(UntilX - (27 + FromX));
+                }
+                else if (name.Length > UntilX - (27 + FromX) && attributes == null) // files name shortening - extension always visible
+                {
+                    string extension = name.Substring(name.LastIndexOf('.'));
+                    name = name.Substring(0, UntilX - ((29 + FromX) + extension.Length));
+                    name = name + ".." + extension;
 
-            Console.SetCursorPosition(FromX, PanelHeight - (linesAmount + 7));
-            Console.Write(name + creationTime.ToString(" yy/MM/dd HH:mm:ss ") + attr.PadLeft(8)); // dt.lenght = 19 
+                    attr = GetFileSize(fileSize);
+                }
+                else // folders name shortening
+                {
+                    name = name.Substring(0, UntilX - (30 + FromX));
+                    name = name + "...";
+                }
 
-            return name;
+                Console.Write(name + creationTime.ToString(" yy/MM/dd HH:mm:ss ") + attr.PadLeft(8)); // dt.lenght = 19 
+            }
         }
 
         private string GetFileSize(long fileSize)
@@ -199,3 +274,78 @@ namespace ConsoleFileManager
         }
     }
 }
+
+//if (CurrentItem < itemsOnPage)
+//{
+//    Console.SetCursorPosition(FromX, PanelHeight - (linesAmount + 7));
+//    if (CurrentItem == 0)
+//        Console.BackgroundColor = ConsoleColor.DarkGray;
+
+//    Console.WriteLine("..");// root dir 
+
+//    Console.BackgroundColor = ConsoleColor.Black;
+//    linesAmount--;
+//}
+
+//if (linesAmount >= dirsCount)
+//{
+//    // show all dirs
+//    foreach (string s in dirs)
+//    {
+//        if (CurrentItem == currentPage * itemsOnPage - linesAmount)
+//            Console.BackgroundColor = ConsoleColor.DarkGray;
+
+//        DirectoryInfo dirInfo = new DirectoryInfo(s);
+//        PrintStringToConsole(dirInfo.Name, dirInfo.Attributes.ToString(), dirInfo.CreationTime, 0, linesAmount);
+//        linesAmount--;
+
+//        Console.BackgroundColor = ConsoleColor.Black;
+//    }
+//}
+//else
+//{
+//    for (int dir = 0; dir < linesAmount; dir++)
+//    {
+//        if (CurrentItem == currentPage * itemsOnPage - linesAmount)
+//            Console.BackgroundColor = ConsoleColor.DarkGray;
+
+//        DirectoryInfo dirInfo = new DirectoryInfo(dirs[dir]);
+//        PrintStringToConsole(dirInfo.Name, dirInfo.Attributes.ToString(), dirInfo.CreationTime, 0, linesAmount);
+
+//        Console.BackgroundColor = ConsoleColor.Black;
+//    }
+//}
+
+//if (linesAmount > 0)
+//{
+//    if (linesAmount >= filesCount)
+//    {
+//        //show all files
+//        foreach (string s in files)
+//        {
+//            if (CurrentItem == currentPage * itemsOnPage - linesAmount)
+//                Console.BackgroundColor = ConsoleColor.DarkGray;
+
+//            FileInfo fileInf = new FileInfo(s);
+//            PrintStringToConsole(fileInf.Name, null, fileInf.CreationTime, fileInf.Length, linesAmount);
+//            filesTotalSize = filesTotalSize + fileInf.Length;
+
+//            linesAmount--;
+//            Console.BackgroundColor = ConsoleColor.Black;
+//        }
+//    }
+//    else
+//    {
+//        for (int file = 0; file < linesAmount; file++)
+//        {
+//            if (CurrentItem == currentPage * itemsOnPage - linesAmount)
+//                Console.BackgroundColor = ConsoleColor.DarkGray;
+
+//            FileInfo fileInf = new FileInfo(files[file]);
+//            PrintStringToConsole(fileInf.Name, null, fileInf.CreationTime, fileInf.Length, linesAmount - file);
+//            filesTotalSize = filesTotalSize + fileInf.Length;
+
+//            Console.BackgroundColor = ConsoleColor.Black;
+//        }
+//    }
+//}

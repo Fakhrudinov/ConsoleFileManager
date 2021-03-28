@@ -11,7 +11,7 @@ namespace ConsoleFileManager
             * Alexander Fakhrudinov = Александр Фахрудинов
             * asbuka@gmail.com
             */
-
+            Console.Title = "Console File Manager, Alexander Fakhrudinov";
             FileManager fm = new FileManager();
 
             //FilePanel filePanelLeft = new FilePanel(fm.StartDirectoryLeft, 1, fm.ConsoleWidth / 2 - 1);

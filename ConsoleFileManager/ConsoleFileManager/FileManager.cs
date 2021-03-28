@@ -12,6 +12,8 @@ namespace ConsoleFileManager
 
         public string StartDirectoryRight { get; set; }
 
+        FilePanel Active { get; set; }
+
         string newCommandText;
         string NewCommandText 
         {
@@ -43,13 +45,15 @@ namespace ConsoleFileManager
 
             Borders border = new Borders();
             FilePanel filePanelLeft = new FilePanel(StartDirectoryLeft, 1, ConsoleWidth / 2 - 1);
-            filePanelLeft.PaginationStart = 0;
-            
-            FilePanel filePanelRight = new FilePanel(StartDirectoryRight, ConsoleWidth / 2, ConsoleWidth - 1);
-            filePanelRight.PaginationStart = 0;
-            
-            PrintFileManager(filePanelLeft, filePanelRight, border);
+            filePanelLeft.CurrentItem = 50;
+            filePanelLeft.IsActive = true;
+            Active = filePanelLeft;
 
+            FilePanel filePanelRight = new FilePanel(StartDirectoryRight, ConsoleWidth / 2, ConsoleWidth - 1);
+            filePanelRight.CurrentItem = 8;
+            filePanelRight.IsActive = false;
+
+            PrintFileManager(filePanelLeft, filePanelRight, border);
 
             GetUserCommands(filePanelLeft, filePanelRight, border);// Don't add any command after call this method - because endless while!
         }
@@ -62,12 +66,12 @@ namespace ConsoleFileManager
 
             filePanelLeft.PanelHeight = ConsoleHeight;
             filePanelLeft.UntilX = ConsoleWidth / 2 - 1;
-            filePanelLeft.ShowDirectoryContent(StartDirectoryLeft);
+            filePanelLeft.ShowDirectoryContent();
 
             filePanelRight.PanelHeight = ConsoleHeight;
             filePanelRight.FromX = ConsoleWidth / 2;
             filePanelRight.UntilX = ConsoleWidth - 1;
-            filePanelRight.ShowDirectoryContent(StartDirectoryRight);
+            filePanelRight.ShowDirectoryContent();
 
             PrintSingleKeyCommands(); // like F1 F2 etc.
 
@@ -99,7 +103,31 @@ namespace ConsoleFileManager
                         switch (userKey.Key)
                         {
                             case ConsoleKey.Tab:
-                                Console.Write("tab? " + userKey.Key);
+                                if (filePanelLeft.IsActive)
+                                {
+                                    filePanelLeft.IsActive = false;
+                                    filePanelRight.IsActive = true;
+                                    Active = filePanelRight;
+                                }
+                                else
+                                {
+                                    filePanelRight.IsActive = false;
+                                    filePanelLeft.IsActive = true;
+                                    Active = filePanelLeft;
+                                }
+                                filePanelLeft.ShowDirectoryContent();
+                                filePanelRight.ShowDirectoryContent();
+                                PrintUserCommand();
+                                break;
+                            case ConsoleKey.DownArrow:
+                                Active.ChangeCurrentItem(1);
+                                Active.ShowDirectoryContent();
+                                PrintUserCommand();
+                                break;
+                            case ConsoleKey.UpArrow:
+                                Active.ChangeCurrentItem(-1);
+                                Active.ShowDirectoryContent();
+                                PrintUserCommand();
                                 break;
                             case ConsoleKey.Enter:
                                 Console.Write("Execute command " + NewCommandText);
@@ -157,7 +185,7 @@ namespace ConsoleFileManager
         private void PrintUserCommand()
         {
             Console.SetCursorPosition(1, ConsoleHeight - 4);
-            Console.Write("Info: " + NewCommandText);
+            Console.Write("Info: " );
             Console.SetCursorPosition(1, ConsoleHeight - 3);
             Console.Write("Command: " + NewCommandText);
         }
