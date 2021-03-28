@@ -12,6 +12,8 @@ namespace ConsoleFileManager
 
         public string StartDirectoryRight { get; set; }
 
+        FilePanel Active { get; set; }
+
         string newCommandText;
         string NewCommandText 
         {
@@ -43,10 +45,15 @@ namespace ConsoleFileManager
 
             Borders border = new Borders();
             FilePanel filePanelLeft = new FilePanel(StartDirectoryLeft, 1, ConsoleWidth / 2 - 1);
+            filePanelLeft.CurrentItem = 50;
+            filePanelLeft.IsActive = true;
+            Active = filePanelLeft;
+
             FilePanel filePanelRight = new FilePanel(StartDirectoryRight, ConsoleWidth / 2, ConsoleWidth - 1);
+            filePanelRight.CurrentItem = 8;
+            filePanelRight.IsActive = false;
 
             PrintFileManager(filePanelLeft, filePanelRight, border);
-
 
             GetUserCommands(filePanelLeft, filePanelRight, border);// Don't add any command after call this method - because endless while!
         }
@@ -59,12 +66,12 @@ namespace ConsoleFileManager
 
             filePanelLeft.PanelHeight = ConsoleHeight;
             filePanelLeft.UntilX = ConsoleWidth / 2 - 1;
-            filePanelLeft.ShowDirectoryContent(StartDirectoryLeft);
+            filePanelLeft.ShowDirectoryContent();
 
             filePanelRight.PanelHeight = ConsoleHeight;
             filePanelRight.FromX = ConsoleWidth / 2;
             filePanelRight.UntilX = ConsoleWidth - 1;
-            filePanelRight.ShowDirectoryContent(StartDirectoryRight);
+            filePanelRight.ShowDirectoryContent();
 
             PrintSingleKeyCommands(); // like F1 F2 etc.
 
@@ -96,7 +103,45 @@ namespace ConsoleFileManager
                         switch (userKey.Key)
                         {
                             case ConsoleKey.Tab:
-                                Console.Write("tab? " + userKey.Key);
+                                if (filePanelLeft.IsActive)
+                                {
+                                    filePanelLeft.IsActive = false;
+                                    filePanelRight.IsActive = true;
+                                    Active = filePanelRight;
+                                }
+                                else
+                                {
+                                    filePanelRight.IsActive = false;
+                                    filePanelLeft.IsActive = true;
+                                    Active = filePanelLeft;
+                                }
+                                filePanelLeft.ShowDirectoryContent();
+                                filePanelRight.ShowDirectoryContent();
+                                
+                                break;
+                            case ConsoleKey.DownArrow:
+                                Active.ChangeCurrentItem(1);
+                                
+                                break;
+                            case ConsoleKey.UpArrow:
+                                Active.ChangeCurrentItem(-1);
+                                
+                                break;
+                            case ConsoleKey.PageDown:
+                                Active.ChangeCurrentItem(100);
+                                
+                                break;
+                            case ConsoleKey.PageUp:
+                                Active.ChangeCurrentItem(-100);
+                                
+                                break;
+                            case ConsoleKey.Home:
+                                Active.ChangeCurrentItem(-1000);
+                                
+                                break;
+                            case ConsoleKey.End:
+                                Active.ChangeCurrentItem(1000);
+                                
                                 break;
                             case ConsoleKey.Enter:
                                 Console.Write("Execute command " + NewCommandText);
@@ -107,6 +152,8 @@ namespace ConsoleFileManager
                             default:
                                 break;
                         }
+                        // return pointer at command line
+                        PrintUserCommand();
                     }
                     else
                     {
@@ -154,7 +201,7 @@ namespace ConsoleFileManager
         private void PrintUserCommand()
         {
             Console.SetCursorPosition(1, ConsoleHeight - 4);
-            Console.Write("Info: " + NewCommandText);
+            Console.Write("Info: " );
             Console.SetCursorPosition(1, ConsoleHeight - 3);
             Console.Write("Command: " + NewCommandText);
         }

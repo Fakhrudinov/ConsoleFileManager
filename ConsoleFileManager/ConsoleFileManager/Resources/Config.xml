@@ -1,8 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Settings>
-  <StartDirLeft>c:\test\</StartDirLeft>
-  <StartDirRight>c:\Users\alex\Downloads\</StartDirRight>
-  <!--<ShowHiddenFiles>1</ShowHiddenFiles>-->
+  <StartDirLeft>e:\Documents\Books\ready\</StartDirLeft>
+  <StartDirRight>c:\temp\</StartDirRight>
+  <!--<ShowHiddenFiles>1</ShowHiddenFiles>
+  filePanelLeft.PaginationStart
+  -->
   <Width>130</Width>
-  <Height>35</Height>
+  <Height>30</Height>
 </Settings>
