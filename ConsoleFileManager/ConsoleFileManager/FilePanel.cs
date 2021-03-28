@@ -34,7 +34,8 @@ namespace ConsoleFileManager
             if ((currDir + StartDirectory).Length > UntilX - FromX)
                 currDir = "";
 
-            Console.Write(currDir + StartDirectory);
+            currDir = currDir + StartDirectory;
+            Console.Write((currDir).PadRight(UntilX - (FromX + currDir.Length)));
 
             TotalItems = 0;
             List<string> allItems = new List<string>();
@@ -166,9 +167,9 @@ namespace ConsoleFileManager
 
                 //fill all empty lines with spaces - delete previous data
 
-                if (currentPage > 1 && currentPage == pagesCount)
+                if (currentPage == 1 || (currentPage > 1 && currentPage == pagesCount))
                 {
-                    for (int i = itemsToShow.Length; i < itemsOnPage; i++)
+                    for (int i = itemsToShow.Length; i < PanelHeight - 11; i++)
                     {
                         Console.SetCursorPosition(FromX, 4 + i);
 
@@ -186,9 +187,37 @@ namespace ConsoleFileManager
             //Console.Write(Console.BufferWidth + "/" + Console.WindowWidth + "//" + Console.BufferHeight + "/" + Console.WindowHeight);
             string paginationSummary = $"Page {currentPage} from {pagesCount}. Total Dirs: {dirsCount}, Files: {filesCount}";
             Console.SetCursorPosition(((UntilX - FromX - paginationSummary.Length) / 2) + FromX, PanelHeight - 7);
-            Console.Write(paginationSummary);
+            Console.Write(paginationSummary.PadRight((UntilX - FromX - paginationSummary.Length) / 2), '═');
 
             Console.ResetColor();
+        }
+
+        internal async void ExecuteCurrent()
+        {
+            if (CurrentItem != 0) // not a parent Dir
+            {
+                string itemToExe = Path.Combine(StartDirectory, CurrentItemName);
+                DirectoryInfo dirInfo = new DirectoryInfo(itemToExe);
+                if (!dirInfo.Attributes.ToString().Contains("Directory")) // file 
+                {
+                    System.Diagnostics.Process.Start(itemToExe);
+
+                }
+                else // dir
+                {
+                    StartDirectory = itemToExe;
+                }
+            }
+            else // go to parent dir
+            {
+                DirectoryInfo dirInfo = new DirectoryInfo(StartDirectory);
+                if(dirInfo.Parent != null)
+                    StartDirectory = dirInfo.Parent.FullName.ToString();
+                CurrentItem = 0;
+
+                // CurrentItemName &&&&
+            }
+            ShowDirectoryContent();
         }
 
         internal void CopyItemTo(string sourceDir, string targetDirectory)
@@ -220,12 +249,18 @@ namespace ConsoleFileManager
                             + sourceItem);
                     }
 
-                    DirectoryInfo[] dirs = dirInfo.GetDirectories();
-
-                    // If the destination directory doesn't exist, create it.       
-                    Directory.CreateDirectory(targetItem);
+                    // If the destination directory doesn't exist, create it.
+                    try
+                    {
+                        Directory.CreateDirectory(targetItem);
+                    }
+                    catch (Exception)
+                    {
+                        // Show Alert ?
+                    }
 
                     // Get the files in the directory and copy them to the new location.
+                    DirectoryInfo[] dirs = dirInfo.GetDirectories();
                     FileInfo[] files = dirInfo.GetFiles();
                     foreach (FileInfo file in files)
                     {

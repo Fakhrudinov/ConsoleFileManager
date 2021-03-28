@@ -7,6 +7,10 @@
     <Company>asbuka@gmail.com</Company>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Update="DataXML.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

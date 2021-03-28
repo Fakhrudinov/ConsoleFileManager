@@ -40,6 +40,7 @@ namespace ConsoleFileManager
             ConsoleHeight = xml.XMLConsoleHeight;
             StartDirectoryLeft = xml.XMLStartDirectoryLeft;
             StartDirectoryRight = xml.XMLStartDirectoryRight;
+            NewCommandText = "";
 
             Console.SetWindowSize(ConsoleWidth, ConsoleHeight);
             //Console.SetBufferSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
@@ -136,10 +137,17 @@ namespace ConsoleFileManager
                                 Passive.ShowDirectoryContent();
                                 break;
                             case ConsoleKey.Enter:
-                                Console.Write("Execute command " + NewCommandText);
-                                NewCommandText = "";
-                                Console.Clear();
-                                PrintFileManager(filePanelLeft, filePanelRight, border);
+                                if (NewCommandText.Length > 0)
+                                {
+                                    Console.Write("Execute command " + NewCommandText);
+                                    NewCommandText = "";
+                                }
+                                else
+                                {
+                                    Active.ExecuteCurrent();
+                                }
+                                //Console.Clear();
+                                //PrintFileManager(filePanelLeft, filePanelRight, border);
                                 break;
                             default:
                                 break;
