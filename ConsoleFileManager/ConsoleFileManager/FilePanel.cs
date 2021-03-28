@@ -13,6 +13,7 @@ namespace ConsoleFileManager
         //public int PanelWidth { get; set; }
         public int CurrentItem { get; set; }
         public int TotalItems { get; set; }
+        int ItemsOnPage { get; set; }
 
         public int FromX { get; set; }
         public int UntilX { get; set; }
@@ -74,7 +75,9 @@ namespace ConsoleFileManager
                 TotalItems = allItems.Count;
                 if (CurrentItem > TotalItems)
                     CurrentItem = 0;
+                
                 itemsOnPage = PanelHeight - 11;
+                ItemsOnPage = itemsOnPage;
 
                 //++ понять на какой странице CurrentItem
                 //вывести эту страницу
@@ -158,8 +161,7 @@ namespace ConsoleFileManager
                     else
                     {
                         Console.ResetColor();
-                    }
-                        
+                    }                        
                 }
 
                 //fill all empty lines with spaces - delete previous data
@@ -173,40 +175,38 @@ namespace ConsoleFileManager
                         Console.WriteLine(" ".PadRight(UntilX - FromX));
                     }
                 }
-
-
-                //
-                //CurrentItem в пределах очереди
-                //CurrentItem выходит вниз 
-                //  очередь убавить сверху, прибавить снизу - нижний CurrentItem
-
-                    //CurrentItem выходит ввверх 
-                    //  очередь убавить снизу, прибавить сверху - верхний CurrentItem
-
-                    //itemsOnPage увеличился - добавить к очереди снизу. если нет снизу - добавить сверху.
-
-                    //itemsOnPage уменьшился -
-                    //  убавлять снизу пока не достигнем CurrentItem.
-                    //  достигнут CurrentItem - убавлять сверху
-
             }
             else
             {
                 Console.SetCursorPosition(FromX, 2);
                 Console.Write("Path not found: " + StartDirectory);
             }
-            
-            Console.SetCursorPosition(FromX, PanelHeight - 7);
-            Console.WriteLine($"ttl itm{TotalItems} itmOnPg{itemsOnPage} Page {currentPage}/{pagesCount} Curr{CurrentItem} dir{dirsCount}/files{filesCount}");
+
+            //Console.WriteLine($"ttl itm{TotalItems} itmOnPg{itemsOnPage} Page {currentPage}/{pagesCount} Curr{CurrentItem} dir{dirsCount}/files{filesCount}");
             //Console.Write(Console.BufferWidth + "/" + Console.WindowWidth + "//" + Console.BufferHeight + "/" + Console.WindowHeight);
-            //Console.Write($"Pagination: Shown ({totalItems} / {pagesCount}) from {dirsCount}/{filesCount} amnt:{PanelHeight - 18}");
+            string paginationSummary = $"Page {currentPage} from {pagesCount}. Total Dirs: {dirsCount}, Files: {filesCount}";
+            Console.SetCursorPosition(((UntilX - FromX - paginationSummary.Length) / 2) + FromX, PanelHeight - 7);
+            Console.Write(paginationSummary);
 
             Console.ResetColor();
         }
-
+        /// <summary>
+        /// Action when pressed UpArrow DownArrow PageDown PageUp Home End
+        /// </summary>
+        /// <param name="sizeOfChange"></param>
         internal void ChangeCurrentItem(int sizeOfChange)
         {
+            if      (sizeOfChange == 100)   
+                sizeOfChange = ItemsOnPage;
+            else if (sizeOfChange == -100)  
+                sizeOfChange = ItemsOnPage * -1;
+
             CurrentItem += sizeOfChange;
+
+            if (sizeOfChange == 1000)
+                CurrentItem = TotalItems - 1;
+            else if (sizeOfChange == -1000)
+                CurrentItem = 0;
 
             if (CurrentItem < 0)
                 CurrentItem = 0;

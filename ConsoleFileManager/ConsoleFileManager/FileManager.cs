@@ -117,17 +117,31 @@ namespace ConsoleFileManager
                                 }
                                 filePanelLeft.ShowDirectoryContent();
                                 filePanelRight.ShowDirectoryContent();
-                                PrintUserCommand();
+                                
                                 break;
                             case ConsoleKey.DownArrow:
                                 Active.ChangeCurrentItem(1);
-                                Active.ShowDirectoryContent();
-                                PrintUserCommand();
+                                
                                 break;
                             case ConsoleKey.UpArrow:
                                 Active.ChangeCurrentItem(-1);
-                                Active.ShowDirectoryContent();
-                                PrintUserCommand();
+                                
+                                break;
+                            case ConsoleKey.PageDown:
+                                Active.ChangeCurrentItem(100);
+                                
+                                break;
+                            case ConsoleKey.PageUp:
+                                Active.ChangeCurrentItem(-100);
+                                
+                                break;
+                            case ConsoleKey.Home:
+                                Active.ChangeCurrentItem(-1000);
+                                
+                                break;
+                            case ConsoleKey.End:
+                                Active.ChangeCurrentItem(1000);
+                                
                                 break;
                             case ConsoleKey.Enter:
                                 Console.Write("Execute command " + NewCommandText);
@@ -138,6 +152,8 @@ namespace ConsoleFileManager
                             default:
                                 break;
                         }
+                        // return pointer at command line
+                        PrintUserCommand();
                     }
                     else
                     {
