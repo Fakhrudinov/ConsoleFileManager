@@ -192,7 +192,7 @@ namespace ConsoleFileManager
             Console.ResetColor();
         }
 
-        internal async void ExecuteCurrent()
+        internal void ExecuteCurrent()
         {
             if (CurrentItem != 0) // not a parent Dir
             {
@@ -200,19 +200,26 @@ namespace ConsoleFileManager
                 DirectoryInfo dirInfo = new DirectoryInfo(itemToExe);
                 if (!dirInfo.Attributes.ToString().Contains("Directory")) // file 
                 {
-                    System.Diagnostics.Process.Start(itemToExe);
 
+                    System.Diagnostics.Process process = new System.Diagnostics.Process();
+                    process.StartInfo.FileName = itemToExe;
+                    process.StartInfo.UseShellExecute = true;
+                    process.Start();
                 }
                 else // dir
                 {
                     StartDirectory = itemToExe;
+                    CurrentItem = 0;
                 }
             }
             else // go to parent dir
             {
                 DirectoryInfo dirInfo = new DirectoryInfo(StartDirectory);
                 if(dirInfo.Parent != null)
+                {
                     StartDirectory = dirInfo.Parent.FullName.ToString();
+                }
+
                 CurrentItem = 0;
 
                 // CurrentItemName &&&&
