@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Xml;
 
 namespace ConsoleFileManager
 {
@@ -103,6 +99,8 @@ namespace ConsoleFileManager
 
                     if (Char.IsControl(userKey.KeyChar))
                     {
+                        bool isConfirmed = false;
+
                         switch (userKey.Key)
                         {
                             case ConsoleKey.Tab:
@@ -133,8 +131,16 @@ namespace ConsoleFileManager
                                 Active.ChangeCurrentItem(1000);                                
                                 break;
                             case ConsoleKey.F5:
-                                Active.CopyItemTo(Active.StartDirectory, Passive.StartDirectory);
-                                Passive.ShowDirectoryContent();
+                                isConfirmed = Active.UserConfirmAction("Copy", Passive.StartDirectory);
+                                if (isConfirmed)
+                                    Active.CopyItemTo(Active.StartDirectory, Passive.StartDirectory);
+                                PrintFileManager(filePanelLeft, filePanelRight, border);
+                                break;
+                            case ConsoleKey.F6:
+                                isConfirmed = Active.UserConfirmAction("Move", Passive.StartDirectory);
+                                if(isConfirmed)
+                                    Active.MoveItemTo(Active.StartDirectory, Passive.StartDirectory);
+                                PrintFileManager(filePanelLeft, filePanelRight, border);
                                 break;
                             case ConsoleKey.Enter:
                                 if (NewCommandText.Length > 0)

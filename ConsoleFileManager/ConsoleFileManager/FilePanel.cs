@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace ConsoleFileManager
 {
@@ -192,37 +191,98 @@ namespace ConsoleFileManager
             Console.ResetColor();
         }
 
+        internal bool UserConfirmAction(string actionName, string targetDirectory)
+        {
+            bool isConfirm = false;
+            if (CurrentItem != 0) // not a parent Dir
+            {
+                int lineNumber = PanelHeight / 3;
+                string itemToExe = Path.Combine(StartDirectory, CurrentItemName);
+                DirectoryInfo dirInfo = new DirectoryInfo(itemToExe);
+
+                //установить курсор на середину
+                Console.SetCursorPosition((UntilX - FromX)/2, lineNumber);
+                Console.BackgroundColor = ConsoleColor.DarkRed;
+                int padding = ((UntilX - FromX) / 2) - (actionName.Length / 2);
+                actionName = actionName.PadRight(padding);
+                Console.Write(actionName.PadLeft(UntilX - FromX));
+
+                Console.SetCursorPosition((UntilX - FromX) / 2, ++lineNumber);
+                string source = $" {actionName} {CurrentItemName} ";
+                Console.Write(source.PadRight(UntilX - FromX));
+
+                if (actionName.Equals("Move") || actionName.Equals("Copy"))
+                {
+                    Console.SetCursorPosition((UntilX - FromX) / 2, ++lineNumber);
+                    Console.Write(" to " + targetDirectory.PadRight(UntilX - FromX - 1));
+                }
+
+                Console.SetCursorPosition((UntilX - FromX) / 2, ++lineNumber);
+                Console.Write(" Press Y to confirm, other key to decline".PadRight(UntilX - FromX));
+
+                Console.SetCursorPosition((UntilX - FromX) / 2, ++lineNumber);
+                Console.Write(" Y ? ".PadRight(UntilX - FromX));
+
+                Console.SetCursorPosition((UntilX - FromX) / 2 + 6, lineNumber);
+                string decision = Console.ReadLine();
+
+                if (decision.ToLower().Equals("y"))
+                    isConfirm = true;
+
+                Console.BackgroundColor = ConsoleColor.Black;
+            }
+
+            return isConfirm;
+        }
+
+        internal void MoveItemTo(string startDirectory1, string startDirectory2)
+        {
+            throw new NotImplementedException();
+        }
+
         internal void ExecuteCurrent()
         {
             if (CurrentItem != 0) // not a parent Dir
             {
                 string itemToExe = Path.Combine(StartDirectory, CurrentItemName);
-                DirectoryInfo dirInfo = new DirectoryInfo(itemToExe);
-                if (!dirInfo.Attributes.ToString().Contains("Directory")) // file 
-                {
+                DirectoryInfo dir = new DirectoryInfo(itemToExe);
 
-                    System.Diagnostics.Process process = new System.Diagnostics.Process();
-                    process.StartInfo.FileName = itemToExe;
-                    process.StartInfo.UseShellExecute = true;
-                    process.Start();
+                if (!dir.Attributes.ToString().Contains("Directory")) // file 
+                {
+                    try
+                    {
+                        System.Diagnostics.Process process = new System.Diagnostics.Process();
+                        process.StartInfo.FileName = itemToExe;
+                        process.StartInfo.UseShellExecute = true;
+                        process.Start();
+                    }
+                    catch (Exception ex)
+                    {
+                        // Show Alert ?
+                    }
+
                 }
                 else // dir
                 {
                     StartDirectory = itemToExe;
                     CurrentItem = 0;
                 }
+
             }
             else // go to parent dir
             {
-                DirectoryInfo dirInfo = new DirectoryInfo(StartDirectory);
-                if(dirInfo.Parent != null)
+                DirectoryInfo dir = new DirectoryInfo(StartDirectory);
+                if(dir.Parent != null && dir.Parent.Exists)
                 {
-                    StartDirectory = dirInfo.Parent.FullName.ToString();
+                    StartDirectory = dir.Parent.FullName.ToString();
+                }
+                else
+                {
+                    //  go to disk root
+                    StartDirectory = dir.FullName.ToString().Substring(0, dir.FullName.IndexOf('\\'));
                 }
 
                 CurrentItem = 0;
-
-                // CurrentItemName &&&&
             }
             ShowDirectoryContent();
         }
@@ -235,8 +295,9 @@ namespace ConsoleFileManager
             if (CurrentItem != 0) // not a parent Dir
             {
                 DirectoryInfo dirInfo = new DirectoryInfo(sourceItem);
+
                 if (!dirInfo.Attributes.ToString().Contains("Directory")) // file copy
-                {                    
+                {
                     try
                     {
                         Directory.CreateDirectory(targetDirectory);
@@ -249,13 +310,6 @@ namespace ConsoleFileManager
                 }
                 else // dir copy
                 {
-                    if (!dirInfo.Exists)
-                    {
-                        throw new DirectoryNotFoundException(
-                            "Source directory does not exist or could not be found: "
-                            + sourceItem);
-                    }
-
                     // If the destination directory doesn't exist, create it.
                     try
                     {
@@ -280,8 +334,9 @@ namespace ConsoleFileManager
                     {
                         string tempPath = Path.Combine(targetItem, subdir.Name);
                         CopyItemTo(subdir.FullName, tempPath);
-                    }                  
+                    }
                 }
+
             }
             else
             {
