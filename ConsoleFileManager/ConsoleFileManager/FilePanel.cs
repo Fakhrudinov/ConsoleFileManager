@@ -191,6 +191,31 @@ namespace ConsoleFileManager
             Console.ResetColor();
         }
 
+        internal void DeleteItem(string startDirectory)
+        {
+            if (CurrentItem != 0) // not a parent Dir
+            {
+                string itemToDelete = Path.Combine(StartDirectory, CurrentItemName);
+                DirectoryInfo dirInfo = new DirectoryInfo(itemToDelete);
+                try
+                {
+                    if (!dirInfo.Attributes.ToString().Contains("Directory")) //  files
+                    {
+                        FileInfo fileInf = new FileInfo(itemToDelete);
+                        fileInf.Delete();
+                    }
+                    else // dir
+                    {
+                        dirInfo.Delete(true);
+                    }
+                }
+                catch (Exception)
+                {
+                    // Show Alert ?
+                }
+            }
+        }
+
         internal bool UserConfirmAction(string actionName, string targetDirectory)
         {
             bool isConfirm = false;
@@ -204,8 +229,8 @@ namespace ConsoleFileManager
                 Console.SetCursorPosition((UntilX - FromX)/2, lineNumber);
                 Console.BackgroundColor = ConsoleColor.DarkRed;
                 int padding = ((UntilX - FromX) / 2) - (actionName.Length / 2);
-                actionName = actionName.PadRight(padding);
-                Console.Write(actionName.PadLeft(UntilX - FromX));
+                //actionName = actionName.PadRight(padding);
+                Console.Write(actionName.PadRight(padding).PadLeft(UntilX - FromX));
 
                 Console.SetCursorPosition((UntilX - FromX) / 2, ++lineNumber);
                 string source = $" {actionName} {CurrentItemName} ";
@@ -214,7 +239,7 @@ namespace ConsoleFileManager
                 if (actionName.Equals("Move") || actionName.Equals("Copy"))
                 {
                     Console.SetCursorPosition((UntilX - FromX) / 2, ++lineNumber);
-                    Console.Write(" to " + targetDirectory.PadRight(UntilX - FromX - 1));
+                    Console.Write(" to " + targetDirectory.PadRight(UntilX - FromX - 4));
                 }
 
                 Console.SetCursorPosition((UntilX - FromX) / 2, ++lineNumber);
@@ -235,9 +260,46 @@ namespace ConsoleFileManager
             return isConfirm;
         }
 
-        internal void MoveItemTo(string startDirectory1, string startDirectory2)
+        internal void MoveItemTo(string targetDirectory)
         {
-            throw new NotImplementedException();
+            if (CurrentItem != 0) // not a parent Dir
+            {
+                string sourceItem = Path.Combine(StartDirectory, CurrentItemName);
+                DirectoryInfo dir = new DirectoryInfo(sourceItem);
+
+                string targetItem = Path.Combine(targetDirectory, CurrentItemName);
+
+                if (!dir.Attributes.ToString().Contains("Directory")) // file 
+                {
+                    try
+                    {
+                        // To move a file or folder to a new location:
+                        File.Move(sourceItem, targetItem, true);
+                    }
+                    catch (Exception)
+                    {
+                        // Show Alert ?
+                    }
+                }
+                else // dir
+                {
+                    DirectoryInfo dirTarget = new DirectoryInfo(targetItem);
+
+                    if (dir.Exists && !dirTarget.Exists)
+                        try
+                        {
+                            Directory.Move(sourceItem, targetItem);
+                        }
+                        catch (Exception)
+                        {
+                            // Show Alert ?
+                        }
+                    else
+                    {
+                        // Show Alert ?
+                    }
+                }
+            }
         }
 
         internal void ExecuteCurrent()

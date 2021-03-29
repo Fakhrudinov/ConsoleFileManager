@@ -139,9 +139,16 @@ namespace ConsoleFileManager
                             case ConsoleKey.F6:
                                 isConfirmed = Active.UserConfirmAction("Move", Passive.StartDirectory);
                                 if(isConfirmed)
-                                    Active.MoveItemTo(Active.StartDirectory, Passive.StartDirectory);
+                                    Active.MoveItemTo(Passive.StartDirectory);
                                 PrintFileManager(filePanelLeft, filePanelRight, border);
                                 break;
+                            case ConsoleKey.F8:
+                                isConfirmed = Active.UserConfirmAction("Delete", Passive.StartDirectory);
+                                if (isConfirmed)
+                                    Active.DeleteItem(Passive.StartDirectory);
+                                PrintFileManager(filePanelLeft, filePanelRight, border);
+                                break;
+
                             case ConsoleKey.Enter:
                                 if (NewCommandText.Length > 0)
                                 {
@@ -183,14 +190,13 @@ namespace ConsoleFileManager
         {
             Console.SetCursorPosition(1, ConsoleHeight - 6);
 
-            int padding = ConsoleWidth  / 9; // delimeter = to 1 more than actual command amount. Just for good look
+            int padding = ConsoleWidth  / 7; // delimeter = to 1 more than actual command amount. Just for good look
 
             Console.Write("[F1 Help]".PadRight(padding));
-            Console.Write("[F3 View]".PadRight(padding));
-            Console.Write("[F4 Edit]".PadRight(padding));
+            Console.Write("[F4 Rename]".PadRight(padding));
             Console.Write("[F5 Copy]".PadRight(padding));
             Console.Write("[F6 Move]".PadRight(padding));
-            Console.Write("[F7 MkDir]".PadRight(padding));
+            Console.Write("[F7 NewDir]".PadRight(padding));
             Console.Write("[F8 Del]");
 
             try
@@ -201,7 +207,7 @@ namespace ConsoleFileManager
             {
                 Console.SetCursorPosition(0, 0);
             }            
-            Console.Write("[Alt F4 Exit]"); // lenght = 13
+            Console.Write("[Alt F4 Exit]");
         }
 
         private void PrintUserCommand()
