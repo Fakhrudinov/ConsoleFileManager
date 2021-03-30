@@ -130,6 +130,10 @@ namespace ConsoleFileManager
                             case ConsoleKey.End:
                                 Active.ChangeCurrentItem(1000);                                
                                 break;
+                            case ConsoleKey.F2:
+                                Active.RenameItem("Rename");
+                                PrintFileManager(filePanelLeft, filePanelRight, border);
+                                break;
                             case ConsoleKey.F5:
                                 isConfirmed = Active.UserConfirmAction("Copy", Passive.StartDirectory);
                                 if (isConfirmed)
@@ -140,6 +144,10 @@ namespace ConsoleFileManager
                                 isConfirmed = Active.UserConfirmAction("Move", Passive.StartDirectory);
                                 if(isConfirmed)
                                     Active.MoveItemTo(Passive.StartDirectory);
+                                PrintFileManager(filePanelLeft, filePanelRight, border);
+                                break;
+                            case ConsoleKey.F7:
+                                Active.CreateNewDir("Create New Directory");
                                 PrintFileManager(filePanelLeft, filePanelRight, border);
                                 break;
                             case ConsoleKey.F8:
@@ -190,10 +198,10 @@ namespace ConsoleFileManager
         {
             Console.SetCursorPosition(1, ConsoleHeight - 6);
 
-            int padding = ConsoleWidth  / 7; // delimeter = to 1 more than actual command amount. Just for good look
+            int padding = ConsoleWidth  / 7; // delimeter = amount of all commands
 
             Console.Write("[F1 Help]".PadRight(padding));
-            Console.Write("[F4 Rename]".PadRight(padding));
+            Console.Write("[F2 Rename]".PadRight(padding));
             Console.Write("[F5 Copy]".PadRight(padding));
             Console.Write("[F6 Move]".PadRight(padding));
             Console.Write("[F7 NewDir]".PadRight(padding));

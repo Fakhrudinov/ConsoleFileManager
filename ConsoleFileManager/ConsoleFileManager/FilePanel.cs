@@ -191,6 +191,118 @@ namespace ConsoleFileManager
             Console.ResetColor();
         }
 
+        internal void RenameItem(string actionName)
+        {
+            if (CurrentItem != 0) // not a parent Dir
+            {
+                string newName = AskUserForNewName(actionName);
+
+                string sourceItem = Path.Combine(StartDirectory, CurrentItemName);
+                DirectoryInfo dir = new DirectoryInfo(sourceItem);
+
+                string targetItem = Path.Combine(StartDirectory, newName);
+
+                MoveOrRename(sourceItem, targetItem, dir);
+            }
+        }
+
+        internal void MoveItemTo(string targetDirectory)
+        {
+            string sourceItem = Path.Combine(StartDirectory, CurrentItemName);
+            DirectoryInfo dir = new DirectoryInfo(sourceItem);
+
+            string targetItem = Path.Combine(targetDirectory, CurrentItemName);
+
+            MoveOrRename(sourceItem, targetItem, dir);
+        }
+
+        private void MoveOrRename(string sourceItem, string targetItem, DirectoryInfo dir)
+        {
+            if (CurrentItem != 0) // not a parent Dir
+            {
+                if (!dir.Attributes.ToString().Contains("Directory")) // file 
+                {
+                    try
+                    {
+                        // To move a file or folder to a new location:
+                        File.Move(sourceItem, targetItem, true);
+                    }
+                    catch (Exception)
+                    {
+                        // Show Alert ?
+                    }
+                }
+                else // dir
+                {
+                    DirectoryInfo dirTarget = new DirectoryInfo(targetItem);
+
+                    if (dir.Exists && !dirTarget.Exists)
+                        try
+                        {
+                            Directory.Move(sourceItem, targetItem);
+                        }
+                        catch (Exception)
+                        {
+                            // Show Alert ?
+                        }
+                    else
+                    {
+                        // Show Alert ?
+                    }
+                }
+            }
+        }
+
+        internal void CreateNewDir(string actionName)
+        {
+            string newName = AskUserForNewName(actionName);
+
+            if (newName.Length > 0)
+            {
+                string newDir = Path.Combine(StartDirectory, newName);
+                DirectoryInfo dirTarget = new DirectoryInfo(newDir);
+
+                if (!dirTarget.Exists)
+                {
+                    try
+                    {
+                        Directory.CreateDirectory(newDir);
+                    }
+                    catch (Exception)
+                    {
+                        // Show Alert ?
+                    }
+                }
+                else
+                {
+                    // Show Alert ?
+                }
+            }
+        }
+
+        private string AskUserForNewName(string actionName)
+        {
+            int lineNumber = PanelHeight / 3;
+
+            Console.SetCursorPosition((UntilX - FromX) / 2, lineNumber);
+            Console.BackgroundColor = ConsoleColor.Blue;
+            int padding = ((UntilX - FromX) / 2) + (actionName.Length / 2);
+            Console.Write(actionName.PadRight(padding).PadLeft(UntilX - FromX));
+
+            Console.SetCursorPosition((UntilX - FromX) / 2, ++lineNumber);
+            Console.Write(" Enter new name, or leave it empty and press Enter:".PadRight(UntilX - FromX));
+
+            Console.SetCursorPosition((UntilX - FromX) / 2, ++lineNumber);
+            Console.Write(" ".PadRight(UntilX - FromX));
+
+            Console.SetCursorPosition((UntilX - FromX) / 2 + 1, lineNumber);
+            string newName = Console.ReadLine();
+
+            Console.BackgroundColor = ConsoleColor.Black;
+
+            return newName;
+        }
+
         internal void DeleteItem(string startDirectory)
         {
             if (CurrentItem != 0) // not a parent Dir
@@ -224,12 +336,10 @@ namespace ConsoleFileManager
                 int lineNumber = PanelHeight / 3;
                 string itemToExe = Path.Combine(StartDirectory, CurrentItemName);
                 DirectoryInfo dirInfo = new DirectoryInfo(itemToExe);
-
-                //установить курсор на середину
+                
                 Console.SetCursorPosition((UntilX - FromX)/2, lineNumber);
                 Console.BackgroundColor = ConsoleColor.DarkRed;
-                int padding = ((UntilX - FromX) / 2) - (actionName.Length / 2);
-                //actionName = actionName.PadRight(padding);
+                int padding = ((UntilX - FromX) / 2) + (actionName.Length / 2);
                 Console.Write(actionName.PadRight(padding).PadLeft(UntilX - FromX));
 
                 Console.SetCursorPosition((UntilX - FromX) / 2, ++lineNumber);
@@ -243,7 +353,7 @@ namespace ConsoleFileManager
                 }
 
                 Console.SetCursorPosition((UntilX - FromX) / 2, ++lineNumber);
-                Console.Write(" Press Y to confirm, other key to decline".PadRight(UntilX - FromX));
+                Console.Write(" Press Y to confirm, any other to decline, then Enter".PadRight(UntilX - FromX));
 
                 Console.SetCursorPosition((UntilX - FromX) / 2, ++lineNumber);
                 Console.Write(" Y ? ".PadRight(UntilX - FromX));
@@ -258,48 +368,6 @@ namespace ConsoleFileManager
             }
 
             return isConfirm;
-        }
-
-        internal void MoveItemTo(string targetDirectory)
-        {
-            if (CurrentItem != 0) // not a parent Dir
-            {
-                string sourceItem = Path.Combine(StartDirectory, CurrentItemName);
-                DirectoryInfo dir = new DirectoryInfo(sourceItem);
-
-                string targetItem = Path.Combine(targetDirectory, CurrentItemName);
-
-                if (!dir.Attributes.ToString().Contains("Directory")) // file 
-                {
-                    try
-                    {
-                        // To move a file or folder to a new location:
-                        File.Move(sourceItem, targetItem, true);
-                    }
-                    catch (Exception)
-                    {
-                        // Show Alert ?
-                    }
-                }
-                else // dir
-                {
-                    DirectoryInfo dirTarget = new DirectoryInfo(targetItem);
-
-                    if (dir.Exists && !dirTarget.Exists)
-                        try
-                        {
-                            Directory.Move(sourceItem, targetItem);
-                        }
-                        catch (Exception)
-                        {
-                            // Show Alert ?
-                        }
-                    else
-                    {
-                        // Show Alert ?
-                    }
-                }
-            }
         }
 
         internal void ExecuteCurrent()
