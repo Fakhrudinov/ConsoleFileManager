@@ -1,13 +1,17 @@
 ﻿using System;
+using System.Xml;
 
 namespace ConsoleFileManager
 {
     public class FileManager
     {
         public string StartDirectoryLeft { get; set; }
-
         public string StartDirectoryRight { get; set; }
-
+        public int ConsoleWidth { get; set; }
+        public int ConsoleHeight { get; set; }
+        public int CurrentItemLeft { get; set; }
+        public int CurrentItemRight { get; set; }
+        public bool LeftIsActive { get; set; }
         FilePanel Active { get; set; }
         FilePanel Passive { get; set; }
 
@@ -24,9 +28,6 @@ namespace ConsoleFileManager
             }
         }
 
-        public int ConsoleWidth { get; set; }
-        public int ConsoleHeight { get; set; }
-
         public FileManager()
         {
             DataXML xml = new DataXML();
@@ -37,20 +38,37 @@ namespace ConsoleFileManager
             StartDirectoryLeft = xml.XMLStartDirectoryLeft;
             StartDirectoryRight = xml.XMLStartDirectoryRight;
             NewCommandText = "";
+            bool leftIsActive = xml.LeftIsActive;
 
             Console.SetWindowSize(ConsoleWidth, ConsoleHeight);
             //Console.SetBufferSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
 
             Borders border = new Borders();
             FilePanel filePanelLeft = new FilePanel(StartDirectoryLeft, 1, ConsoleWidth / 2 - 1);
-            filePanelLeft.CurrentItem = 50; // читать из XML ------------------------------------------------------------------------
-            filePanelLeft.IsActive = true; // читать из XML ------------------------------------------------------------------------
-            Active = filePanelLeft; // читать из XML ------------------------------------------------------------------------
+            filePanelLeft.CurrentItem = xml.XMLLeftActiveItem;
+
 
             FilePanel filePanelRight = new FilePanel(StartDirectoryRight, ConsoleWidth / 2, ConsoleWidth - 1);
-            filePanelRight.CurrentItem = 8; // читать из XML ------------------------------------------------------------------------
-            filePanelRight.IsActive = false; // читать из XML ------------------------------------------------------------------------
-            Passive = filePanelRight; // читать из XML ------------------------------------------------------------------------
+            filePanelRight.CurrentItem = xml.XMLRightActiveItem;
+
+            if (leftIsActive)
+            {
+                filePanelLeft.IsActive = true;
+                Active = filePanelLeft;
+                filePanelRight.IsActive = false;
+                Passive = filePanelRight;
+            }
+            else
+            {
+                filePanelLeft.IsActive = false;
+                Active = filePanelRight;
+                filePanelRight.IsActive = true;
+                Passive = filePanelLeft;
+            }
+
+            CurrentItemLeft = filePanelLeft.CurrentItem;
+            CurrentItemRight = filePanelRight.CurrentItem;
+            LeftIsActive = filePanelLeft.IsActive;
 
             PrintFileManager(filePanelLeft, filePanelRight, border);
 
@@ -82,15 +100,76 @@ namespace ConsoleFileManager
             bool exit = false;
             while (!exit)
             {
+                string pathConfigXML = "Resources/Config.xml";
+                XmlDocument xmlConfig = new XmlDocument();
+                xmlConfig.Load(pathConfigXML);
+
+                bool xmlBeSaved = false;
+
                 if (Console.WindowWidth != ConsoleWidth || Console.WindowHeight != ConsoleHeight)
                 {
-                    Console.Clear();
-                    //Console.SetBufferSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
 
+                    if (Console.WindowWidth != ConsoleWidth)
+                    {
+                        XmlNode nodeWidth = xmlConfig.SelectSingleNode("//Width");
+                        nodeWidth.InnerText = Console.WindowWidth.ToString();
+                        xmlBeSaved = true;
+                    }
+
+                    if (Console.WindowHeight != ConsoleHeight)
+                    {
+                        XmlNode nodeHeight = xmlConfig.SelectSingleNode("//Height");
+                        nodeHeight.InnerText = Console.WindowHeight.ToString();
+                        xmlBeSaved = true;
+                    }
+
+                    Console.Clear();
                     ConsoleWidth = Console.WindowWidth;
                     ConsoleHeight = Console.WindowHeight;
 
                     PrintFileManager(filePanelLeft, filePanelRight, border);
+                }
+
+                //else values to xml check for changes
+                if (filePanelLeft.StartDirectory != StartDirectoryLeft)
+                {
+                    XmlNode nodeLastDirL = xmlConfig.SelectSingleNode("//LeftStartDir");
+                    nodeLastDirL.InnerText = filePanelLeft.StartDirectory;
+                    xmlBeSaved = true;
+                }
+
+                if (filePanelRight.StartDirectory != StartDirectoryRight)
+                {
+                    XmlNode nodeLastDirR = xmlConfig.SelectSingleNode("//RightStartDir");
+                    nodeLastDirR.InnerText = filePanelRight.StartDirectory;
+                    xmlBeSaved = true;
+                }
+
+                if (filePanelLeft.CurrentItem != CurrentItemLeft)
+                {
+                    XmlNode nodeLeftActive = xmlConfig.SelectSingleNode("//LeftActiveItem");
+                    nodeLeftActive.InnerText = filePanelLeft.CurrentItem.ToString();
+                    xmlBeSaved = true;
+                }
+
+                if (filePanelRight.CurrentItem != CurrentItemRight)
+                {
+                    XmlNode nodeRightActive = xmlConfig.SelectSingleNode("//RightActiveItem");
+                    nodeRightActive.InnerText = filePanelRight.CurrentItem.ToString();
+                    xmlBeSaved = true;
+                }
+
+                if (filePanelLeft.IsActive != LeftIsActive)
+                {
+                    XmlNode nodeActive = xmlConfig.SelectSingleNode("//LeftIsActive");
+                    nodeActive.InnerText = filePanelLeft.IsActive.ToString();
+                    xmlBeSaved = true;
+                    LeftIsActive = filePanelLeft.IsActive;
+                }
+
+                if (xmlBeSaved)
+                {                   
+                    xmlConfig.Save(pathConfigXML);
                 }
 
                 if (Console.KeyAvailable)
