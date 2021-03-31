@@ -100,6 +100,7 @@ namespace ConsoleFileManager
                     if (Char.IsControl(userKey.KeyChar))
                     {
                         bool isConfirmed = false;
+                        Actions newActon = new Actions(Active, Passive.StartDirectory);
 
                         switch (userKey.Key)
                         {
@@ -113,47 +114,47 @@ namespace ConsoleFileManager
                                 filePanelRight.ShowDirectoryContent();                                
                                 break;
                             case ConsoleKey.DownArrow:
-                                Active.ChangeCurrentItem(1);                                
+                                newActon.ChangeCurrentItem(1);                                
                                 break;
                             case ConsoleKey.UpArrow:
-                                Active.ChangeCurrentItem(-1);                                
+                                newActon.ChangeCurrentItem(-1);                                
                                 break;
                             case ConsoleKey.PageDown:
-                                Active.ChangeCurrentItem(100);                                
+                                newActon.ChangeCurrentItem(100);                                
                                 break;
                             case ConsoleKey.PageUp:
-                                Active.ChangeCurrentItem(-100);                                
+                                newActon.ChangeCurrentItem(-100);                                
                                 break;
                             case ConsoleKey.Home:
-                                Active.ChangeCurrentItem(-1000);                                
+                                newActon.ChangeCurrentItem(-1000);                                
                                 break;
                             case ConsoleKey.End:
-                                Active.ChangeCurrentItem(1000);                                
+                                newActon.ChangeCurrentItem(1000);                                
                                 break;
                             case ConsoleKey.F2:
-                                Active.RenameItem("Rename");
+                                newActon.RenameItem("Rename");
                                 PrintFileManager(filePanelLeft, filePanelRight, border);
                                 break;
                             case ConsoleKey.F5:
-                                isConfirmed = Active.UserConfirmAction("Copy", Passive.StartDirectory);
+                                isConfirmed = newActon.UserConfirmAction("Copy", Passive.StartDirectory);
                                 if (isConfirmed)
-                                    Active.CopyItemTo(Active.StartDirectory, Passive.StartDirectory);
+                                    newActon.CopyItemTo(Active.StartDirectory, Passive.StartDirectory);
                                 PrintFileManager(filePanelLeft, filePanelRight, border);
                                 break;
                             case ConsoleKey.F6:
-                                isConfirmed = Active.UserConfirmAction("Move", Passive.StartDirectory);
+                                isConfirmed = newActon.UserConfirmAction("Move", Passive.StartDirectory);
                                 if(isConfirmed)
-                                    Active.MoveItemTo(Passive.StartDirectory);
+                                    newActon.MoveItemTo(Passive.StartDirectory);
                                 PrintFileManager(filePanelLeft, filePanelRight, border);
                                 break;
                             case ConsoleKey.F7:
-                                Active.CreateNewDir("Create New Directory");
+                                newActon.CreateNewDir("Create New Directory");
                                 PrintFileManager(filePanelLeft, filePanelRight, border);
                                 break;
                             case ConsoleKey.F8:
-                                isConfirmed = Active.UserConfirmAction("Delete", Passive.StartDirectory);
+                                isConfirmed = newActon.UserConfirmAction("Delete", Passive.StartDirectory);
                                 if (isConfirmed)
-                                    Active.DeleteItem(Passive.StartDirectory);
+                                    newActon.DeleteItem(Passive.StartDirectory);
                                 PrintFileManager(filePanelLeft, filePanelRight, border);
                                 break;
 
@@ -165,7 +166,7 @@ namespace ConsoleFileManager
                                 }
                                 else
                                 {
-                                    Active.ExecuteCurrent();
+                                    newActon.ExecuteCurrent();
                                 }
                                 //Console.Clear();
                                 //PrintFileManager(filePanelLeft, filePanelRight, border);
