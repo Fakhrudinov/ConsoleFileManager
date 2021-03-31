@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Xml;
 
 namespace ConsoleFileManager
 {
@@ -13,6 +9,7 @@ namespace ConsoleFileManager
         public string StartDirectoryRight { get; set; }
 
         FilePanel Active { get; set; }
+        FilePanel Passive { get; set; }
 
         string newCommandText;
         string NewCommandText 
@@ -39,19 +36,21 @@ namespace ConsoleFileManager
             ConsoleHeight = xml.XMLConsoleHeight;
             StartDirectoryLeft = xml.XMLStartDirectoryLeft;
             StartDirectoryRight = xml.XMLStartDirectoryRight;
+            NewCommandText = "";
 
             Console.SetWindowSize(ConsoleWidth, ConsoleHeight);
             //Console.SetBufferSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
 
             Borders border = new Borders();
             FilePanel filePanelLeft = new FilePanel(StartDirectoryLeft, 1, ConsoleWidth / 2 - 1);
-            filePanelLeft.CurrentItem = 50;
-            filePanelLeft.IsActive = true;
-            Active = filePanelLeft;
+            filePanelLeft.CurrentItem = 50; // читать из XML ------------------------------------------------------------------------
+            filePanelLeft.IsActive = true; // читать из XML ------------------------------------------------------------------------
+            Active = filePanelLeft; // читать из XML ------------------------------------------------------------------------
 
             FilePanel filePanelRight = new FilePanel(StartDirectoryRight, ConsoleWidth / 2, ConsoleWidth - 1);
-            filePanelRight.CurrentItem = 8;
-            filePanelRight.IsActive = false;
+            filePanelRight.CurrentItem = 8; // читать из XML ------------------------------------------------------------------------
+            filePanelRight.IsActive = false; // читать из XML ------------------------------------------------------------------------
+            Passive = filePanelRight; // читать из XML ------------------------------------------------------------------------
 
             PrintFileManager(filePanelLeft, filePanelRight, border);
 
@@ -100,54 +99,77 @@ namespace ConsoleFileManager
 
                     if (Char.IsControl(userKey.KeyChar))
                     {
+                        bool isConfirmed = false;
+                        Actions newActon = new Actions(Active, Passive.StartDirectory);
+
                         switch (userKey.Key)
                         {
                             case ConsoleKey.Tab:
-                                if (filePanelLeft.IsActive)
+                                FilePanel temp = Active;
+                                Active = Passive;
+                                Passive = temp;
+                                Active.IsActive = true;
+                                Passive.IsActive = false;
+                                filePanelLeft.ShowDirectoryContent();
+                                filePanelRight.ShowDirectoryContent();                                
+                                break;
+                            case ConsoleKey.DownArrow:
+                                newActon.ChangeCurrentItem(1);                                
+                                break;
+                            case ConsoleKey.UpArrow:
+                                newActon.ChangeCurrentItem(-1);                                
+                                break;
+                            case ConsoleKey.PageDown:
+                                newActon.ChangeCurrentItem(100);                                
+                                break;
+                            case ConsoleKey.PageUp:
+                                newActon.ChangeCurrentItem(-100);                                
+                                break;
+                            case ConsoleKey.Home:
+                                newActon.ChangeCurrentItem(-1000);                                
+                                break;
+                            case ConsoleKey.End:
+                                newActon.ChangeCurrentItem(1000);                                
+                                break;
+                            case ConsoleKey.F2:
+                                newActon.RenameItem("Rename");
+                                PrintFileManager(filePanelLeft, filePanelRight, border);
+                                break;
+                            case ConsoleKey.F5:
+                                isConfirmed = newActon.UserConfirmAction("Copy", Passive.StartDirectory);
+                                if (isConfirmed)
+                                    newActon.CopyItemTo(Active.StartDirectory, Passive.StartDirectory);
+                                PrintFileManager(filePanelLeft, filePanelRight, border);
+                                break;
+                            case ConsoleKey.F6:
+                                isConfirmed = newActon.UserConfirmAction("Move", Passive.StartDirectory);
+                                if(isConfirmed)
+                                    newActon.MoveItemTo(Passive.StartDirectory);
+                                PrintFileManager(filePanelLeft, filePanelRight, border);
+                                break;
+                            case ConsoleKey.F7:
+                                newActon.CreateNewDir("Create New Directory");
+                                PrintFileManager(filePanelLeft, filePanelRight, border);
+                                break;
+                            case ConsoleKey.F8:
+                                isConfirmed = newActon.UserConfirmAction("Delete", Passive.StartDirectory);
+                                if (isConfirmed)
+                                    newActon.DeleteItem(Passive.StartDirectory);
+                                PrintFileManager(filePanelLeft, filePanelRight, border);
+                                break;
+
+                            case ConsoleKey.Enter:
+                                if (NewCommandText.Length > 0)
                                 {
-                                    filePanelLeft.IsActive = false;
-                                    filePanelRight.IsActive = true;
-                                    Active = filePanelRight;
+                                    Console.Write("Execute command " + NewCommandText);
+                                    NewCommandText = "";
                                 }
                                 else
                                 {
-                                    filePanelRight.IsActive = false;
-                                    filePanelLeft.IsActive = true;
-                                    Active = filePanelLeft;
+                                    newActon.ExecuteCurrent();
                                 }
-                                filePanelLeft.ShowDirectoryContent();
-                                filePanelRight.ShowDirectoryContent();
-                                
-                                break;
-                            case ConsoleKey.DownArrow:
-                                Active.ChangeCurrentItem(1);
-                                
-                                break;
-                            case ConsoleKey.UpArrow:
-                                Active.ChangeCurrentItem(-1);
-                                
-                                break;
-                            case ConsoleKey.PageDown:
-                                Active.ChangeCurrentItem(100);
-                                
-                                break;
-                            case ConsoleKey.PageUp:
-                                Active.ChangeCurrentItem(-100);
-                                
-                                break;
-                            case ConsoleKey.Home:
-                                Active.ChangeCurrentItem(-1000);
-                                
-                                break;
-                            case ConsoleKey.End:
-                                Active.ChangeCurrentItem(1000);
-                                
-                                break;
-                            case ConsoleKey.Enter:
-                                Console.Write("Execute command " + NewCommandText);
-                                NewCommandText = "";
-                                Console.Clear();
-                                PrintFileManager(filePanelLeft, filePanelRight, border);
+                                //Console.Clear();
+                                //PrintFileManager(filePanelLeft, filePanelRight, border);
                                 break;
                             default:
                                 break;
@@ -177,14 +199,13 @@ namespace ConsoleFileManager
         {
             Console.SetCursorPosition(1, ConsoleHeight - 6);
 
-            int padding = ConsoleWidth  / 9; // delimeter = to 1 more than actual command amount. Just for good look
+            int padding = ConsoleWidth  / 7; // delimeter = amount of all commands
 
             Console.Write("[F1 Help]".PadRight(padding));
-            Console.Write("[F3 View]".PadRight(padding));
-            Console.Write("[F4 Edit]".PadRight(padding));
+            Console.Write("[F2 Rename]".PadRight(padding));
             Console.Write("[F5 Copy]".PadRight(padding));
             Console.Write("[F6 Move]".PadRight(padding));
-            Console.Write("[F7 MkDir]".PadRight(padding));
+            Console.Write("[F7 NewDir]".PadRight(padding));
             Console.Write("[F8 Del]");
 
             try
@@ -195,7 +216,7 @@ namespace ConsoleFileManager
             {
                 Console.SetCursorPosition(0, 0);
             }            
-            Console.Write("[Alt F4 Exit]"); // lenght = 13
+            Console.Write("[Alt F4 Exit]");
         }
 
         private void PrintUserCommand()
