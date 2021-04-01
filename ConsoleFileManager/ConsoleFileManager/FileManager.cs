@@ -179,7 +179,7 @@ namespace ConsoleFileManager
                     if (Char.IsControl(userKey.KeyChar))
                     {
                         bool isConfirmed = false;
-                        Actions newActon = new Actions(Active, Passive.StartDirectory);
+                        Actions newActon = new Actions(Active, Passive.StartDirectory, ConsoleWidth);
 
                         switch (userKey.Key)
                         {
@@ -210,6 +210,10 @@ namespace ConsoleFileManager
                             case ConsoleKey.End:
                                 newActon.ChangeCurrentItem(1000);                                
                                 break;
+                            case ConsoleKey.F1:
+                                newActon.ShowHelp();
+                                PrintFileManager(filePanelLeft, filePanelRight, border);
+                                break;
                             case ConsoleKey.F2:
                                 newActon.RenameItem("Rename");
                                 PrintFileManager(filePanelLeft, filePanelRight, border);
@@ -238,17 +242,27 @@ namespace ConsoleFileManager
                                 break;
 
                             case ConsoleKey.Enter:
-                                if (NewCommandText.Length > 0)
+                                if ((userKey.Modifiers & ConsoleModifiers.Control) != 0)
                                 {
-                                    Console.Write("Execute command " + NewCommandText);
-                                    NewCommandText = "";
+                                    NewCommandText = NewCommandText + Active.CurrentItemName;
                                 }
                                 else
                                 {
-                                    newActon.ExecuteCurrent();
+                                    if (NewCommandText.Length > 0)
+                                    {
+                                        Console.Write("Execute command " + NewCommandText);
+                                        NewCommandText = "";
+                                    }
+                                    else
+                                    {
+                                        newActon.ExecuteCurrent();
+                                    }
                                 }
-                                //Console.Clear();
-                                //PrintFileManager(filePanelLeft, filePanelRight, border);
+                                break;
+                            case ConsoleKey.Backspace:
+                                if (NewCommandText.Length > 0)
+                                    NewCommandText = NewCommandText.Substring(0, NewCommandText.Length - 1);
+
                                 break;
                             default:
                                 break;
@@ -268,6 +282,8 @@ namespace ConsoleFileManager
                             NewCommandText = NewCommandText + userKey.KeyChar.ToString().ToLower();
                             Console.Write(userKey.KeyChar.ToString().ToLower());
                         }
+
+                        PrintUserCommand();
                     }                   
                 }
             }
@@ -300,10 +316,22 @@ namespace ConsoleFileManager
 
         private void PrintUserCommand()
         {
-            Console.SetCursorPosition(1, ConsoleHeight - 4);
-            Console.Write("Info: " );
+            string info = "";
+
+            if (NewCommandText.Length > 0)
+            {
+                Actions newUserAction = new Actions(Active, Passive.StartDirectory, ConsoleWidth);
+                info = newUserAction.AnalizeCommand(NewCommandText);
+            }
+
+            //Console.SetCursorPosition(1, ConsoleHeight - 4);
+            //Console.Write("Info: " + info);
             Console.SetCursorPosition(1, ConsoleHeight - 3);
             Console.Write("Command: " + NewCommandText);
+
+            int cursor = Console.CursorLeft;
+            Console.Write("*".PadRight(ConsoleWidth - (NewCommandText.Length + 11), '*'));
+            Console.CursorLeft = cursor;
         }
     }
 }
