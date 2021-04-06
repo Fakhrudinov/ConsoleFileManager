@@ -24,6 +24,21 @@ namespace ConsoleFileManager
             UntilX = untilX;
         }
 
+
+        private string TextLineCutter(string text, int maxLenght)
+        {
+            if (text.Length > maxLenght)
+            {
+                text = text.Substring(0, 10) + "..." + text.Substring((text.Length - maxLenght) + 13);
+            }
+            else
+            {
+                text = text.PadRight(maxLenght);
+            }
+
+            return text;
+        }
+
         public void ShowDirectoryContent()
         {
             if (!IsActive)
@@ -35,14 +50,16 @@ namespace ConsoleFileManager
                 currDir = "";
 
             currDir = currDir + StartDirectory;
-            Console.Write((currDir).PadRight(UntilX - (FromX + currDir.Length)));
+
+            currDir = TextLineCutter(currDir, UntilX - FromX);
+            Console.Write(currDir);
 
             TotalItems = 0;
             List<string> allItems = new List<string>();
             int dirsCount = 0;
             int filesCount = 0;
             int pagesCount = 0;
-            int itemsOnPage = 0;
+            //int itemsOnPage = 0;
             int currentPage = 0;
 
             DriveInfo[] drives = DriveInfo.GetDrives();
@@ -76,39 +93,39 @@ namespace ConsoleFileManager
                 if (CurrentItem > TotalItems)
                     CurrentItem = 0;
                 
-                itemsOnPage = PanelHeight - 11;
-                ItemsOnPage = itemsOnPage;
+                //itemsOnPage = PanelHeight - 11;
+                ItemsOnPage = PanelHeight - 11;
 
                 //++ understand page which contains CurrentItem
-                if (itemsOnPage > TotalItems)
+                if (ItemsOnPage > TotalItems)
                 {
-                    itemsOnPage = TotalItems;
+                    ItemsOnPage = TotalItems;
                     pagesCount = 1;
                     currentPage = 1;
                 }
                 else
                 {
-                    pagesCount = TotalItems / itemsOnPage;
+                    pagesCount = TotalItems / ItemsOnPage;
 
-                    if (TotalItems % itemsOnPage > 0)
+                    if (TotalItems % ItemsOnPage > 0)
                         pagesCount++;
 
-                    currentPage = (CurrentItem / itemsOnPage) + 1;
+                    currentPage = (CurrentItem / ItemsOnPage) + 1;
                 }
 
                 //fill array which contain line numbers to show
-                int[] itemsToShow = new int[itemsOnPage];
+                int[] itemsToShow = new int[ItemsOnPage];
                 // if page is last - shrink numberes of array elements
                 if (currentPage > 1 && currentPage == pagesCount)
                 {
-                    itemsToShow = new int[TotalItems % itemsOnPage];
+                    itemsToShow = new int[TotalItems % ItemsOnPage];
                 }
                 //fill  array
                 for (int i = 0; i < itemsToShow.Length; i++)
                 {
                     if (currentPage > 1)
                     {
-                        itemsToShow[i] = ((currentPage - 1) * itemsOnPage) + i; 
+                        itemsToShow[i] = ((currentPage - 1) * ItemsOnPage) + i; 
                     }
                     else
                     {
@@ -117,7 +134,7 @@ namespace ConsoleFileManager
                 }
 
                 //understand where is CurrentItem in array itemsToShow
-                int arrCurrent = CurrentItem % itemsOnPage;
+                int arrCurrent = CurrentItem % ItemsOnPage;
 
                 //print lines og current page
                 for (int i = 0; i < itemsToShow.Length; i++)
@@ -136,6 +153,7 @@ namespace ConsoleFileManager
                     }
                     else 
                     {
+                        //string str = allItems[itemsToShow[i]];
                         DirectoryInfo dirInfo = new DirectoryInfo(allItems[itemsToShow[i]]);
 
                         if (arrCurrent == i && IsActive)
@@ -186,12 +204,14 @@ namespace ConsoleFileManager
             //Console.WriteLine($"ttl itm{TotalItems} itmOnPg{itemsOnPage} Page {currentPage}/{pagesCount} Curr{CurrentItem} dir{dirsCount}/files{filesCount}");
             //Console.Write(Console.BufferWidth + "/" + Console.WindowWidth + "//" + Console.BufferHeight + "/" + Console.WindowHeight);
             string paginationSummary = $"Page {currentPage} from {pagesCount}. Total Dirs: {dirsCount}, Files: {filesCount}";
+            if(UntilX - FromX < 45)
+                paginationSummary = $"Page {currentPage}/{pagesCount}. Dirs/Files: {dirsCount}/{filesCount}";
+
             Console.SetCursorPosition(((UntilX - FromX - paginationSummary.Length) / 2) + FromX, PanelHeight - 7);
             Console.Write(paginationSummary.PadRight((UntilX - FromX - paginationSummary.Length) / 2), '═');
 
             Console.ResetColor();
         }
-
 
         private void PrintStringToConsole(string name, string attributes, DateTime creationTime, long fileSize, int lineNum)
         {

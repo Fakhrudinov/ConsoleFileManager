@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Xml;
 
 namespace ConsoleFileManager
@@ -235,9 +236,9 @@ namespace ConsoleFileManager
                                 PrintFileManager(filePanelLeft, filePanelRight, border);
                                 break;
                             case ConsoleKey.F8:
-                                isConfirmed = newActon.UserConfirmAction("Delete", Passive.StartDirectory);
-                                if (isConfirmed)
-                                    newActon.DeleteItem(Passive.StartDirectory);
+                                isConfirmed = newActon.UserConfirmAction("Delete", Active.CurrentItemName);
+                                if (isConfirmed && Active.CurrentItem != 0)
+                                    newActon.DeleteItem(Path.Combine(Active.StartDirectory, Active.CurrentItemName));
                                 PrintFileManager(filePanelLeft, filePanelRight, border);
                                 break;
 

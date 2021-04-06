@@ -14,6 +14,7 @@ namespace ConsoleFileManager
             Remove,     // 4
             RunFile,    // 5
             EqualisePanels, // 6
+            Rename, // 7
             Unknown
         }
 
@@ -34,7 +35,6 @@ namespace ConsoleFileManager
         int Height { get; set; }
         int Width { get; set; }
         string StartDirectory { get; set; }
-
 
         public Actions(FilePanel activePanel, FilePanel passivePanel, int width)
         {
@@ -92,61 +92,47 @@ namespace ConsoleFileManager
             if (CurrentItem != 0) // not a parent Dir
             {
                 string newName = AskUserForNewName(actionName);
-
                 string sourceItem = Path.Combine(StartDirectory, CurrentItemName);
-                DirectoryInfo dir = new DirectoryInfo(sourceItem);
-
                 string targetItem = Path.Combine(StartDirectory, newName);
 
-                MoveOrRename(sourceItem, targetItem, dir);
+                MoveOrRename(sourceItem, targetItem);
             }
         }
 
         internal void MoveItemTo(string targetDirectory)
         {
-            string sourceItem = Path.Combine(StartDirectory, CurrentItemName);
-            DirectoryInfo dir = new DirectoryInfo(sourceItem);
-
-            string targetItem = Path.Combine(targetDirectory, CurrentItemName);
-
-            MoveOrRename(sourceItem, targetItem, dir);
-        }
-
-        private void MoveOrRename(string sourceItem, string targetItem, DirectoryInfo dir)
-        {
             if (CurrentItem != 0) // not a parent Dir
             {
-                if (!dir.Attributes.ToString().Contains("Directory")) // file 
-                {
-                    try
-                    {
-                        // To move a file or folder to a new location:
-                        File.Move(sourceItem, targetItem, true);
-                    }
-                    catch (Exception f)
-                    {
-                        ShowAlert(f.Message);
-                    }
-                }
-                else // dir
-                {
-                    DirectoryInfo dirTarget = new DirectoryInfo(targetItem);
+                string sourceItem = Path.Combine(StartDirectory, CurrentItemName);
+                string targetItem = Path.Combine(targetDirectory, CurrentItemName);
 
-                    if (dir.Exists && !dirTarget.Exists)
-                    {
-                        try
-                        {
-                            Directory.Move(sourceItem, targetItem);
-                        }
-                        catch (Exception d)
-                        {
-                            ShowAlert(d.Message);
-                        }
-                    }
-                    else
-                    {
-                        ShowAlert($"Directory '{targetItem}' already exist!");
-                    }
+                MoveOrRename(sourceItem, targetItem);
+            }
+        }
+
+        private void MoveOrRename(string sourceItem, string targetItem)
+        {
+            DirectoryInfo dirr = new DirectoryInfo(sourceItem);
+            if (!dirr.Attributes.ToString().Contains("Directory")) //  files
+            {
+                try
+                {
+                    File.Move(sourceItem, targetItem, true);
+                }
+                catch (Exception f)
+                {
+                    ShowAlert(f.Message);
+                }
+            }
+            if (dirr.Exists) // dir
+            {
+                try
+                {
+                    Directory.Move(sourceItem, targetItem);
+                }
+                catch (Exception d)
+                {
+                    ShowAlert(d.Message);
                 }
             }
         }
@@ -183,28 +169,30 @@ namespace ConsoleFileManager
             }
         }
 
-        internal void DeleteItem(string startDirectory)
+        internal void DeleteItem(string itemPath)
         {
-            if (CurrentItem != 0) // not a parent Dir
+            DirectoryInfo dirInfo = new DirectoryInfo(itemPath);
+
+            try
             {
-                string itemToDelete = Path.Combine(StartDirectory, CurrentItemName);
-                DirectoryInfo dirInfo = new DirectoryInfo(itemToDelete);
-                try
+                if (!dirInfo.Attributes.ToString().Contains("Directory")) //  files
                 {
-                    if (!dirInfo.Attributes.ToString().Contains("Directory")) //  files
-                    {
-                        FileInfo fileInf = new FileInfo(itemToDelete);
-                        fileInf.Delete();
-                    }
-                    else // dir
-                    {
-                        dirInfo.Delete(true);
-                    }
+                    FileInfo fileInf = new FileInfo(itemPath);
+                    fileInf.Delete();
                 }
-                catch (Exception f)
+                else // dir
                 {
-                    ShowAlert(f.Message);
+                    dirInfo.Delete(true);
                 }
+
+                if (Active.CurrentItem > 0)
+                    Active.CurrentItem--;
+                else
+                    Active.CurrentItem = 0;
+            }
+            catch (Exception d)
+            {
+                ShowAlert(d.Message);
             }
         }   
 
@@ -217,17 +205,7 @@ namespace ConsoleFileManager
 
                 if (!dir.Attributes.ToString().Contains("Directory")) // file 
                 {
-                    try
-                    {
-                        System.Diagnostics.Process process = new System.Diagnostics.Process();
-                        process.StartInfo.FileName = itemToExe;
-                        process.StartInfo.UseShellExecute = true;
-                        process.Start();
-                    }
-                    catch (Exception ex)
-                    {
-                        // Show Alert ?
-                    }
+                    RunFile(itemToExe);
                 }
                 else // dir
                 {
@@ -235,7 +213,6 @@ namespace ConsoleFileManager
                     Active.CurrentItem = 0;
                     Active.ShowDirectoryContent();
                 }
-
             }
             else // go to parent dir
             {
@@ -252,6 +229,21 @@ namespace ConsoleFileManager
 
                 Active.CurrentItem = 0;
                 Active.ShowDirectoryContent();
+            }
+        }
+
+        private void RunFile(string itemToExe)
+        {
+            try
+            {
+                System.Diagnostics.Process process = new System.Diagnostics.Process();
+                process.StartInfo.FileName = itemToExe;
+                process.StartInfo.UseShellExecute = true;
+                process.Start();
+            }
+            catch (Exception ex)
+            {
+                ShowAlert(ex.Message);
             }
         }
 
@@ -341,17 +333,19 @@ namespace ConsoleFileManager
             PrintLinePanelText(" F6 - Move File or Directory", xCursor, ++lineNumber, totalLenght);
             PrintLinePanelText(" F7 - Create new Directory", xCursor, ++lineNumber, totalLenght);
             PrintLinePanelText(" F8 - Delete File or Directory", xCursor, ++lineNumber, totalLenght);
+            PrintLinePanelText(" arrows Up and Down, PgUp PgDown - select items", xCursor, ++lineNumber, totalLenght);
+            PrintLinePanelText(" Tab - switch between panels", xCursor, ++lineNumber, totalLenght);
             PrintLinePanelText(" ", xCursor, ++lineNumber, totalLenght);
             PrintLinePanelText(" Manual commands, commands - case insensitive.", xCursor, ++lineNumber, totalLenght);
             PrintLinePanelText(longest, xCursor, ++lineNumber, totalLenght);
             PrintLinePanelText(" Set passive panel same as active: equal", xCursor, ++lineNumber, totalLenght);
             PrintLinePanelText(" Change directory: cd NewPath ", xCursor, ++lineNumber, totalLenght);
-            PrintLinePanelText(" Copy: cp sourcePath (to passive panel path)", xCursor, ++lineNumber, totalLenght);
-            PrintLinePanelText(" Move: mv sourcePath, TargetPath", xCursor, ++lineNumber, totalLenght);
-            PrintLinePanelText(" Rename: rm sourcePath, TargetPath", xCursor, ++lineNumber, totalLenght);
+            PrintLinePanelText(" Copy: cp sourcePath (to passive panel)", xCursor, ++lineNumber, totalLenght);
+            PrintLinePanelText(" Move: mv sourcePath (to passive panel)", xCursor, ++lineNumber, totalLenght);
+            PrintLinePanelText(" Remove: rm sourcePath", xCursor, ++lineNumber, totalLenght);
             PrintLinePanelText(" New Directory: mkdir newName", xCursor, ++lineNumber, totalLenght);
             PrintLinePanelText(" Execute File: run FileName", xCursor, ++lineNumber, totalLenght);
-            PrintLinePanelText(" Delete: del TargetPath", xCursor, ++lineNumber, totalLenght);
+            PrintLinePanelText(" Rename: name sourcePath, newName", xCursor, ++lineNumber, totalLenght);
             PrintLinePanelText(" ", xCursor, ++lineNumber, totalLenght);
             PrintLinePanelText(" Press Enter to close panel.", xCursor, ++lineNumber, totalLenght);
 
@@ -431,31 +425,7 @@ namespace ConsoleFileManager
             CanBeExecute = false;
             CommandType = (int)Command.Unknown;
 
-            if (newCommandText.Length >= 5)
-            {
-                if (newCommandText.Substring(0, 5).ToLower().Equals("mkdir"))
-                {
-                    Info = "MakeNewDir: mkdir [New Directory in active panel]";
-                    if(newCommandText.Length > 5)
-                        CommandController(Command.MakeNewDir, newCommandText.Substring(5));
-                }
-                if (newCommandText.Substring(0, 5).ToLower().Equals("equal"))
-                {
-                    Info = "Set passive panel path same as active: equal";
-                    if (newCommandText.Length == 5)
-                        CommandController(Command.EqualisePanels, newCommandText.Substring(5));
-                    else if (newCommandText.Length > 5)
-                        Info = "Wrong format: Equal must be without arguments";
-                }
-            }
-            else if (newCommandText.Length >= 3)
-            {
-                if (newCommandText.Substring(0, 3).ToLower().Equals("run"))
-                {
-                    Info = "Execute File: run [fileName in active panel]";
-                }
-            }
-            else if (newCommandText.Length >= 2)
+            if(newCommandText.Length >= 2)
             {
                 if (newCommandText.Substring(0, 2).ToLower().Equals("cd"))
                 {
@@ -463,15 +433,54 @@ namespace ConsoleFileManager
                 }
                 else if (newCommandText.Substring(0, 2).ToLower().Equals("cp"))
                 {
-                    Info = "Copy to pasive panel: cp [object in active panel]";
+                    Info = "Copy to pasive panel: cp [object], [optional New Path]";
                 }
                 else if (newCommandText.Substring(0, 2).ToLower().Equals("mv"))
                 {
-                    Info = "Move to pasive panel: mv [object in active panel], [optional New name]";
+                    Info = "Move to pasive panel: mv [object], [optional New Path]";
+                    //if (newCommandText.Length > 2)
+                    //    CommandController(Command.Move, newCommandText.Substring(2));
                 }
                 else if (newCommandText.Substring(0, 2).ToLower().Equals("rm"))
                 {
-                    Info = "Remove Dir or File: rem [object in active panel]";
+                    Info = "Remove Dir or File: rm [object]";
+                    if (newCommandText.Length > 2)
+                        CommandController(Command.Remove, newCommandText.Substring(2));
+                }
+                else if (newCommandText.Length >= 3)
+                {
+                    if (newCommandText.Substring(0, 3).ToLower().Equals("run"))
+                    {
+                        Info = "Run File: Run [fileName in active panel]";
+                        if (newCommandText.Length > 3)
+                            CommandController(Command.RunFile, newCommandText.Substring(3));
+                    }
+                    else if (newCommandText.Length >= 4)
+                    {
+                        if (newCommandText.Substring(0, 4).ToLower().Equals("name"))
+                        {
+                            Info = "Rename: Name [object], [New Name]";
+                            if (newCommandText.Length > 4)
+                                CommandController(Command.Rename, newCommandText.Substring(4));
+                        }
+                        else if (newCommandText.Length >= 5)
+                        {
+                            if (newCommandText.Substring(0, 5).ToLower().Equals("mkdir"))
+                            {
+                                Info = "MakeNewDir: mkdir [New Directory Name in active panel]";
+                                if (newCommandText.Length > 5)
+                                    CommandController(Command.MakeNewDir, newCommandText.Substring(5));
+                            }
+                            else if (newCommandText.Substring(0, 5).ToLower().Equals("equal"))
+                            {
+                                Info = "Set passive panel path same as active: equal";
+                                if (newCommandText.Length == 5)
+                                    CommandController(Command.EqualisePanels, newCommandText.Substring(5));
+                                else if (newCommandText.Length > 5)
+                                    Info = "Wrong format: Equal must be without arguments";
+                            }
+                        }
+                    }                    
                 }
             }
 
@@ -495,13 +504,32 @@ namespace ConsoleFileManager
 
         internal void ExecuteUserCommand()
         {
+            string sourceItem = ArgumentSource;
+            if (CommandType != (int)Command.EqualisePanels)
+            {
+                DirectoryInfo source = new DirectoryInfo(sourceItem);
+                if (!source.Exists)
+                {
+                    sourceItem = Path.Combine(Active.StartDirectory, ArgumentSource);
+                }
+            }
+
             switch (CommandType)
             {
                 case (int)Command.EqualisePanels:
                     Passive.StartDirectory = Active.StartDirectory;
                     break;
                 case (int)Command.MakeNewDir:
-                    MkDir(ArgumentTarget);
+                    MkDir(ArgumentSource);
+                    break;
+                case (int)Command.RunFile:
+                    RunFile(sourceItem);
+                    break;
+                case (int)Command.Remove:
+                    DeleteItem(sourceItem);
+                    break;
+                case (int)Command.Rename:
+                    MoveOrRename(ArgumentSource, ArgumentTarget);
                     break;
             }
         }
@@ -520,58 +548,226 @@ namespace ConsoleFileManager
                     {
                         CanBeExecute = true;
                         CommandType = (int)Command.MakeNewDir;
-                        ArgumentTarget = arguments.Substring(1);
+                        ArgumentSource = arguments.Substring(1);
                     }
                     break;
+                case Command.RunFile:
+                    checkArguments = CheckExist(arguments, true);
+                    if (checkArguments)
+                    {
+                        CanBeExecute = true;
+                        CommandType = (int)Command.RunFile;
+                        ArgumentSource = arguments.Substring(1);
+                    }
+                    break;
+                case Command.Remove:
+                    checkArguments = CheckExist(arguments, true);
+                    if (checkArguments)
+                    {
+                        CanBeExecute = true;
+                        CommandType = (int)Command.Remove;
+                        ArgumentSource = arguments.Substring(1);
+                    }
+                    break;
+                case Command.Rename:
+                    checkArguments = CheckPairExist(arguments, true, false);
+                    if (checkArguments)
+                    {
+                        CommandType = (int)Command.Rename;
+                    }
+                    break;
+                    //bool checkFirstArguments = false;
+                    //bool checkSecondArguments = false;
+
+                    //first is always must be exist
+                    //checkFirstArguments = CheckExist(arguments, true);
+
+                    //if (arguments.Contains(','))
+                    //{
+                    //    checkFirstArguments = CheckExist(arguments.Substring(0, arguments.IndexOf(',')), true);
+
+                    //    //without correct first argument - second is useless
+                    //    if (checkFirstArguments == true)
+                    //    {
+                    //        Info = "First argument correct, now enter second argument";
+                    //        if (arguments.Substring(arguments.IndexOf(',')).Length > 1)
+                    //        {
+                    //            checkSecondArguments = CheckExist(arguments.Substring(arguments.IndexOf(',') + 1), false);
+
+                    //            if(checkSecondArguments == true)// OK both correct
+                    //            {                                    
+                    //                Info = $"OK, From '{arguments.Substring(1, arguments.IndexOf(',') - 1)}' " +
+                    //                    $"to '{arguments.Substring(arguments.IndexOf(',') + 2)}'";
+
+                    //                ArgumentSource = GetCorrectPath(arguments.Substring(1, arguments.IndexOf(',') - 1));
+                    //                ArgumentTarget = GetCorrectPath(arguments.Substring(arguments.IndexOf(',') + 2));
+                    //                CommandType = (int)Command.Rename;
+                    //                CanBeExecute = true;
+                    //            }
+                    //        }
+                    //    }
+                    //}
+
             }
         }
 
+        private bool CheckPairExist(string arguments, bool secondRequired, bool secondMustExist)
+        {
+            bool checkFirstArguments = false;
+            bool checkSecondArguments = false;
+
+            //first is always must be exist
+            checkFirstArguments = CheckExist(arguments, true);
+
+            if (arguments.Contains(','))
+            {
+                string arg1 = arguments.Substring(0, arguments.IndexOf(','));
+                checkFirstArguments = CheckExist(arg1, true);
+
+                //without correct first argument - second is useless
+                if (checkFirstArguments == true)
+                {
+                    Info = "First argument correct, now enter second argument";
+                    if (arguments.Substring(arguments.IndexOf(',')).Length > 1)
+                    {
+                        checkSecondArguments = CheckExist(arguments.Substring(arguments.IndexOf(',') + 1), secondMustExist);
+
+                        if (checkSecondArguments == true)// OK both correct
+                        {
+                            Info = $"OK, From '{arguments.Substring(1, arguments.IndexOf(',') - 1)}' " +
+                                $"to '{arguments.Substring(arguments.IndexOf(',') + 2)}'";
+
+                            ArgumentSource = GetCorrectPath(arguments.Substring(1, arguments.IndexOf(',') - 1));
+                            ArgumentTarget = GetCorrectPath(arguments.Substring(arguments.IndexOf(',') + 2));
+                            CanBeExecute = true;
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            // if first exist and second not necessary = ok
+            if (checkFirstArguments && !secondRequired)
+            {
+                ArgumentSource = GetCorrectPath(arguments.Substring(1, arguments.IndexOf(',') - 1));
+                ArgumentTarget = Passive.StartDirectory;
+                CanBeExecute = true;
+                return true;
+            }
+
+            return false;
+        }
+
+        private string GetCorrectPath(string pathOrItem)
+        {
+            bool exist = CheckIsItFullPath(pathOrItem);
+            if (exist)
+                return pathOrItem;
+            else
+                return Path.Combine(Active.StartDirectory, pathOrItem);
+        }
 
 
+        /// <summary>
+        /// Check for one argument. Used in MkDir Run Rm 
+        /// </summary>
+        /// <param name="arguments"></param>
+        /// <param name="expected"></param>
+        /// <returns></returns>
         private bool CheckExist(string arguments, bool expected)
         {
             // firstly check - first symbol must be ' ' as delimeter from command and argument
-            if (arguments[0].Equals(' '))
+            if (arguments[0].Equals(' ')) // ok it is space
             {
-                // ok it is space
                 bool actual = false;
 
-                foreach (string str in Active.AllItems)
+                string sourceItem = arguments.Substring(1);
+                if (sourceItem.Length > 0)
                 {
-                    if (str.ToLower().Equals(arguments.ToLower()))
-                        actual = true;
+                    // firsly check if it is direct path to file or dir
+                    actual = CheckIsItFullPath(sourceItem);
+
+                    // if not - check this item in current folder
+                    if (!actual)
+                    {
+                        sourceItem = Path.Combine(Active.StartDirectory, sourceItem).ToLower();
+                        foreach (string str in Active.AllItems)
+                        {
+                            if (str.ToLower().Equals(sourceItem))
+                                actual = true;
+                        }
+                    }
+                }
+                else
+                {
+                    Info = $"Enter Dir or File name, ' ' not enough.";
+                    return false;
                 }
 
                 if (expected == actual)
                     return true;
                 else
+                {
+                    if(expected)
+                        Info = $"Directory or file '{arguments.Substring(1)}' not found!";
+                    else
+                        Info = $"Directory or file '{arguments.Substring(1)}' already exist!";
+
                     return false;
+                }
             }
-            else
-            {
-                //wrong command!
-                Info = "There is no space between command and path!";
+            else // wrong command!
+            {                
+                Info = "There is no space between command and path!" + arguments;
 
                 return false;
             }
         }
 
+        private bool CheckIsItFullPath(string sourceItem)
+        {
+            FileInfo fileSource = new FileInfo(sourceItem);
+            if (fileSource.Exists)
+            {
+                return true;
+            }
+            // then check if it is direct path to dir
+            DirectoryInfo dirSource = new DirectoryInfo(sourceItem);
+            if (dirSource.Exists)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         private string AskUserForNewName(string actionName)
         {
+            int cursorX = (UntilX - FromX) / 2;
             int lineNumber = Height / 3;
+            string requestText = " Enter new name, or leave it empty and press Enter:";
+            int lenght = UntilX - FromX;
 
-            Console.SetCursorPosition((UntilX - FromX) / 2, lineNumber);
+
+            if ((UntilX - FromX) < requestText.Length)
+            {
+                lenght = requestText.Length + 1;
+                cursorX = (UntilX - FromX) - requestText.Length / 2;
+            }
+
+
+            Console.SetCursorPosition(cursorX, lineNumber);
             Console.BackgroundColor = ConsoleColor.Blue;
-            int padding = ((UntilX - FromX) / 2) + (actionName.Length / 2);
-            Console.Write(actionName.PadRight(padding).PadLeft(UntilX - FromX));
 
-            Console.SetCursorPosition((UntilX - FromX) / 2, ++lineNumber);
-            Console.Write(" Enter new name, or leave it empty and press Enter:".PadRight(UntilX - FromX));
+            Console.Write(actionName.PadRight(((lenght - actionName.Length) / 2) + actionName.Length).PadLeft(lenght));
 
-            Console.SetCursorPosition((UntilX - FromX) / 2, ++lineNumber);
-            Console.Write(" ".PadRight(UntilX - FromX));
+            Console.SetCursorPosition(cursorX, ++lineNumber);
+            Console.Write(requestText.PadRight(lenght));
 
-            Console.SetCursorPosition((UntilX - FromX) / 2 + 1, lineNumber);
+            Console.SetCursorPosition(cursorX, ++lineNumber);
+            Console.Write(" ".PadRight(lenght));
+
+            Console.SetCursorPosition(cursorX + 1, lineNumber);
             string newName = Console.ReadLine();
 
             Console.BackgroundColor = ConsoleColor.Black;
@@ -581,13 +777,14 @@ namespace ConsoleFileManager
 
         public void ShowAlert(string alertText)
         {
+            int cursorX = (UntilX - FromX) / 2;
             int lineNumber = Height / 3;
             string actionName = "Error when execute!";
 
             //header
-            Console.SetCursorPosition((UntilX - FromX) / 2, lineNumber);
+            Console.SetCursorPosition(cursorX, lineNumber);
             Console.BackgroundColor = ConsoleColor.Red;
-            int padding = ((UntilX - FromX) / 2) + (actionName.Length / 2);
+            int padding = (cursorX) + (actionName.Length / 2);
             Console.Write(actionName.PadRight(padding).PadLeft(UntilX - FromX));
 
             //int delimeter = alertText.Length / (UntilX - FromX);
@@ -595,7 +792,7 @@ namespace ConsoleFileManager
             int charPointerEnd = (UntilX - FromX) - 2;
             while (charPointer < alertText.Length)
             {
-                Console.SetCursorPosition((UntilX - FromX) / 2, ++lineNumber);
+                Console.SetCursorPosition(cursorX, ++lineNumber);
                 if (charPointerEnd > alertText.Length)
                 {                    
                     Console.WriteLine(" " + alertText.Substring(charPointer).PadRight(UntilX - (FromX + 2)) + " ");
@@ -605,18 +802,18 @@ namespace ConsoleFileManager
                     Console.WriteLine(" " + alertText.Substring(charPointer, charPointerEnd) + " ");
                 }
                 
-                charPointer = charPointerEnd + 1;
+                charPointer = charPointerEnd;
                 charPointerEnd = charPointer + charPointerEnd;
             }
 
             //footer
-            Console.SetCursorPosition((UntilX - FromX) / 2, ++lineNumber);
+            Console.SetCursorPosition(cursorX, ++lineNumber);
             Console.Write(" ".PadRight(UntilX - FromX));
-            Console.SetCursorPosition((UntilX - FromX) / 2, ++lineNumber);
+            Console.SetCursorPosition(cursorX, ++lineNumber);
             Console.Write(" Press Enter to close alert.".PadRight(UntilX - FromX));
 
-            Console.SetCursorPosition((UntilX - FromX) / 2 + 20, lineNumber);
-            string s = Console.ReadLine();
+            Console.SetCursorPosition(cursorX + 29, lineNumber);
+            Console.ReadLine();
 
             Console.BackgroundColor = ConsoleColor.Black;
         }
