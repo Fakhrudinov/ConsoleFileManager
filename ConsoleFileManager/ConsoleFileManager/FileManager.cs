@@ -1,13 +1,18 @@
 ﻿using System;
+using System.IO;
+using System.Xml;
 
 namespace ConsoleFileManager
 {
     public class FileManager
     {
         public string StartDirectoryLeft { get; set; }
-
         public string StartDirectoryRight { get; set; }
-
+        public int ConsoleWidth { get; set; }
+        public int ConsoleHeight { get; set; }
+        public int CurrentItemLeft { get; set; }
+        public int CurrentItemRight { get; set; }
+        public bool LeftIsActive { get; set; }
         FilePanel Active { get; set; }
         FilePanel Passive { get; set; }
 
@@ -24,9 +29,6 @@ namespace ConsoleFileManager
             }
         }
 
-        public int ConsoleWidth { get; set; }
-        public int ConsoleHeight { get; set; }
-
         public FileManager()
         {
             DataXML xml = new DataXML();
@@ -37,20 +39,37 @@ namespace ConsoleFileManager
             StartDirectoryLeft = xml.XMLStartDirectoryLeft;
             StartDirectoryRight = xml.XMLStartDirectoryRight;
             NewCommandText = "";
+            bool leftIsActive = xml.LeftIsActive;
 
             Console.SetWindowSize(ConsoleWidth, ConsoleHeight);
             //Console.SetBufferSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
 
             Borders border = new Borders();
             FilePanel filePanelLeft = new FilePanel(StartDirectoryLeft, 1, ConsoleWidth / 2 - 1);
-            filePanelLeft.CurrentItem = 50; // читать из XML ------------------------------------------------------------------------
-            filePanelLeft.IsActive = true; // читать из XML ------------------------------------------------------------------------
-            Active = filePanelLeft; // читать из XML ------------------------------------------------------------------------
+            filePanelLeft.CurrentItem = xml.XMLLeftActiveItem;
+
 
             FilePanel filePanelRight = new FilePanel(StartDirectoryRight, ConsoleWidth / 2, ConsoleWidth - 1);
-            filePanelRight.CurrentItem = 8; // читать из XML ------------------------------------------------------------------------
-            filePanelRight.IsActive = false; // читать из XML ------------------------------------------------------------------------
-            Passive = filePanelRight; // читать из XML ------------------------------------------------------------------------
+            filePanelRight.CurrentItem = xml.XMLRightActiveItem;
+
+            if (leftIsActive)
+            {
+                filePanelLeft.IsActive = true;
+                Active = filePanelLeft;
+                filePanelRight.IsActive = false;
+                Passive = filePanelRight;
+            }
+            else
+            {
+                filePanelLeft.IsActive = false;
+                Active = filePanelRight;
+                filePanelRight.IsActive = true;
+                Passive = filePanelLeft;
+            }
+
+            CurrentItemLeft = filePanelLeft.CurrentItem;
+            CurrentItemRight = filePanelRight.CurrentItem;
+            LeftIsActive = filePanelLeft.IsActive;
 
             PrintFileManager(filePanelLeft, filePanelRight, border);
 
@@ -82,15 +101,83 @@ namespace ConsoleFileManager
             bool exit = false;
             while (!exit)
             {
+                string pathConfigXML = "Resources/Config.xml";
+                XmlDocument xmlConfig = new XmlDocument();
+                xmlConfig.Load(pathConfigXML);
+
+                bool xmlBeSaved = false;
+
                 if (Console.WindowWidth != ConsoleWidth || Console.WindowHeight != ConsoleHeight)
                 {
-                    Console.Clear();
-                    //Console.SetBufferSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
 
+                    if (Console.WindowWidth != ConsoleWidth)
+                    {
+                        XmlNode nodeWidth = xmlConfig.SelectSingleNode("//Width");
+                        nodeWidth.InnerText = Console.WindowWidth.ToString();
+                        xmlBeSaved = true;
+                    }
+
+                    if (Console.WindowHeight != ConsoleHeight)
+                    {
+                        XmlNode nodeHeight = xmlConfig.SelectSingleNode("//Height");
+                        nodeHeight.InnerText = Console.WindowHeight.ToString();
+                        xmlBeSaved = true;
+                    }
+
+                    Console.Clear();
                     ConsoleWidth = Console.WindowWidth;
                     ConsoleHeight = Console.WindowHeight;
 
                     PrintFileManager(filePanelLeft, filePanelRight, border);
+                }
+
+                //else values to xml check for changes
+                if (filePanelLeft.StartDirectory != StartDirectoryLeft)
+                {
+                    XmlNode nodeLastDirL = xmlConfig.SelectSingleNode("//LeftStartDir");
+                    nodeLastDirL.InnerText = filePanelLeft.StartDirectory;
+                    xmlBeSaved = true;
+                }
+
+                if (filePanelRight.StartDirectory != StartDirectoryRight)
+                {
+                    XmlNode nodeLastDirR = xmlConfig.SelectSingleNode("//RightStartDir");
+                    nodeLastDirR.InnerText = filePanelRight.StartDirectory;
+                    xmlBeSaved = true;
+                }
+
+                if (filePanelLeft.CurrentItem != CurrentItemLeft)
+                {
+                    XmlNode nodeLeftActive = xmlConfig.SelectSingleNode("//LeftActiveItem");
+                    nodeLeftActive.InnerText = filePanelLeft.CurrentItem.ToString();
+                    xmlBeSaved = true;
+                }
+
+                if (filePanelRight.CurrentItem != CurrentItemRight)
+                {
+                    XmlNode nodeRightActive = xmlConfig.SelectSingleNode("//RightActiveItem");
+                    nodeRightActive.InnerText = filePanelRight.CurrentItem.ToString();
+                    xmlBeSaved = true;
+                }
+
+                if (filePanelLeft.IsActive != LeftIsActive)
+                {
+                    XmlNode nodeActive = xmlConfig.SelectSingleNode("//LeftIsActive");
+                    nodeActive.InnerText = filePanelLeft.IsActive.ToString();
+                    xmlBeSaved = true;
+                    LeftIsActive = filePanelLeft.IsActive;
+                }
+
+                if (xmlBeSaved)
+                {
+                    try
+                    {
+                        xmlConfig.Save(pathConfigXML);
+                    }
+                    catch (Exception s)
+                    {
+                        Active.ShowAlert($"Can't save data to xml file {pathConfigXML}.\r" + s.Message);
+                    }
                 }
 
                 if (Console.KeyAvailable)
@@ -100,7 +187,7 @@ namespace ConsoleFileManager
                     if (Char.IsControl(userKey.KeyChar))
                     {
                         bool isConfirmed = false;
-                        Actions newActon = new Actions(Active, Passive.StartDirectory);
+                        Actions newActon = new Actions(Active, Passive, ConsoleWidth);
 
                         switch (userKey.Key)
                         {
@@ -131,14 +218,18 @@ namespace ConsoleFileManager
                             case ConsoleKey.End:
                                 newActon.ChangeCurrentItem(1000);                                
                                 break;
-                            case ConsoleKey.F2:
-                                newActon.RenameItem("Rename");
+                            case ConsoleKey.F1:
+                                newActon.ShowHelp();
+                                PrintFileManager(filePanelLeft, filePanelRight, border);
+                                break;
+                            case ConsoleKey.F3:                                
+                                newActon.ShowInfo(Path.Combine(Active.StartDirectory, Active.CurrentItemName));
                                 PrintFileManager(filePanelLeft, filePanelRight, border);
                                 break;
                             case ConsoleKey.F5:
                                 isConfirmed = newActon.UserConfirmAction("Copy", Passive.StartDirectory);
                                 if (isConfirmed)
-                                    newActon.CopyItemTo(Active.StartDirectory, Passive.StartDirectory);
+                                    newActon.CopyFromPanel();
                                 PrintFileManager(filePanelLeft, filePanelRight, border);
                                 break;
                             case ConsoleKey.F6:
@@ -152,24 +243,40 @@ namespace ConsoleFileManager
                                 PrintFileManager(filePanelLeft, filePanelRight, border);
                                 break;
                             case ConsoleKey.F8:
-                                isConfirmed = newActon.UserConfirmAction("Delete", Passive.StartDirectory);
-                                if (isConfirmed)
-                                    newActon.DeleteItem(Passive.StartDirectory);
+                                isConfirmed = newActon.UserConfirmAction("Delete", Active.CurrentItemName);
+                                if (isConfirmed && Active.CurrentItem != 0)
+                                    newActon.DeleteItem(Path.Combine(Active.StartDirectory, Active.CurrentItemName));
+                                PrintFileManager(filePanelLeft, filePanelRight, border);
+                                break;
+                            case ConsoleKey.F9:
+                                newActon.RenameItem("Rename");
                                 PrintFileManager(filePanelLeft, filePanelRight, border);
                                 break;
 
                             case ConsoleKey.Enter:
-                                if (NewCommandText.Length > 0)
+                                if ((userKey.Modifiers & ConsoleModifiers.Control) != 0)
                                 {
-                                    Console.Write("Execute command " + NewCommandText);
-                                    NewCommandText = "";
+                                    NewCommandText = NewCommandText + Active.CurrentItemName;
                                 }
                                 else
                                 {
-                                    newActon.ExecuteCurrent();
+                                    if (NewCommandText.Length > 0)
+                                    {
+                                        newActon.AnalizeCommand(NewCommandText, true);
+
+                                        NewCommandText = "";                                        
+                                    }
+                                    else
+                                    {
+                                        newActon.ExecuteCurrent();
+                                    }
+                                    PrintFileManager(filePanelLeft, filePanelRight, border);
                                 }
-                                //Console.Clear();
-                                //PrintFileManager(filePanelLeft, filePanelRight, border);
+                                break;
+                            case ConsoleKey.Backspace:
+                                if (NewCommandText.Length > 0)
+                                    NewCommandText = NewCommandText.Substring(0, NewCommandText.Length - 1);
+
                                 break;
                             default:
                                 break;
@@ -189,6 +296,8 @@ namespace ConsoleFileManager
                             NewCommandText = NewCommandText + userKey.KeyChar.ToString().ToLower();
                             Console.Write(userKey.KeyChar.ToString().ToLower());
                         }
+
+                        PrintUserCommand();
                     }                   
                 }
             }
@@ -199,15 +308,24 @@ namespace ConsoleFileManager
         {
             Console.SetCursorPosition(1, ConsoleHeight - 6);
 
-            int padding = ConsoleWidth  / 7; // delimeter = amount of all commands
+            //int padding = ConsoleWidth  / 9; // delimeter = amount of all commands
+            //Console.Write("[F1 Help]".PadRight(padding));
+            //Console.Write("[F3 Info]".PadRight(padding));
+            //Console.Write("[F5 Copy]".PadRight(padding));
+            //Console.Write("[F6 Move]".PadRight(padding));
+            //Console.Write("[F7 NewDir]".PadRight(padding));
+            //Console.Write("[F8 Del]".PadRight(padding));
+            //Console.Write("[F9 Rename]");
 
-            Console.Write("[F1 Help]".PadRight(padding));
-            Console.Write("[F2 Rename]".PadRight(padding));
-            Console.Write("[F5 Copy]".PadRight(padding));
-            Console.Write("[F6 Move]".PadRight(padding));
-            Console.Write("[F7 NewDir]".PadRight(padding));
-            Console.Write("[F8 Del]");
-
+            //80 = all symbols lenght
+            int padding = (ConsoleWidth - 80) / 8; // delimeter between [F] text
+            Console.Write("[F1 Help]" + new string(' ', padding));
+            Console.Write("[F3 Info]" + new string(' ', padding));
+            Console.Write("[F5 Copy]" + new string(' ', padding));
+            Console.Write("[F6 Move]" + new string(' ', padding));
+            Console.Write("[F7 NewDir]" + new string(' ', padding));
+            Console.Write("[F8 Del]" + new string(' ', padding));
+            Console.Write("[F9 Rename]");
             try
             {
                 Console.SetCursorPosition(ConsoleWidth - 14, ConsoleHeight - 6);
@@ -221,10 +339,22 @@ namespace ConsoleFileManager
 
         private void PrintUserCommand()
         {
-            Console.SetCursorPosition(1, ConsoleHeight - 4);
-            Console.Write("Info: " );
+            //string info = "";
+
+            if (NewCommandText.Length > 0)
+            {
+                Actions newUserAction = new Actions(Active, Passive, ConsoleWidth);
+                newUserAction.AnalizeCommand(NewCommandText, false);
+            }
+
+            //Console.SetCursorPosition(1, ConsoleHeight - 4);
+            //Console.Write("Info: " + info);
             Console.SetCursorPosition(1, ConsoleHeight - 3);
-            Console.Write("Command: " + NewCommandText);
+            Console.Write("Command:" + NewCommandText);
+
+            int cursor = Console.CursorLeft;
+            Console.Write("*".PadRight(ConsoleWidth - (NewCommandText.Length + 10), '*'));
+            Console.CursorLeft = cursor;
         }
     }
 }

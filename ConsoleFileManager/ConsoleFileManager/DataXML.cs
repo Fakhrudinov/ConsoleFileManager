@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.IO;
-using System.Text;
 using System.Xml;
 
 namespace ConsoleFileManager
@@ -11,6 +8,9 @@ namespace ConsoleFileManager
     {
         public int XMLConsoleWidth { get; set; }
         public int XMLConsoleHeight { get; set; }
+        public int XMLLeftActiveItem { get; set; }
+        public int XMLRightActiveItem { get; set; }
+        public bool LeftIsActive { get; set; }
         public string XMLStartDirectoryLeft { get; set; }
         public string XMLStartDirectoryRight { get; set; }
 
@@ -30,17 +30,19 @@ namespace ConsoleFileManager
                 }
             }
 
-            XmlDocument xmlConfig = new XmlDocument();            
+            XmlDocument xmlConfig = new XmlDocument();
 
             //Config XML Exist?
             if (!File.Exists(pathConfigXML))//if can not find file
             {
                 //File with configuration info not found. Set default values
-
                 XMLConsoleWidth = 100;//default value
                 XMLConsoleHeight = 40;//default value
                 XMLStartDirectoryLeft = defaultDrive;
                 XMLStartDirectoryRight = defaultDrive;
+                XMLLeftActiveItem = 0;
+                XMLRightActiveItem = 0;
+                LeftIsActive = true;            
 
                 CreateFile(pathConfigXML, defaultDrive);
             }
@@ -71,6 +73,76 @@ namespace ConsoleFileManager
 
                     xmlConfig.Load(pathConfigXML);
                 }
+
+
+                //is left panel active
+                XmlNode nodeActive = xmlConfig.SelectSingleNode("//LeftIsActive");
+                if (nodeActive != null)
+                {
+                    string isActive = nodeActive.InnerText;
+                    if (Boolean.TryParse(isActive, out bool boolActive))
+                    {
+                        LeftIsActive = boolActive;
+                    }
+                    else
+                    {
+                        LeftIsActive = true;
+                        SetValueToXML(xmlConfig, nodeActive, pathConfigXML, "true");
+                    }
+                }
+                else
+                {
+                    LeftIsActive = true;//default value
+
+                    CreateNodeXML(xmlConfig, pathConfigXML, "LeftIsActive", "true");
+                }
+
+
+
+                //right panel active item
+                XmlNode nodeRightActive = xmlConfig.SelectSingleNode("//RightActiveItem");
+                if (nodeRightActive != null)
+                {
+                    string rightActive = nodeRightActive.InnerText;
+                    if (Int32.TryParse(rightActive, out int intRightActive))
+                    {
+                        XMLRightActiveItem = intRightActive;
+                    }
+                    else
+                    {
+                        XMLRightActiveItem = 0;
+                        SetValueToXML(xmlConfig, nodeRightActive, pathConfigXML, "0");
+                    }
+                }
+                else
+                {
+                    XMLRightActiveItem = 0;//default value
+
+                    CreateNodeXML(xmlConfig, pathConfigXML, "RightActiveItem", "0");
+                }
+
+                //left panel active item
+                XmlNode nodeLeftActive = xmlConfig.SelectSingleNode("//LeftActiveItem");
+                if (nodeLeftActive != null)
+                {
+                    string leftActive = nodeLeftActive.InnerText;
+                    if (Int32.TryParse(leftActive, out int intLeftActive))
+                    {
+                        XMLLeftActiveItem = intLeftActive;
+                    }
+                    else
+                    {
+                        XMLLeftActiveItem = 0;
+                        SetValueToXML(xmlConfig, nodeLeftActive, pathConfigXML, "0");
+                    }
+                }
+                else
+                {
+                    XMLLeftActiveItem = 0;//default value
+
+                    CreateNodeXML(xmlConfig, pathConfigXML, "LeftActiveItem", "0");
+                }
+
 
                 //console width
                 XmlNode nodeWidth = xmlConfig.SelectSingleNode("//Width");
@@ -117,7 +189,7 @@ namespace ConsoleFileManager
                 }
 
                 //file manager last left directory 
-                XmlNode nodeLastDirL = xmlConfig.SelectSingleNode("//StartDirLeft");
+                XmlNode nodeLastDirL = xmlConfig.SelectSingleNode("//LeftStartDir");
                 if (nodeLastDirL != null)
                 {
                     string LastDir = nodeLastDirL.InnerText;
@@ -135,11 +207,11 @@ namespace ConsoleFileManager
                 {
                     XMLStartDirectoryLeft = defaultDrive;//default value
 
-                    CreateNodeXML(xmlConfig, pathConfigXML, "StartDirLeft", defaultDrive);
+                    CreateNodeXML(xmlConfig, pathConfigXML, "LeftStartDir", defaultDrive);
                 }
 
                 //file manager last right directory  
-                XmlNode nodeLastDirR = xmlConfig.SelectSingleNode("//StartDirRight");
+                XmlNode nodeLastDirR = xmlConfig.SelectSingleNode("//RightStartDir");
                 if (nodeLastDirR != null)
                 {
                     string LastDir = nodeLastDirR.InnerText;
@@ -157,9 +229,15 @@ namespace ConsoleFileManager
                 {
                     XMLStartDirectoryRight = defaultDrive;//default value
 
-                    CreateNodeXML(xmlConfig, pathConfigXML, "StartDirRight", defaultDrive);
+                    CreateNodeXML(xmlConfig, pathConfigXML, "RightStartDir", defaultDrive);
                 }
             }
+        }
+
+        private void SetValueToXML(XmlDocument xmlDoc, XmlNode nodeToChange, string pathConfigXML, string nodeValue)
+        {
+            nodeToChange.InnerText = nodeValue;
+            xmlDoc.Save(pathConfigXML);
         }
 
         private void CreateFile(string pathConfigXML, string defaultDrive)
@@ -167,9 +245,11 @@ namespace ConsoleFileManager
             string text = $"" +
                 $"<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" +
                 "<Settings>\r\n" +
-                "   <StartDirLeft>" + defaultDrive + "</StartDirLeft>\r\n" +
-                "   <StartDirRight>" + defaultDrive + "</StartDirRight>\r\n" +
-                "   <!--<ShowHiddenFiles>1</ShowHiddenFiles>-->\r\n" +
+                "   <LeftIsActive>True</LeftIsActive>\r\n" +
+                "   <LeftStartDir>" + defaultDrive + "</LeftStartDir>\r\n" +
+                "   <RightStartDir>" + defaultDrive + "</RightStartDir>\r\n" +
+                "   <LeftActiveItem>0</LeftActiveItem>\r\n" +
+                "   <RightActiveItem>0</RightActiveItem>\r\n" +
                 "   <Width>100</Width>\r\n" +
                 "   <Height>40</Height>\r\n" +
                 "</Settings>\r\n";
@@ -196,12 +276,6 @@ namespace ConsoleFileManager
 
             XmlElement root = xmlConfig.DocumentElement;
             root.AppendChild(newNode);
-            xmlConfig.Save(pathConfigXML);
-        }
-
-        private void SetValueToXML(XmlDocument xmlConfig, XmlNode nodeWidth, string pathConfigXML, string nodeValue)
-        {
-            nodeWidth.InnerText = nodeValue;
             xmlConfig.Save(pathConfigXML);
         }
     }
