@@ -11,7 +11,19 @@ namespace ConsoleFileManager
         public int CurrentItem { get; set; }
         public string CurrentItemName { get; set; }
         public int TotalItems { get; set; }
-        public int ItemsOnPage { get; set; }
+        int itemsOnPage;
+        public int ItemsOnPage
+        {
+            get
+            {
+                return itemsOnPage;
+            }
+            set
+            {
+                if (value > 0)
+                itemsOnPage = value;
+            }
+        }
         public int FromX { get; set; }
         public int UntilX { get; set; }
         public int PanelHeight { get; set; }
@@ -24,12 +36,14 @@ namespace ConsoleFileManager
             UntilX = untilX;
         }
 
-
         private string TextLineCutter(string text, int maxLenght)
         {
             if (text.Length > maxLenght)
             {
-                text = text.Substring(0, 10) + "..." + text.Substring((text.Length - maxLenght) + 13);
+
+                string text1 = text.Substring(0, maxLenght / 2 - 1) + ".."; 
+                text = text1 + text.Substring((text.Length - (maxLenght / 2) + 1));
+
             }
             else
             {
@@ -223,8 +237,11 @@ namespace ConsoleFileManager
             if(UntilX - FromX < 45)
                 paginationSummary = $"Page {currentPage}/{pagesCount}. Dirs/Files: {dirsCount}/{filesCount}";
 
-            Console.SetCursorPosition(((UntilX - FromX - paginationSummary.Length) / 2) + FromX, PanelHeight - 7);
-            Console.Write(paginationSummary.PadRight((UntilX - FromX - paginationSummary.Length) / 2), '═');
+            int cursorX = (UntilX - FromX - paginationSummary.Length) / 2;
+            if (cursorX < 0)
+                cursorX = 0;
+            Console.SetCursorPosition(cursorX + FromX, PanelHeight - 7);
+            Console.Write(paginationSummary.PadRight(cursorX), '═');
 
             Console.ResetColor();
         }
@@ -262,14 +279,20 @@ namespace ConsoleFileManager
                 else if (name.Length > UntilX - (padding + FromX) && attributes == null) // files name shortening - extension always visible
                 {
                     string extension = name.Substring(name.LastIndexOf('.'));
-                    name = name.Substring(0, UntilX - ((padding + 2 + FromX) + extension.Length));
+                    int pad = UntilX - ((padding + 2 + FromX) + extension.Length);
+                    if (pad < 0)
+                        pad = 0;
+                    name = name.Substring(0, pad);
                     name = name + ".." + extension;
 
                     attr = GetFileSize(fileSize);
                 }
                 else // folders name shortening
                 {
-                    name = name.Substring(0, UntilX - (padding + 3 + FromX));
+                    int pad = UntilX - (padding + 3 + FromX);
+                    if (pad < 0)
+                        pad = 0;
+                    name = name.Substring(0, pad);
                     name = name + "...";
                 }
 

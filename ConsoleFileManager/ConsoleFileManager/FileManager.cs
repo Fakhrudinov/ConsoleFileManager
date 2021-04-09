@@ -9,25 +9,32 @@ namespace ConsoleFileManager
         public string StartDirectoryLeft { get; set; }
         public string StartDirectoryRight { get; set; }
         public int ConsoleWidth { get; set; }
-        public int ConsoleHeight { get; set; }
+
+        int consoleHeight;
+        public int ConsoleHeight
+        {
+            get
+            {
+                return consoleHeight;
+            }
+            set
+            {
+                if (value > 6)
+                    consoleHeight = value;
+                else
+                {
+                    consoleHeight = 7;
+                    Console.WindowHeight = 7;
+                }
+            }
+        }
+
         public int CurrentItemLeft { get; set; }
         public int CurrentItemRight { get; set; }
         public bool LeftIsActive { get; set; }
         FilePanel Active { get; set; }
         FilePanel Passive { get; set; }
-
-        string newCommandText;
-        string NewCommandText 
-        {
-            get
-            {
-                return newCommandText;
-            }
-            set
-            {
-                newCommandText = value;
-            }
-        }
+        public string NewCommandText { get; set; }
 
         public FileManager()
         {

@@ -60,7 +60,10 @@ namespace ConsoleFileManager
             PrintVerticalLine(0, BorderHeight - 7, BorderWidth / 2 - 1, 4);
 
             //set cross
-            Console.SetCursorPosition(BorderWidth / 2 - 1, 3);
+            int cursorX = BorderWidth / 2 - 1;
+            if (cursorX < 0)
+                cursorX = 0;
+            Console.SetCursorPosition(cursorX, 3);
             Console.Write("╬");
         }
 
