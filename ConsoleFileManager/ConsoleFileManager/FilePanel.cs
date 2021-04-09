@@ -68,7 +68,7 @@ namespace ConsoleFileManager
             {
                 foreach (DriveInfo drive in drives)
                 {
-                    if (drive.Name.ToLower().Contains(StartDirectory.ToLower().Substring(0, StartDirectory.IndexOf('\\'))))
+                    if (drive.Name.ToLower().Contains(StartDirectory.ToLower().Substring(0, 2)))
                     {
                         Console.SetCursorPosition(FromX, 2);
                         string currDisk = $"Current Disk: ";
@@ -79,8 +79,18 @@ namespace ConsoleFileManager
                 }
 
                 // all dirs and files put in one List<string>
-                string[] dirs = Directory.GetDirectories(StartDirectory);
-                string[] files = Directory.GetFiles(StartDirectory);
+                string[] dirs = new string [0];
+                string[] files = new string[0];
+                try
+                {
+                    dirs = Directory.GetDirectories(StartDirectory);
+                    files = Directory.GetFiles(StartDirectory);
+                }
+                catch (Exception e)
+                {
+                    ShowAlert(e.Message);
+                }
+
                 dirsCount = dirs.Length;
                 filesCount = files.Length;
                 allItems.Add("..");
@@ -92,8 +102,7 @@ namespace ConsoleFileManager
                 TotalItems = allItems.Count;
                 if (CurrentItem > TotalItems)
                     CurrentItem = 0;
-                
-                //itemsOnPage = PanelHeight - 11;
+
                 ItemsOnPage = PanelHeight - 11;
 
                 //++ understand page which contains CurrentItem
@@ -165,7 +174,14 @@ namespace ConsoleFileManager
                         {
                             FileInfo fileInf = new FileInfo(allItems[itemsToShow[i]]);
 
-                            PrintStringToConsole(dirInfo.Name, null, dirInfo.CreationTime, fileInf.Length, i);
+                            try
+                            {
+                                PrintStringToConsole(dirInfo.Name, null, dirInfo.CreationTime, fileInf.Length, i);
+                            }
+                            catch (Exception e)
+                            {
+                                ShowAlert(StartDirectory + " " + e.Message);
+                            }                            
                         }
                         else // dirs
                         {
@@ -267,6 +283,49 @@ namespace ConsoleFileManager
             }
 
             return string.Format("{0:n2}{1}", dValue, SizeSuffixes[i]);
+        }
+
+        public void ShowAlert(string alertText)
+        {
+            int cursorX = (UntilX - FromX) / 2;
+            int lineNumber = PanelHeight / 3;
+            string actionName = "Error when execute!";
+
+            //header
+            Console.SetCursorPosition(cursorX, lineNumber);
+            Console.BackgroundColor = ConsoleColor.Red;
+            int padding = (cursorX) + (actionName.Length / 2);
+            Console.Write(actionName.PadRight(padding).PadLeft(UntilX - FromX));
+
+            //int delimeter = alertText.Length / (UntilX - FromX);
+            int charPointer = 0;
+            int charPointerEnd = (UntilX - FromX) - 2;
+            while (charPointer < alertText.Length)
+            {
+                Console.SetCursorPosition(cursorX, ++lineNumber);
+                if (charPointerEnd > alertText.Length)
+                {
+                    Console.WriteLine(" " + alertText.Substring(charPointer).PadRight(UntilX - (FromX + 2)) + " ");
+                }
+                else
+                {
+                    Console.WriteLine(" " + alertText.Substring(charPointer, charPointerEnd) + " ");
+                }
+
+                charPointer = charPointerEnd;
+                charPointerEnd = charPointer + charPointerEnd;
+            }
+
+            //footer
+            Console.SetCursorPosition(cursorX, ++lineNumber);
+            Console.Write(" ".PadRight(UntilX - FromX));
+            Console.SetCursorPosition(cursorX, ++lineNumber);
+            Console.Write(" Press Enter to close alert.".PadRight(UntilX - FromX));
+
+            Console.SetCursorPosition(cursorX + 29, lineNumber);
+            Console.ReadLine();
+
+            Console.BackgroundColor = ConsoleColor.Black;
         }
     }
 }

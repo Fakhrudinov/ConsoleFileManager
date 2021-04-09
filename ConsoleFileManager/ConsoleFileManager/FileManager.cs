@@ -169,8 +169,15 @@ namespace ConsoleFileManager
                 }
 
                 if (xmlBeSaved)
-                {                   
-                    xmlConfig.Save(pathConfigXML);
+                {
+                    try
+                    {
+                        xmlConfig.Save(pathConfigXML);
+                    }
+                    catch (Exception s)
+                    {
+                        Active.ShowAlert($"Can't save data to xml file {pathConfigXML}.\r" + s.Message);
+                    }
                 }
 
                 if (Console.KeyAvailable)
@@ -215,14 +222,14 @@ namespace ConsoleFileManager
                                 newActon.ShowHelp();
                                 PrintFileManager(filePanelLeft, filePanelRight, border);
                                 break;
-                            case ConsoleKey.F2:
-                                newActon.RenameItem("Rename");
+                            case ConsoleKey.F3:                                
+                                newActon.ShowInfo(Path.Combine(Active.StartDirectory, Active.CurrentItemName));
                                 PrintFileManager(filePanelLeft, filePanelRight, border);
                                 break;
                             case ConsoleKey.F5:
                                 isConfirmed = newActon.UserConfirmAction("Copy", Passive.StartDirectory);
                                 if (isConfirmed)
-                                    newActon.CopyItemTo(Active.StartDirectory, Passive.StartDirectory);
+                                    newActon.CopyFromPanel();
                                 PrintFileManager(filePanelLeft, filePanelRight, border);
                                 break;
                             case ConsoleKey.F6:
@@ -241,6 +248,10 @@ namespace ConsoleFileManager
                                     newActon.DeleteItem(Path.Combine(Active.StartDirectory, Active.CurrentItemName));
                                 PrintFileManager(filePanelLeft, filePanelRight, border);
                                 break;
+                            case ConsoleKey.F9:
+                                newActon.RenameItem("Rename");
+                                PrintFileManager(filePanelLeft, filePanelRight, border);
+                                break;
 
                             case ConsoleKey.Enter:
                                 if ((userKey.Modifiers & ConsoleModifiers.Control) != 0)
@@ -253,13 +264,13 @@ namespace ConsoleFileManager
                                     {
                                         newActon.AnalizeCommand(NewCommandText, true);
 
-                                        NewCommandText = "";
-                                        PrintFileManager(filePanelLeft, filePanelRight, border);
+                                        NewCommandText = "";                                        
                                     }
                                     else
                                     {
                                         newActon.ExecuteCurrent();
                                     }
+                                    PrintFileManager(filePanelLeft, filePanelRight, border);
                                 }
                                 break;
                             case ConsoleKey.Backspace:
@@ -297,15 +308,24 @@ namespace ConsoleFileManager
         {
             Console.SetCursorPosition(1, ConsoleHeight - 6);
 
-            int padding = ConsoleWidth  / 7; // delimeter = amount of all commands
+            //int padding = ConsoleWidth  / 9; // delimeter = amount of all commands
+            //Console.Write("[F1 Help]".PadRight(padding));
+            //Console.Write("[F3 Info]".PadRight(padding));
+            //Console.Write("[F5 Copy]".PadRight(padding));
+            //Console.Write("[F6 Move]".PadRight(padding));
+            //Console.Write("[F7 NewDir]".PadRight(padding));
+            //Console.Write("[F8 Del]".PadRight(padding));
+            //Console.Write("[F9 Rename]");
 
-            Console.Write("[F1 Help]".PadRight(padding));
-            Console.Write("[F2 Rename]".PadRight(padding));
-            Console.Write("[F5 Copy]".PadRight(padding));
-            Console.Write("[F6 Move]".PadRight(padding));
-            Console.Write("[F7 NewDir]".PadRight(padding));
-            Console.Write("[F8 Del]");
-
+            //80 = all symbols lenght
+            int padding = (ConsoleWidth - 80) / 8; // delimeter between [F] text
+            Console.Write("[F1 Help]" + new string(' ', padding));
+            Console.Write("[F3 Info]" + new string(' ', padding));
+            Console.Write("[F5 Copy]" + new string(' ', padding));
+            Console.Write("[F6 Move]" + new string(' ', padding));
+            Console.Write("[F7 NewDir]" + new string(' ', padding));
+            Console.Write("[F8 Del]" + new string(' ', padding));
+            Console.Write("[F9 Rename]");
             try
             {
                 Console.SetCursorPosition(ConsoleWidth - 14, ConsoleHeight - 6);
