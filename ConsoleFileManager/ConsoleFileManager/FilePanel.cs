@@ -232,6 +232,8 @@ namespace ConsoleFileManager
         private void PrintStringToConsole(string name, string attributes, DateTime creationTime, long fileSize, int lineNum)
         {
             string attr = "<DIR>";
+            int padding = 27; // calculate 
+            string dateTime = creationTime.ToString(" yy/MM/dd HH:mm:ss ");// 19 symbols
 
             Console.SetCursorPosition(FromX, 4 + lineNum);
 
@@ -241,30 +243,37 @@ namespace ConsoleFileManager
             }
             else
             {
-                if (name.Length <= UntilX - (27 + FromX) && attributes == null) // files 
+                //decision = show date time or not
+                if (UntilX - FromX < 50)
                 {
-                    name = name.PadRight(UntilX - (27 + FromX));
+                    dateTime = "";
+                    padding = 8;
+                }
+
+                if (name.Length <= UntilX - (padding + FromX) && attributes == null) // files 
+                {
+                    name = name.PadRight(UntilX - (padding + FromX));
                     attr = GetFileSize(fileSize);
                 }
-                else if (name.Length <= UntilX - (27 + FromX))
+                else if (name.Length <= UntilX - (padding + FromX))
                 {
-                    name = name.PadRight(UntilX - (27 + FromX));
+                    name = name.PadRight(UntilX - (padding + FromX));
                 }
-                else if (name.Length > UntilX - (27 + FromX) && attributes == null) // files name shortening - extension always visible
+                else if (name.Length > UntilX - (padding + FromX) && attributes == null) // files name shortening - extension always visible
                 {
                     string extension = name.Substring(name.LastIndexOf('.'));
-                    name = name.Substring(0, UntilX - ((29 + FromX) + extension.Length));
+                    name = name.Substring(0, UntilX - ((padding + 2 + FromX) + extension.Length));
                     name = name + ".." + extension;
 
                     attr = GetFileSize(fileSize);
                 }
                 else // folders name shortening
                 {
-                    name = name.Substring(0, UntilX - (30 + FromX));
+                    name = name.Substring(0, UntilX - (padding + 3 + FromX));
                     name = name + "...";
                 }
 
-                Console.Write(name + creationTime.ToString(" yy/MM/dd HH:mm:ss ") + attr.PadLeft(8)); // dt.lenght = 19 
+                Console.Write(name + dateTime + attr.PadLeft(8)); 
             }
         }
 

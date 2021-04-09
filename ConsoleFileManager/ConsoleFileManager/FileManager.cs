@@ -319,6 +319,9 @@ namespace ConsoleFileManager
 
             //80 = all symbols lenght
             int padding = (ConsoleWidth - 80) / 8; // delimeter between [F] text
+            if (padding < 0)
+                padding = 0;
+
             Console.Write("[F1 Help]" + new string(' ', padding));
             Console.Write("[F3 Info]" + new string(' ', padding));
             Console.Write("[F5 Copy]" + new string(' ', padding));
