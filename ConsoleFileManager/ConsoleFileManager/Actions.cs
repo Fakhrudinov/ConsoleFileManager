@@ -925,49 +925,49 @@ namespace ConsoleFileManager
             return newName;
         }
 
-        public void ShowAlertx(string alertText)
-        {
-            int cursorX = (UntilX - FromX) / 2;
-            int lineNumber = Height / 3;
-            string actionName = "Error when execute!";
+        //public void ShowAlertx(string alertText)
+        //{
+        //    int cursorX = (UntilX - FromX) / 2;
+        //    int lineNumber = Height / 3;
+        //    string actionName = "Error when execute!";
 
-            //header
-            Console.SetCursorPosition(cursorX, lineNumber);
-            Console.BackgroundColor = ConsoleColor.Red;
-            int padding = (cursorX) + (actionName.Length / 2);
-            Console.Write(actionName.PadRight(padding).PadLeft(UntilX - FromX));
+        //    //header
+        //    Console.SetCursorPosition(cursorX, lineNumber);
+        //    Console.BackgroundColor = ConsoleColor.Red;
+        //    int padding = (cursorX) + (actionName.Length / 2);
+        //    Console.Write(actionName.PadRight(padding).PadLeft(UntilX - FromX));
 
-            //int delimeter = alertText.Length / (UntilX - FromX);
-            int charPointer = 0;
-            int charPointerEnd = (UntilX - FromX) - 2;
-            while (charPointer < alertText.Length)
-            {
-                Console.SetCursorPosition(cursorX, ++lineNumber);
-                if (charPointerEnd > alertText.Length)
-                {                    
-                    Console.WriteLine(" " + alertText.Substring(charPointer).PadRight(UntilX - (FromX + 2)) + " ");
-                }
-                else
-                {
-                    Console.WriteLine(" " + alertText.Substring(charPointer, charPointerEnd) + " ");
-                }
+        //    //int delimeter = alertText.Length / (UntilX - FromX);
+        //    int charPointer = 0;
+        //    int charPointerEnd = (UntilX - FromX) - 2;
+        //    while (charPointer < alertText.Length)
+        //    {
+        //        Console.SetCursorPosition(cursorX, ++lineNumber);
+        //        if (charPointerEnd > alertText.Length)
+        //        {                    
+        //            Console.WriteLine(" " + alertText.Substring(charPointer).PadRight(UntilX - (FromX + 2)) + " ");
+        //        }
+        //        else
+        //        {
+        //            Console.WriteLine(" " + alertText.Substring(charPointer, charPointerEnd) + " ");
+        //        }
                 
-                charPointer = charPointerEnd;
-                charPointerEnd = charPointer + charPointerEnd;
-            }
+        //        charPointer = charPointerEnd;
+        //        charPointerEnd = charPointer + charPointerEnd;
+        //    }
 
-            //footer
-            PrintLinePanelText("  ", cursorX, ++lineNumber, UntilX - FromX);
-            PrintLinePanelText(" Press Enter to close alert.", cursorX, ++lineNumber, UntilX - FromX);
-            //Console.SetCursorPosition(cursorX, ++lineNumber);
-            //Console.Write(" ".PadRight(UntilX - FromX));
-            //Console.SetCursorPosition(cursorX, ++lineNumber);
-            //Console.Write(" Press Enter to close alert.".PadRight(UntilX - FromX));
+        //    //footer
+        //    PrintLinePanelText("  ", cursorX, ++lineNumber, UntilX - FromX);
+        //    PrintLinePanelText(" Press Enter to close alert.", cursorX, ++lineNumber, UntilX - FromX);
+        //    //Console.SetCursorPosition(cursorX, ++lineNumber);
+        //    //Console.Write(" ".PadRight(UntilX - FromX));
+        //    //Console.SetCursorPosition(cursorX, ++lineNumber);
+        //    //Console.Write(" Press Enter to close alert.".PadRight(UntilX - FromX));
 
-            Console.SetCursorPosition(cursorX + 29, lineNumber);
-            Console.ReadLine();
+        //    Console.SetCursorPosition(cursorX + 29, lineNumber);
+        //    Console.ReadLine();
 
-            Console.BackgroundColor = ConsoleColor.Black;
-        }
+        //    Console.BackgroundColor = ConsoleColor.Black;
+        //}
     }
 }

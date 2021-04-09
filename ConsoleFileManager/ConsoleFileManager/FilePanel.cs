@@ -58,7 +58,7 @@ namespace ConsoleFileManager
             if (!IsActive)
                 Console.ForegroundColor = ConsoleColor.DarkGray;
 
-            Console.SetCursorPosition(FromX, 1);
+            SetCursorPosition(FromX, 1);
             string currDir = "Current Dir: ";
             if ((currDir + StartDirectory).Length > UntilX - FromX)
                 currDir = "";
@@ -84,7 +84,8 @@ namespace ConsoleFileManager
                 {
                     if (drive.Name.ToLower().Contains(StartDirectory.ToLower().Substring(0, 2)))
                     {
-                        Console.SetCursorPosition(FromX, 2);
+                        SetCursorPosition(FromX, 2);
+
                         string currDisk = $"Current Disk: ";
                         if((currDisk + $"{drive.Name} Total:{GetFileSize(drive.TotalSize)} Free:{ GetFileSize(drive.TotalFreeSpace)}").Length > UntilX - FromX)
                             currDisk = "";
@@ -219,15 +220,14 @@ namespace ConsoleFileManager
                 {
                     for (int i = itemsToShow.Length; i < PanelHeight - 11; i++)
                     {
-                        Console.SetCursorPosition(FromX, 4 + i);
-
+                        SetCursorPosition(FromX, 4 + i);
                         Console.WriteLine(" ".PadRight(UntilX - FromX));
                     }
                 }
             }
             else
             {
-                Console.SetCursorPosition(FromX, 2);
+                SetCursorPosition(FromX, 2);
                 Console.Write("Path not found: " + StartDirectory);
             }
 
@@ -240,7 +240,7 @@ namespace ConsoleFileManager
             int cursorX = (UntilX - FromX - paginationSummary.Length) / 2;
             if (cursorX < 0)
                 cursorX = 0;
-            Console.SetCursorPosition(cursorX + FromX, PanelHeight - 7);
+            SetCursorPosition(cursorX + FromX, PanelHeight - 7);
             Console.Write(paginationSummary.PadRight(cursorX), '═');
 
             Console.ResetColor();
@@ -251,9 +251,8 @@ namespace ConsoleFileManager
             string attr = "<DIR>";
             int padding = 27; // calculate 
             string dateTime = creationTime.ToString(" yy/MM/dd HH:mm:ss ");// 19 symbols
-
-            Console.SetCursorPosition(FromX, 4 + lineNum);
-
+                                                                           
+            SetCursorPosition(FromX, 4 + lineNum);        
             if (name.Equals(".."))
             {
                 Console.WriteLine(".." + "<ParentDIR>".PadLeft(UntilX - (FromX + 2)));
@@ -324,7 +323,7 @@ namespace ConsoleFileManager
             string actionName = "Error when execute!";
 
             //header
-            Console.SetCursorPosition(cursorX, lineNumber);
+            SetCursorPosition(cursorX, lineNumber);
             Console.BackgroundColor = ConsoleColor.Red;
             int padding = (cursorX) + (actionName.Length / 2);
             Console.Write(actionName.PadRight(padding).PadLeft(UntilX - FromX));
@@ -334,7 +333,7 @@ namespace ConsoleFileManager
             int charPointerEnd = (UntilX - FromX) - 2;
             while (charPointer < alertText.Length)
             {
-                Console.SetCursorPosition(cursorX, ++lineNumber);
+                SetCursorPosition(cursorX, ++lineNumber);
                 if (charPointerEnd > alertText.Length)
                 {
                     Console.WriteLine(" " + alertText.Substring(charPointer).PadRight(UntilX - (FromX + 2)) + " ");
@@ -349,15 +348,27 @@ namespace ConsoleFileManager
             }
 
             //footer
-            Console.SetCursorPosition(cursorX, ++lineNumber);
+            SetCursorPosition(cursorX, ++lineNumber);
             Console.Write(" ".PadRight(UntilX - FromX));
-            Console.SetCursorPosition(cursorX, ++lineNumber);
+            SetCursorPosition(cursorX, ++lineNumber);
             Console.Write(" Press Enter to close alert.".PadRight(UntilX - FromX));
 
-            Console.SetCursorPosition(cursorX + 29, lineNumber);
+            SetCursorPosition(cursorX + 29, lineNumber);
             Console.ReadLine();
 
             Console.BackgroundColor = ConsoleColor.Black;
+        }
+
+        private void SetCursorPosition(int x, int y)
+        {
+            try
+            {
+                Console.SetCursorPosition(x, y);
+            }
+            catch (System.ArgumentOutOfRangeException)
+            {
+
+            }
         }
     }
 }

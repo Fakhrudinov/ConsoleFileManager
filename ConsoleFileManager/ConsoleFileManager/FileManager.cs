@@ -315,15 +315,6 @@ namespace ConsoleFileManager
         {
             Console.SetCursorPosition(1, ConsoleHeight - 6);
 
-            //int padding = ConsoleWidth  / 9; // delimeter = amount of all commands
-            //Console.Write("[F1 Help]".PadRight(padding));
-            //Console.Write("[F3 Info]".PadRight(padding));
-            //Console.Write("[F5 Copy]".PadRight(padding));
-            //Console.Write("[F6 Move]".PadRight(padding));
-            //Console.Write("[F7 NewDir]".PadRight(padding));
-            //Console.Write("[F8 Del]".PadRight(padding));
-            //Console.Write("[F9 Rename]");
-
             //80 = all symbols lenght
             int padding = (ConsoleWidth - 80) / 8; // delimeter between [F] text
             if (padding < 0)
@@ -363,7 +354,10 @@ namespace ConsoleFileManager
             Console.Write("Command:" + NewCommandText);
 
             int cursor = Console.CursorLeft;
-            Console.Write("*".PadRight(ConsoleWidth - (NewCommandText.Length + 10), '*'));
+            int pad = ConsoleWidth - (NewCommandText.Length + 10);
+            if (pad < 0)
+                pad = 0;
+            Console.Write("*".PadRight(pad, '*'));
             Console.CursorLeft = cursor;
         }
     }

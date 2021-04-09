@@ -63,7 +63,8 @@ namespace ConsoleFileManager
             int cursorX = BorderWidth / 2 - 1;
             if (cursorX < 0)
                 cursorX = 0;
-            Console.SetCursorPosition(cursorX, 3);
+
+            SetCursorPosition(cursorX, 3);
             Console.Write("╬");
         }
 
@@ -139,13 +140,13 @@ namespace ConsoleFileManager
 
         private bool SetCursorPosition(int x, int y)
         {
-            if (Console.WindowWidth != BorderWidth || Console.WindowHeight != BorderHeight)
-            {
-                //Console.SetBufferSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
+            //if (Console.WindowWidth != BorderWidth || Console.WindowHeight != BorderHeight)
+            //{
+            //    //Console.SetBufferSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
 
-                //BorderWidth = Console.WindowWidth;
-                //BorderHeight = Console.WindowHeight;
-            }
+            //    //BorderWidth = Console.WindowWidth;
+            //    //BorderHeight = Console.WindowHeight;
+            //}
 
 
             //Console.SetCursorPosition(BorderWidth / 2, BorderHeight / 2 - 2);
