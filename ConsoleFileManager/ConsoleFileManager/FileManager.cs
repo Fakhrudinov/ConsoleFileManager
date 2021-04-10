@@ -183,7 +183,8 @@ namespace ConsoleFileManager
                     }
                     catch (Exception s)
                     {
-                        Active.ShowAlert($"Can't save data to xml file {pathConfigXML}.\r" + s.Message);
+                        ClassLibrary.Do.ShowAlert($"Can't save data to xml file {pathConfigXML}.\r" + s.Message, ConsoleWidth / 2);
+                        //Active.ShowAlert($"Can't save data to xml file {pathConfigXML}.\r" + s.Message);
                     }
                 }
 
@@ -207,54 +208,67 @@ namespace ConsoleFileManager
                                 filePanelLeft.ShowDirectoryContent();
                                 filePanelRight.ShowDirectoryContent();                                
                                 break;
+
                             case ConsoleKey.DownArrow:
                                 newActon.ChangeCurrentItem(1);                                
                                 break;
+
                             case ConsoleKey.UpArrow:
                                 newActon.ChangeCurrentItem(-1);                                
                                 break;
+
                             case ConsoleKey.PageDown:
                                 newActon.ChangeCurrentItem(100);                                
                                 break;
+
                             case ConsoleKey.PageUp:
                                 newActon.ChangeCurrentItem(-100);                                
                                 break;
+
                             case ConsoleKey.Home:
                                 newActon.ChangeCurrentItem(-1000);                                
                                 break;
+
                             case ConsoleKey.End:
                                 newActon.ChangeCurrentItem(1000);                                
                                 break;
+
                             case ConsoleKey.F1:
                                 newActon.ShowHelp();
                                 PrintFileManager(filePanelLeft, filePanelRight, border);
                                 break;
+
                             case ConsoleKey.F3:                                
                                 newActon.ShowInfo(Path.Combine(Active.StartDirectory, Active.CurrentItemName));
                                 PrintFileManager(filePanelLeft, filePanelRight, border);
                                 break;
+
                             case ConsoleKey.F5:
                                 isConfirmed = newActon.UserConfirmAction("Copy", Passive.StartDirectory);
                                 if (isConfirmed)
                                     newActon.CopyFromPanel();
                                 PrintFileManager(filePanelLeft, filePanelRight, border);
                                 break;
+
                             case ConsoleKey.F6:
                                 isConfirmed = newActon.UserConfirmAction("Move", Passive.StartDirectory);
                                 if(isConfirmed)
                                     newActon.MoveItemTo(Passive.StartDirectory);
                                 PrintFileManager(filePanelLeft, filePanelRight, border);
                                 break;
+
                             case ConsoleKey.F7:
                                 newActon.CreateNewDir("Create New Directory");
                                 PrintFileManager(filePanelLeft, filePanelRight, border);
                                 break;
+
                             case ConsoleKey.F8:
                                 isConfirmed = newActon.UserConfirmAction("Delete", Active.CurrentItemName);
                                 if (isConfirmed && Active.CurrentItem != 0)
                                     newActon.DeleteItem(Path.Combine(Active.StartDirectory, Active.CurrentItemName));
                                 PrintFileManager(filePanelLeft, filePanelRight, border);
                                 break;
+
                             case ConsoleKey.F9:
                                 newActon.RenameItem("Rename");
                                 PrintFileManager(filePanelLeft, filePanelRight, border);
@@ -280,16 +294,17 @@ namespace ConsoleFileManager
                                     PrintFileManager(filePanelLeft, filePanelRight, border);
                                 }
                                 break;
+
                             case ConsoleKey.Backspace:
                                 if (NewCommandText.Length > 0)
                                     NewCommandText = NewCommandText.Substring(0, NewCommandText.Length - 1);
-
                                 break;
+
                             default:
                                 break;
                         }
-                        // return pointer at command line
-                        PrintUserCommand();
+                        //// return pointer at command line
+                        //PrintUserCommand();
                     }
                     else
                     {
@@ -304,8 +319,11 @@ namespace ConsoleFileManager
                             Console.Write(userKey.KeyChar.ToString().ToLower());
                         }
 
-                        PrintUserCommand();
-                    }                   
+                        //PrintUserCommand();
+                    }
+
+                    // return pointer at command line
+                    PrintUserCommand();
                 }
             }
         }
@@ -313,7 +331,7 @@ namespace ConsoleFileManager
 
         private void PrintSingleKeyCommands()
         {
-            Console.SetCursorPosition(1, ConsoleHeight - 6);
+            ClassLibrary.Do.SetCursorPosition(1, ConsoleHeight - 6);
 
             //80 = all symbols lenght
             int padding = (ConsoleWidth - 80) / 8; // delimeter between [F] text
@@ -329,11 +347,11 @@ namespace ConsoleFileManager
             Console.Write("[F9 Rename]");
             try
             {
-                Console.SetCursorPosition(ConsoleWidth - 14, ConsoleHeight - 6);
+                ClassLibrary.Do.SetCursorPosition(ConsoleWidth - 14, ConsoleHeight - 6);
             }
             catch (System.ArgumentOutOfRangeException)
             {
-                Console.SetCursorPosition(0, 0);
+                ClassLibrary.Do.SetCursorPosition(0, 0);
             }            
             Console.Write("[Alt F4 Exit]");
         }
@@ -348,9 +366,7 @@ namespace ConsoleFileManager
                 newUserAction.AnalizeCommand(NewCommandText, false);
             }
 
-            //Console.SetCursorPosition(1, ConsoleHeight - 4);
-            //Console.Write("Info: " + info);
-            Console.SetCursorPosition(1, ConsoleHeight - 3);
+            ClassLibrary.Do.SetCursorPosition(1, ConsoleHeight - 3);
             Console.Write("Command:" + NewCommandText);
 
             int cursor = Console.CursorLeft;

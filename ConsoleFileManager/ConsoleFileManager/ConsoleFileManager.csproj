@@ -16,6 +16,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ClassLibrary\ClassLibrary.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="DataXML.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Compile>

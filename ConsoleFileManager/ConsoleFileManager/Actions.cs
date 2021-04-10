@@ -52,6 +52,10 @@ namespace ConsoleFileManager
             CommandType = (int)Command.Unknown;
         }
 
+        /// <summary>
+        /// user press arrows up/down, pgUp pgDown, Home or End
+        /// </summary>
+        /// <param name="sizeOfChange"></param>
         internal void ChangeCurrentItem(int sizeOfChange)
         {
             if (sizeOfChange == 100)// page down
@@ -86,7 +90,10 @@ namespace ConsoleFileManager
 
             Active.ShowDirectoryContent();
         }
-
+        /// <summary>
+        /// F9
+        /// </summary>
+        /// <param name="actionName"></param>
         internal void RenameItem(string actionName)
         {
             if (CurrentItem != 0) // not a parent Dir
@@ -99,6 +106,10 @@ namespace ConsoleFileManager
             }
         }
 
+        /// <summary>
+        /// F6
+        /// </summary>
+        /// <param name="targetDirectory"></param>
         internal void MoveItemTo(string targetDirectory)
         {
             if (CurrentItem != 0) // not a parent Dir
@@ -109,7 +120,12 @@ namespace ConsoleFileManager
                 MoveOrRename(sourceItem, targetItem);
             }
         }
-
+        
+        /// <summary>
+        /// user action 'name' and 'mv'
+        /// </summary>
+        /// <param name="sourceItem"></param>
+        /// <param name="targetItem"></param>
         private void MoveOrRename(string sourceItem, string targetItem)
         {
             DirectoryInfo dirr = new DirectoryInfo(sourceItem);
@@ -121,7 +137,8 @@ namespace ConsoleFileManager
                 }
                 catch (Exception f)
                 {
-                    Active.ShowAlert(f.Message);
+                    ClassLibrary.Do.ShowAlert(f.Message, UntilX - FromX);
+                    //Active.ShowAlert(f.Message);
                 }
             }
             if (dirr.Exists) // dir
@@ -132,11 +149,16 @@ namespace ConsoleFileManager
                 }
                 catch (Exception d)
                 {
-                    Active.ShowAlert(d.Message);
+                    ClassLibrary.Do.ShowAlert(d.Message, UntilX - FromX);
+                    //Active.ShowAlert(d.Message);
                 }
             }
         }
 
+        /// <summary>
+        /// F7
+        /// </summary>
+        /// <param name="actionName"></param>
         internal void CreateNewDir(string actionName)
         {
             string newName = AskUserForNewName(actionName);
@@ -147,6 +169,10 @@ namespace ConsoleFileManager
             }
         }
 
+        /// <summary>
+        /// user command 'mkdir'
+        /// </summary>
+        /// <param name="newName"></param>
         private void MkDir(string newName)
         {
             string newDir = Path.Combine(StartDirectory, newName);
@@ -160,15 +186,21 @@ namespace ConsoleFileManager
                 }
                 catch (Exception d)
                 {
-                    Active.ShowAlert(d.Message);
+                    ClassLibrary.Do.ShowAlert(d.Message, UntilX - FromX);
+                    //Active.ShowAlert(d.Message);
                 }
             }
             else
             {
-                Active.ShowAlert($"Directory '{newDir}' already exist!");
+                ClassLibrary.Do.ShowAlert($"Directory '{newDir}' already exist!", UntilX - FromX);
+                //Active.ShowAlert($"Directory '{newDir}' already exist!");
             }
         }
 
+        /// <summary>
+        /// F8 or 'rm'
+        /// </summary>
+        /// <param name="itemPath"></param>
         internal void DeleteItem(string itemPath)
         {
             DirectoryInfo dirInfo = new DirectoryInfo(itemPath);
@@ -192,10 +224,14 @@ namespace ConsoleFileManager
             }
             catch (Exception d)
             {
-                Active.ShowAlert(d.Message);
+                ClassLibrary.Do.ShowAlert(d.Message, UntilX - FromX);
+                //Active.ShowAlert(d.Message);
             }
         }   
 
+        /// <summary>
+        /// enter pressed on object in panel
+        /// </summary>
         internal void ExecuteCurrent()
         {
             if (CurrentItem != 0) // not a parent Dir
@@ -232,6 +268,10 @@ namespace ConsoleFileManager
             }
         }
 
+        /// <summary>
+        /// run current object
+        /// </summary>
+        /// <param name="itemToExe"></param>
         private void RunFile(string itemToExe)
         {
             try
@@ -243,10 +283,14 @@ namespace ConsoleFileManager
             }
             catch (Exception ex)
             {
-                Active.ShowAlert(ex.Message);
+                ClassLibrary.Do.ShowAlert(ex.Message, UntilX - FromX);
+                //Active.ShowAlert(ex.Message);
             }
         }
 
+        /// <summary>
+        /// F5 copy 
+        /// </summary>
         internal void CopyFromPanel()
         {
             string sourceItem = Path.Combine(Active.StartDirectory, CurrentItemName);
@@ -267,6 +311,9 @@ namespace ConsoleFileManager
             }
         }
 
+        /// <summary>
+        /// Copy - user action 'cp'
+        /// </summary>
         internal void CopyFromCommandLine()
         {
             //ArgumentSource
@@ -283,6 +330,11 @@ namespace ConsoleFileManager
             }
         }
 
+        /// <summary>
+        /// CopyDir
+        /// </summary>
+        /// <param name="sourceItem"></param>
+        /// <param name="targetItem"></param>
         private void CopyDir(string sourceItem, string targetItem)
         {
             string[] dirs = Directory.GetDirectories(sourceItem, "*", SearchOption.AllDirectories);
@@ -296,7 +348,8 @@ namespace ConsoleFileManager
                 }
                 catch (Exception ex)
                 {
-                    Active.ShowAlert("Creation Directory Error: " + ex.Message);
+                    ClassLibrary.Do.ShowAlert(" Creation Directory Error: " + ex.Message, UntilX - FromX);
+                    //Active.ShowAlert("Creation Directory Error: " + ex.Message);
                 }
             }
             else
@@ -310,7 +363,8 @@ namespace ConsoleFileManager
                     }
                     catch (Exception ex)
                     {
-                        Active.ShowAlert("Creation Directory Error: " + ex.Message);
+                        ClassLibrary.Do.ShowAlert(" Creation Directory Error: " + ex.Message, UntilX - FromX);
+                        //Active.ShowAlert("Creation Directory Error: " + ex.Message);
                     }
                 }
             }            
@@ -324,11 +378,17 @@ namespace ConsoleFileManager
                 }
                 catch (Exception ex)
                 {
-                    Active.ShowAlert("File copy error: " + ex.Message);
+                    ClassLibrary.Do.ShowAlert(" File copy error: " + ex.Message, UntilX - FromX);
+                    //Active.ShowAlert("File copy error: " + ex.Message);
                 }                
             }
         }
 
+        /// <summary>
+        /// CopyFile
+        /// </summary>
+        /// <param name="sourceItem"></param>
+        /// <param name="targetItem"></param>
         private void CopyFile(string sourceItem, string targetItem)
         {
             string targetDirectory = targetItem.Substring(0, targetItem.LastIndexOf('\\'));           
@@ -341,7 +401,8 @@ namespace ConsoleFileManager
             }
             catch (Exception ex)
             {
-                Active.ShowAlert("Creation Directory Error: " + ex.Message);
+                ClassLibrary.Do.ShowAlert("Creation Directory Error: " + ex.Message, UntilX - FromX);
+                //Active.ShowAlert("Creation Directory Error: " + ex.Message);
             }
 
             try
@@ -350,17 +411,22 @@ namespace ConsoleFileManager
             }
             catch (Exception ex)
             {
-                Active.ShowAlert("File copy error: " + ex.Message);
+                ClassLibrary.Do.ShowAlert(" File copy error: " + ex.Message, UntilX - FromX);
+                //Active.ShowAlert("File copy error: " + ex.Message);
             }
         }
 
+        /// <summary>
+        /// F3 show info about object
+        /// </summary>
+        /// <param name="itemPath"></param>
         internal void ShowInfo(string itemPath)
         {
             int lineNumber = Height / 4;
             int xCursor = (UntilX - FromX) / 2;
 
             //header
-            Console.SetCursorPosition(xCursor, lineNumber);
+            ClassLibrary.Do.SetCursorPosition(xCursor, lineNumber);
             Console.BackgroundColor = ConsoleColor.DarkBlue;
             int padding = (xCursor) + ("Information".Length / 2);
             Console.Write("Information".PadRight(padding).PadLeft(xCursor * 2));
@@ -397,12 +463,15 @@ namespace ConsoleFileManager
             //footer
             PrintLinePanelText(" ", xCursor, ++lineNumber, xCursor * 2);
             PrintLinePanelText(" Press Enter to close panel.", xCursor, ++lineNumber, xCursor * 2);
-            Console.SetCursorPosition(xCursor + 28, lineNumber);
+            ClassLibrary.Do.SetCursorPosition(xCursor + 28, lineNumber);
             Console.ReadLine();
 
             Console.BackgroundColor = ConsoleColor.Black;
         }
 
+        /// <summary>
+        /// show help panel with all avaliable actions
+        /// </summary>
         internal void ShowHelp()
         {
             int lineNumber = Height / 10;
@@ -412,7 +481,7 @@ namespace ConsoleFileManager
             int totalLenght = longest.Length + 1;
 
             //header
-            Console.SetCursorPosition(xCursor, lineNumber);
+            ClassLibrary.Do.SetCursorPosition(xCursor, lineNumber);
             Console.BackgroundColor = ConsoleColor.DarkBlue;
             int padding = (totalLenght / 2) + ("Help".Length / 2);
             Console.Write("Help".PadRight(padding).PadLeft(totalLenght));
@@ -424,7 +493,7 @@ namespace ConsoleFileManager
             PrintLinePanelText(" F7 - Create new Directory", xCursor, ++lineNumber, totalLenght);
             PrintLinePanelText(" F8 - Delete File or Directory", xCursor, ++lineNumber, totalLenght);
             PrintLinePanelText(" F9 - Rename File or Directory", xCursor, ++lineNumber, totalLenght);
-            PrintLinePanelText(" arrows Up and Down, PgUp PgDown - select items", xCursor, ++lineNumber, totalLenght);
+            PrintLinePanelText(" arrows Up and Down, PgUp PgDown, Home End - select items", xCursor, ++lineNumber, totalLenght);
             PrintLinePanelText(" Tab - switch between panels", xCursor, ++lineNumber, totalLenght);
             PrintLinePanelText(" ", xCursor, ++lineNumber, totalLenght);
             PrintLinePanelText(" Manual commands, commands - case insensitive.", xCursor, ++lineNumber, totalLenght);
@@ -440,18 +509,31 @@ namespace ConsoleFileManager
             PrintLinePanelText(" ", xCursor, ++lineNumber, totalLenght);
             PrintLinePanelText(" Press Enter to close panel.", xCursor, ++lineNumber, totalLenght);
 
-            Console.SetCursorPosition(xCursor + 28, lineNumber);
+            ClassLibrary.Do.SetCursorPosition(xCursor + 28, lineNumber);
             Console.ReadLine();
 
             Console.BackgroundColor = ConsoleColor.Black;
         }
 
+        /// <summary>
+        /// to shrink code to one line - set cursor and print
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="lenght"></param>
         private void PrintLinePanelText(string text, int x, int y, int lenght)
         {
-            Console.SetCursorPosition(x, y);
+            ClassLibrary.Do.SetCursorPosition(x, y);
             Console.WriteLine(text.PadRight(lenght));
         }
 
+        /// <summary>
+        /// panel where user choose Y to confirm action
+        /// </summary>
+        /// <param name="actionName"></param>
+        /// <param name="targetDirectory"></param>
+        /// <returns></returns>
         internal bool UserConfirmAction(string actionName, string targetDirectory)
         {
             bool isConfirm = false;
@@ -473,7 +555,7 @@ namespace ConsoleFileManager
 
                 int xCursor = (UntilX - FromX) - (lenght / 2);
 
-                Console.SetCursorPosition(xCursor, lineNumber);
+                ClassLibrary.Do.SetCursorPosition(xCursor, lineNumber);
                 Console.BackgroundColor = ConsoleColor.DarkRed;
                 //int padding = (xCursor) + (actionName.Length / 2);
                 Console.Write(actionName.PadRight((lenght / 2) + (actionName.Length / 2)).PadLeft(lenght));
@@ -486,7 +568,7 @@ namespace ConsoleFileManager
                 PrintLinePanelText(text, xCursor, ++lineNumber, lenght);
                 PrintLinePanelText(" Y ? ", xCursor, ++lineNumber, lenght);
 
-                Console.SetCursorPosition(xCursor + 6, lineNumber);
+                ClassLibrary.Do.SetCursorPosition(xCursor + 6, lineNumber);
                 string decision = Console.ReadLine();
 
                 if (decision.ToLower().Equals("y"))
@@ -498,6 +580,11 @@ namespace ConsoleFileManager
             return isConfirm;
         }
 
+        /// <summary>
+        /// for correct size - compare string for longest
+        /// </summary>
+        /// <param name="list"></param>
+        /// <returns></returns>
         private int GetLongestInt(params string[] list)
         {
             int result = 0;
@@ -510,6 +597,11 @@ namespace ConsoleFileManager
             return ++result;
         }
 
+        /// <summary>
+        /// recognize inputed command
+        /// </summary>
+        /// <param name="newCommandText"></param>
+        /// <param name="execute"></param>
         internal void AnalizeCommand(string newCommandText, bool execute)
         {
             Info = "Unknown command";
@@ -588,7 +680,8 @@ namespace ConsoleFileManager
                 }
                 else
                 {
-                    Active.ShowAlert("Unknown command or not correct arguments");
+                    ClassLibrary.Do.ShowAlert("Unknown command or not correct arguments", UntilX - FromX);
+                    //Active.ShowAlert("Unknown command or not correct arguments");
                 }
 
                 Info = "";
@@ -597,15 +690,21 @@ namespace ConsoleFileManager
             PrintCommandInfo();
         }
 
+        /// <summary>
+        /// print tips or error for command line
+        /// </summary>
         private void PrintCommandInfo()
         {
-            Console.SetCursorPosition(1, Height - 4);
+            ClassLibrary.Do.SetCursorPosition(1, Height - 4);
             Console.Write(Info);
 
             if (Info.Length < Width - 2)
                 Console.Write("`".PadRight(Width - (2 + Info.Length), '`'));
         }
 
+        /// <summary>
+        /// execute current command. current command setted in CommandController
+        /// </summary>
         internal void ExecuteUserCommand()
         {
             string sourceItem = ArgumentSource;
@@ -621,7 +720,8 @@ namespace ConsoleFileManager
                 }
                 catch (Exception e)
                 {
-                    Active.ShowAlert(e.Message);
+                    ClassLibrary.Do.ShowAlert(e.Message, UntilX - FromX);
+                    //Active.ShowAlert(e.Message);
                 }
             }
 
@@ -655,6 +755,11 @@ namespace ConsoleFileManager
             }
         }
 
+        /// <summary>
+        /// set current command and arguments for command
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="arguments"></param>
         private void CommandController(Command type, string arguments)
         {
             switch (type)
@@ -681,6 +786,7 @@ namespace ConsoleFileManager
                         CanBeExecute = true;
                         CommandType = (int)Command.ChangeDir;
                         ArgumentSource = GetCorrectPath(arguments.Substring(1));
+                        ArgumentSource = ItIsDirectory(ArgumentSource); // files not allowed here. Cut path to directory
                     }
                     break;
 
@@ -723,6 +829,29 @@ namespace ConsoleFileManager
             }
         }
 
+        /// <summary>
+        /// if it is file - remove file name from path
+        /// </summary>
+        /// <param name="fullPath"></param>
+        /// <returns></returns>
+        private string ItIsDirectory(string fullPath)
+        {
+            DirectoryInfo dirInfo = new DirectoryInfo(fullPath);
+            if (!dirInfo.Attributes.ToString().Contains("Directory")) //  files.
+            {
+                fullPath = fullPath.Substring(0, fullPath.LastIndexOf('\\'));
+            }
+            
+            return fullPath;
+        }
+
+        /// <summary>
+        /// Checking pair of path. First path always must be exist. Second path - existanse depends of params
+        /// </summary>
+        /// <param name="arguments"></param> // path, full, first and second in one string. delimeter is ','
+        /// <param name="secondRequired"></param> // must be entered
+        /// <param name="secondMustExist"></param> // nececcary or not to input second path
+        /// <returns></returns>
         private bool CheckPairExist(string arguments, bool secondRequired, bool secondMustExist)
         {
             bool checkFirstArguments = false;
@@ -776,6 +905,11 @@ namespace ConsoleFileManager
             return false;
         }
 
+        /// <summary>
+        /// Checking path in case, when path must be NOT exist
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         private string GetNonExistPath(string path)
         {
             if (path.Contains('\\')) // full path
@@ -797,7 +931,11 @@ namespace ConsoleFileManager
             return path;
         }
 
-        // check path - return if exist or combine with current directory
+        /// <summary>
+        /// check path - return 'as is' if exist or combine with current directory
+        /// </summary>
+        /// <param name="pathOrItem"></param>
+        /// <returns></returns>
         private string GetCorrectPath(string pathOrItem)
         {
             bool exist = CheckIsItFullPath(pathOrItem);
@@ -807,6 +945,11 @@ namespace ConsoleFileManager
                 return Path.Combine(Active.StartDirectory, pathOrItem);
         }
 
+        /// <summary>
+        /// check existance of path
+        /// </summary>
+        /// <param name="sourceItem"></param>
+        /// <returns></returns>
         private bool CheckIsItFullPath(string sourceItem)
         {
             FileInfo fileSource = new FileInfo(sourceItem);
@@ -890,6 +1033,11 @@ namespace ConsoleFileManager
             }
         }
 
+        /// <summary>
+        /// panel when user input new name
+        /// </summary>
+        /// <param name="actionName"></param>
+        /// <returns></returns>
         private string AskUserForNewName(string actionName)
         {
             int cursorX = (UntilX - FromX) / 2;
@@ -906,18 +1054,13 @@ namespace ConsoleFileManager
             
             Console.BackgroundColor = ConsoleColor.Blue;
 
-            Console.SetCursorPosition(cursorX, lineNumber);
+            ClassLibrary.Do.SetCursorPosition(cursorX, lineNumber);
             Console.Write(actionName.PadRight(((lenght - actionName.Length) / 2) + actionName.Length).PadLeft(lenght));
 
             PrintLinePanelText(requestText, cursorX, ++lineNumber, lenght);
             PrintLinePanelText(" ", cursorX, ++lineNumber, lenght);
-            //Console.SetCursorPosition(cursorX, ++lineNumber);
-            //Console.Write(requestText.PadRight(lenght));
 
-            //Console.SetCursorPosition(cursorX, ++lineNumber);
-            //Console.Write(" ".PadRight(lenght));
-
-            Console.SetCursorPosition(cursorX + 1, lineNumber);
+            ClassLibrary.Do.SetCursorPosition(cursorX + 1, lineNumber);
             string newName = Console.ReadLine();
 
             Console.BackgroundColor = ConsoleColor.Black;

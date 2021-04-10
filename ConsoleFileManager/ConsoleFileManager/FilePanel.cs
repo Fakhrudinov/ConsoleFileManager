@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
+
 namespace ConsoleFileManager
 {
     public class FilePanel
@@ -58,7 +59,7 @@ namespace ConsoleFileManager
             if (!IsActive)
                 Console.ForegroundColor = ConsoleColor.DarkGray;
 
-            SetCursorPosition(FromX, 1);
+            ClassLibrary.Do.SetCursorPosition(FromX, 1);
             string currDir = "Current Dir: ";
             if ((currDir + StartDirectory).Length > UntilX - FromX)
                 currDir = "";
@@ -84,7 +85,7 @@ namespace ConsoleFileManager
                 {
                     if (drive.Name.ToLower().Contains(StartDirectory.ToLower().Substring(0, 2)))
                     {
-                        SetCursorPosition(FromX, 2);
+                        ClassLibrary.Do.SetCursorPosition(FromX, 2);
 
                         string currDisk = $"Current Disk: ";
                         if((currDisk + $"{drive.Name} Total:{GetFileSize(drive.TotalSize)} Free:{ GetFileSize(drive.TotalFreeSpace)}").Length > UntilX - FromX)
@@ -103,9 +104,10 @@ namespace ConsoleFileManager
                 }
                 catch (Exception e)
                 {
-                    ShowAlert(e.Message);
+                    ClassLibrary.Do.ShowAlert(e.Message, UntilX - FromX);
+                    //ShowAlert(e.Message);
                 }
-
+                // fill List<string>
                 dirsCount = dirs.Length;
                 filesCount = files.Length;
                 allItems.Add("..");
@@ -120,7 +122,7 @@ namespace ConsoleFileManager
 
                 ItemsOnPage = PanelHeight - 11;
 
-                //++ understand page which contains CurrentItem
+                // understand page which contains CurrentItem
                 if (ItemsOnPage > TotalItems)
                 {
                     ItemsOnPage = TotalItems;
@@ -160,7 +162,7 @@ namespace ConsoleFileManager
                 //understand where is CurrentItem in array itemsToShow
                 int arrCurrent = CurrentItem % ItemsOnPage;
 
-                //print lines og current page
+                //print lines of current page
                 for (int i = 0; i < itemsToShow.Length; i++)
                 {
                     if(arrCurrent == i)
@@ -177,13 +179,9 @@ namespace ConsoleFileManager
                     }
                     else 
                     {
-                        //string str = allItems[itemsToShow[i]];
                         DirectoryInfo dirInfo = new DirectoryInfo(allItems[itemsToShow[i]]);
-
                         if (arrCurrent == i && IsActive)
                             CurrentItemName = dirInfo.Name;
-
-                        //string attr = dirInfo.Attributes.ToString();
 
                         if (!dirInfo.Attributes.ToString().Contains("Directory")) //  files
                         {
@@ -195,7 +193,8 @@ namespace ConsoleFileManager
                             }
                             catch (Exception e)
                             {
-                                ShowAlert(StartDirectory + " " + e.Message);
+                                ClassLibrary.Do.ShowAlert(StartDirectory + " " + e.Message, UntilX - FromX);
+                                //ShowAlert(StartDirectory + " " + e.Message);
                             }                            
                         }
                         else // dirs
@@ -215,24 +214,23 @@ namespace ConsoleFileManager
                     }                        
                 }
 
-                //fill all empty lines with spaces - delete previous data
+                //fill all empty lines with spaces - delete previous data in panel
                 if (currentPage == 1 || (currentPage > 1 && currentPage == pagesCount))
                 {
                     for (int i = itemsToShow.Length; i < PanelHeight - 11; i++)
                     {
-                        SetCursorPosition(FromX, 4 + i);
+                        ClassLibrary.Do.SetCursorPosition(FromX, 4 + i);
                         Console.WriteLine(" ".PadRight(UntilX - FromX));
                     }
                 }
             }
             else
             {
-                SetCursorPosition(FromX, 2);
+                ClassLibrary.Do.SetCursorPosition(FromX, 2);
                 Console.Write("Path not found: " + StartDirectory);
             }
 
-            //Console.WriteLine($"ttl itm{TotalItems} itmOnPg{itemsOnPage} Page {currentPage}/{pagesCount} Curr{CurrentItem} dir{dirsCount}/files{filesCount}");
-            //Console.Write(Console.BufferWidth + "/" + Console.WindowWidth + "//" + Console.BufferHeight + "/" + Console.WindowHeight);
+            // pagination summary:
             string paginationSummary = $"Page {currentPage} from {pagesCount}. Total Dirs: {dirsCount}, Files: {filesCount}";
             if(UntilX - FromX < 45)
                 paginationSummary = $"Page {currentPage}/{pagesCount}. Dirs/Files: {dirsCount}/{filesCount}";
@@ -240,7 +238,7 @@ namespace ConsoleFileManager
             int cursorX = (UntilX - FromX - paginationSummary.Length) / 2;
             if (cursorX < 0)
                 cursorX = 0;
-            SetCursorPosition(cursorX + FromX, PanelHeight - 7);
+            ClassLibrary.Do.SetCursorPosition(cursorX + FromX, PanelHeight - 7);
             Console.Write(paginationSummary.PadRight(cursorX), '═');
 
             Console.ResetColor();
@@ -251,8 +249,8 @@ namespace ConsoleFileManager
             string attr = "<DIR>";
             int padding = 27; // calculate 
             string dateTime = creationTime.ToString(" yy/MM/dd HH:mm:ss ");// 19 symbols
-                                                                           
-            SetCursorPosition(FromX, 4 + lineNum);        
+
+            ClassLibrary.Do.SetCursorPosition(FromX, 4 + lineNum);        
             if (name.Equals(".."))
             {
                 Console.WriteLine(".." + "<ParentDIR>".PadLeft(UntilX - (FromX + 2)));
@@ -316,59 +314,59 @@ namespace ConsoleFileManager
             return string.Format("{0:n2}{1}", dValue, SizeSuffixes[i]);
         }
 
-        public void ShowAlert(string alertText)
-        {
-            int cursorX = (UntilX - FromX) / 2;
-            int lineNumber = PanelHeight / 3;
-            string actionName = "Error when execute!";
+        //public void ShowAlert(string alertText)
+        //{
+        //    int cursorX = (UntilX - FromX) / 2;
+        //    int lineNumber = PanelHeight / 3;
+        //    string actionName = "Error when execute!";
 
-            //header
-            SetCursorPosition(cursorX, lineNumber);
-            Console.BackgroundColor = ConsoleColor.Red;
-            int padding = (cursorX) + (actionName.Length / 2);
-            Console.Write(actionName.PadRight(padding).PadLeft(UntilX - FromX));
+        //    //header
+        //    SetCursorPosition(cursorX, lineNumber);
+        //    Console.BackgroundColor = ConsoleColor.Red;
+        //    int padding = (cursorX) + (actionName.Length / 2);
+        //    Console.Write(actionName.PadRight(padding).PadLeft(UntilX - FromX));
 
-            //int delimeter = alertText.Length / (UntilX - FromX);
-            int charPointer = 0;
-            int charPointerEnd = (UntilX - FromX) - 2;
-            while (charPointer < alertText.Length)
-            {
-                SetCursorPosition(cursorX, ++lineNumber);
-                if (charPointerEnd > alertText.Length)
-                {
-                    Console.WriteLine(" " + alertText.Substring(charPointer).PadRight(UntilX - (FromX + 2)) + " ");
-                }
-                else
-                {
-                    Console.WriteLine(" " + alertText.Substring(charPointer, charPointerEnd) + " ");
-                }
+        //    //int delimeter = alertText.Length / (UntilX - FromX);
+        //    int charPointer = 0;
+        //    int charPointerEnd = (UntilX - FromX) - 2;
+        //    while (charPointer < alertText.Length)
+        //    {
+        //        SetCursorPosition(cursorX, ++lineNumber);
+        //        if (charPointerEnd > alertText.Length)
+        //        {
+        //            Console.WriteLine(" " + alertText.Substring(charPointer).PadRight(UntilX - (FromX + 2)) + " ");
+        //        }
+        //        else
+        //        {
+        //            Console.WriteLine(" " + alertText.Substring(charPointer, charPointerEnd) + " ");
+        //        }
 
-                charPointer = charPointerEnd;
-                charPointerEnd = charPointer + charPointerEnd;
-            }
+        //        charPointer = charPointerEnd;
+        //        charPointerEnd = charPointer + charPointerEnd;
+        //    }
 
-            //footer
-            SetCursorPosition(cursorX, ++lineNumber);
-            Console.Write(" ".PadRight(UntilX - FromX));
-            SetCursorPosition(cursorX, ++lineNumber);
-            Console.Write(" Press Enter to close alert.".PadRight(UntilX - FromX));
+        //    //footer
+        //    SetCursorPosition(cursorX, ++lineNumber);
+        //    Console.Write(" ".PadRight(UntilX - FromX));
+        //    SetCursorPosition(cursorX, ++lineNumber);
+        //    Console.Write(" Press Enter to close alert.".PadRight(UntilX - FromX));
 
-            SetCursorPosition(cursorX + 29, lineNumber);
-            Console.ReadLine();
+        //    SetCursorPosition(cursorX + 29, lineNumber);
+        //    Console.ReadLine();
 
-            Console.BackgroundColor = ConsoleColor.Black;
-        }
+        //    Console.BackgroundColor = ConsoleColor.Black;
+        //}
 
-        private void SetCursorPosition(int x, int y)
-        {
-            try
-            {
-                Console.SetCursorPosition(x, y);
-            }
-            catch (System.ArgumentOutOfRangeException)
-            {
+        //private void SetCursorPosition1(int x, int y)
+        //{
+        //    try
+        //    {
+        //        Console.SetCursorPosition(x, y);
+        //    }
+        //    catch (System.ArgumentOutOfRangeException)
+        //    {
 
-            }
-        }
+        //    }
+        //}
     }
 }

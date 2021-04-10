@@ -74,7 +74,6 @@ namespace ConsoleFileManager
                     xmlConfig.Load(pathConfigXML);
                 }
 
-
                 //is left panel active
                 XmlNode nodeActive = xmlConfig.SelectSingleNode("//LeftIsActive");
                 if (nodeActive != null)
@@ -96,8 +95,6 @@ namespace ConsoleFileManager
 
                     CreateNodeXML(xmlConfig, pathConfigXML, "LeftIsActive", "true");
                 }
-
-
 
                 //right panel active item
                 XmlNode nodeRightActive = xmlConfig.SelectSingleNode("//RightActiveItem");
@@ -142,7 +139,6 @@ namespace ConsoleFileManager
 
                     CreateNodeXML(xmlConfig, pathConfigXML, "LeftActiveItem", "0");
                 }
-
 
                 //console width
                 XmlNode nodeWidth = xmlConfig.SelectSingleNode("//Width");
@@ -264,7 +260,7 @@ namespace ConsoleFileManager
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                ClassLibrary.Do.ShowAlert("Save XML Error " + e.Message, 20);
             }
         }
 

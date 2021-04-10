@@ -64,13 +64,13 @@ namespace ConsoleFileManager
             if (cursorX < 0)
                 cursorX = 0;
 
-            SetCursorPosition(cursorX, 3);
+            ClassLibrary.Do.SetCursorPosition(cursorX, 3);
             Console.Write("╬");
         }
 
         public void PrintVerticalLine(int startY, int finishY, int x, int connectorType)
         {
-            bool exeption = SetCursorPosition(x, startY);
+            bool exeption = ClassLibrary.Do.SetCursorPosition(x, startY);
             int shift = 0; // shift y in case of connectors absent
 
             if (exeption == false)
@@ -86,7 +86,7 @@ namespace ConsoleFileManager
             {
                 for (int i = startY + shift; i < finishY; i++)
                 {
-                    exeption = SetCursorPosition(x, i);
+                    exeption = ClassLibrary.Do.SetCursorPosition(x, i);
                     if (exeption)
                     {
                         break;
@@ -96,18 +96,15 @@ namespace ConsoleFileManager
 
                 if (connectorType == 4)
                 {
-                    SetCursorPosition(x, finishY);
+                    ClassLibrary.Do.SetCursorPosition(x, finishY);
                     Console.WriteLine(connertorBottom);
                 }
             }
-
-            //Console.SetCursorPosition(BorderWidth / 2 , BorderHeight / 2);
-            //Console.WriteLine($"w={BorderWidth} {Console.BufferWidth} h{BorderHeight} {Console.BufferHeight}");
         }
 
         public void PrintHorizontalLine(int startX, int finishX, int y, int connectorType)
         {
-            bool exeption = SetCursorPosition(finishX, y);
+            bool exeption = ClassLibrary.Do.SetCursorPosition(finishX, y);
             if (exeption == false)
             {
                 if (connectorType == 1)
@@ -118,7 +115,7 @@ namespace ConsoleFileManager
                     Console.WriteLine(connertorRight);
             }
 
-            exeption = SetCursorPosition(startX, y);
+            exeption = ClassLibrary.Do.SetCursorPosition(startX, y);
             if (exeption == false)
             {
                 if (connectorType == 1)
@@ -127,44 +124,25 @@ namespace ConsoleFileManager
                     Console.WriteLine(cornerBottomLeft);
                 if (connectorType == 3)
                     Console.WriteLine(connertorLeft);
-                SetCursorPosition(startX + 1, y);
+                ClassLibrary.Do.SetCursorPosition(startX + 1, y);
             }
 
             if (exeption == false)
                 Console.WriteLine(lineHoriz.ToString().PadLeft(finishX - startX - 1, lineHoriz));
-
-            //Console.SetCursorPosition(BorderWidth / 2, BorderHeight / 2 - 1);
-            //Console.WriteLine($"hw={BorderWidth} {Console.BufferWidth} hh{BorderHeight} {Console.BufferHeight}");
         }
 
+        //private bool SetCursorPosition1(int x, int y)
+        //{
+        //    try
+        //    {
+        //        Console.SetCursorPosition(x, y);
+        //    }
+        //    catch (System.ArgumentOutOfRangeException)
+        //    {
+        //        return true;
+        //    }
 
-        private bool SetCursorPosition(int x, int y)
-        {
-            //if (Console.WindowWidth != BorderWidth || Console.WindowHeight != BorderHeight)
-            //{
-            //    //Console.SetBufferSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
-
-            //    //BorderWidth = Console.WindowWidth;
-            //    //BorderHeight = Console.WindowHeight;
-            //}
-
-
-            //Console.SetCursorPosition(BorderWidth / 2, BorderHeight / 2 - 2);
-            //Console.WriteLine(x + " YYYYYY!! " + y + "  ch " + BorderHeight + "<>" + Console.LargestWindowHeight);
-
-            try
-            {
-                Console.SetCursorPosition(x, y);
-            }
-            catch (System.ArgumentOutOfRangeException)
-            {
-                //Console.SetCursorPosition(BorderWidth / 2, BorderHeight / 2);
-                //Console.WriteLine(x + " Exception!! " + y);
-
-                return true;
-            }
-
-            return false;
-        }
+        //    return false;
+        //}
     }
 }
