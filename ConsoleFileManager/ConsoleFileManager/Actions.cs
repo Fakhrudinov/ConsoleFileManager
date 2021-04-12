@@ -255,11 +255,96 @@ namespace ConsoleFileManager
                 else
                 {
                     //  go to disk root
-                    Active.StartDirectory = dir.Root.ToString();
+                    //Active.StartDirectory = dir.Root.ToString();
+                    ShowChangeDisk();
                 }
 
                 Active.CurrentItem = 0;
                 Active.ShowDirectoryContent();
+            }
+        }
+
+        private void ShowChangeDisk()
+        {
+            int lineNumber = Height / 4;
+            int xCursor = (UntilX - FromX) / 2;
+
+            //header
+            ClassLibrary.Do.SetCursorPosition(xCursor, lineNumber);
+            Console.BackgroundColor = ConsoleColor.DarkBlue;
+            int padding = (xCursor) + ("Change Disk".Length / 2);
+            Console.Write("Change Disk".PadRight(padding).PadLeft(xCursor * 2));
+
+            DriveInfo[] drives = DriveInfo.GetDrives();
+            int index = 1;
+            var dictionaryDisk = new System.Collections.Generic.Dictionary<int, string>();            
+
+            foreach (DriveInfo drive in drives)
+            {
+                dictionaryDisk.Add(index, drive.Name.ToLower()); // добавление нового элемента
+
+                if (drive.Name.ToLower().Contains(StartDirectory.ToLower().Substring(0, 2)))
+                {
+                    Console.BackgroundColor = ConsoleColor.DarkGray;
+                }
+                
+                ClassLibrary.Do.PrintLinePanelText($" {index++} {drive.Name} {drive.IsReady} {drive.DriveType}", xCursor, ++lineNumber, xCursor * 2);
+                Console.BackgroundColor = ConsoleColor.DarkBlue;                
+            }
+
+            string text = "Enter drive letter or index number and press Enter. Leave empty to cancel.";
+
+            int charPointer = 0;
+            int charPointerEnd = (xCursor * 2) - 2;
+            while (charPointer < text.Length)
+            {
+                ClassLibrary.Do.SetCursorPosition(xCursor, ++lineNumber);
+                if (charPointerEnd > text.Length)
+                {
+                    Console.WriteLine(" " + text.Substring(charPointer).PadRight((xCursor * 2) - 2) + " ");
+                }
+                else
+                {
+                    Console.WriteLine(" " + text.Substring(charPointer, charPointerEnd) + " ");
+                }
+
+                charPointer = charPointerEnd;
+                charPointerEnd = charPointer + charPointerEnd;
+            }
+
+            ClassLibrary.Do.PrintLinePanelText(" ", xCursor, ++lineNumber, xCursor * 2);
+
+            ClassLibrary.Do.SetCursorPosition(xCursor + 1, lineNumber);
+            string newDisk = Console.ReadLine();
+
+
+            bool match = false;
+
+            if (Int32.TryParse(newDisk, out int userDiskInt)) // is it disk index number ?
+            {
+                match = dictionaryDisk.ContainsKey(userDiskInt);
+                if (match)
+                {
+                    Active.StartDirectory = dictionaryDisk[userDiskInt];
+                    Active.CurrentItem = 0;
+                }
+                else
+                    ClassLibrary.Do.ShowAlert($"Disk with index number '{userDiskInt}' not found.", UntilX - FromX);
+            }
+            else // is it disk name ?
+            {
+                foreach (int indx in dictionaryDisk.Keys)
+                {
+                    if (dictionaryDisk[indx].Substring(0, newDisk.Length).Equals(newDisk))
+                    {
+                        Active.StartDirectory = dictionaryDisk[indx];
+                        Active.CurrentItem = 0;
+                        match = true;
+                    }
+                }
+
+                if(!match)
+                    ClassLibrary.Do.ShowAlert($"Disk with name '{newDisk}' not found.", UntilX - FromX);
             }
         }
 
