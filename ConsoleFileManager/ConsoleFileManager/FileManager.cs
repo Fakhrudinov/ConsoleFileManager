@@ -103,6 +103,12 @@ namespace ConsoleFileManager
             PrintUserCommand();
         }
 
+        /// <summary>
+        /// avaiting key input and react on keys, react on change panels size
+        /// </summary>
+        /// <param name="filePanelLeft"></param>
+        /// <param name="filePanelRight"></param>
+        /// <param name="border"></param>
         public void GetUserCommands(FilePanel filePanelLeft, FilePanel filePanelRight, Borders border)
         {
             bool exit = false;
@@ -328,7 +334,9 @@ namespace ConsoleFileManager
             }
         }
 
-
+        /// <summary>
+        /// info line with F-key list
+        /// </summary>
         private void PrintSingleKeyCommands()
         {
             ClassLibrary.Do.SetCursorPosition(1, ConsoleHeight - 6);
@@ -345,17 +353,14 @@ namespace ConsoleFileManager
             Console.Write("[F7 NewDir]" + new string(' ', padding));
             Console.Write("[F8 Del]" + new string(' ', padding));
             Console.Write("[F9 Rename]");
-            try
-            {
-                ClassLibrary.Do.SetCursorPosition(ConsoleWidth - 14, ConsoleHeight - 6);
-            }
-            catch (System.ArgumentOutOfRangeException)
-            {
-                ClassLibrary.Do.SetCursorPosition(0, 0);
-            }            
+            
+            ClassLibrary.Do.SetCursorPosition(ConsoleWidth - 14, ConsoleHeight - 6);          
             Console.Write("[Alt F4 Exit]");
         }
 
+        /// <summary>
+        /// print user command and set cursor to the command end
+        /// </summary>
         private void PrintUserCommand()
         {
             //string info = "";

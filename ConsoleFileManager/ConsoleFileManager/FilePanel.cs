@@ -41,10 +41,8 @@ namespace ConsoleFileManager
         {
             if (text.Length > maxLenght)
             {
-
                 string text1 = text.Substring(0, maxLenght / 2 - 1) + ".."; 
                 text = text1 + text.Substring((text.Length - (maxLenght / 2) + 1));
-
             }
             else
             {
@@ -74,7 +72,6 @@ namespace ConsoleFileManager
             int dirsCount = 0;
             int filesCount = 0;
             int pagesCount = 0;
-            //int itemsOnPage = 0;
             int currentPage = 0;
 
             DriveInfo[] drives = DriveInfo.GetDrives();

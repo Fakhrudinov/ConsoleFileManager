@@ -138,7 +138,6 @@ namespace ConsoleFileManager
                 catch (Exception f)
                 {
                     ClassLibrary.Do.ShowAlert(f.Message, UntilX - FromX);
-                    //Active.ShowAlert(f.Message);
                 }
             }
             if (dirr.Exists) // dir
@@ -150,7 +149,6 @@ namespace ConsoleFileManager
                 catch (Exception d)
                 {
                     ClassLibrary.Do.ShowAlert(d.Message, UntilX - FromX);
-                    //Active.ShowAlert(d.Message);
                 }
             }
         }
@@ -187,13 +185,11 @@ namespace ConsoleFileManager
                 catch (Exception d)
                 {
                     ClassLibrary.Do.ShowAlert(d.Message, UntilX - FromX);
-                    //Active.ShowAlert(d.Message);
                 }
             }
             else
             {
                 ClassLibrary.Do.ShowAlert($"Directory '{newDir}' already exist!", UntilX - FromX);
-                //Active.ShowAlert($"Directory '{newDir}' already exist!");
             }
         }
 
@@ -225,7 +221,6 @@ namespace ConsoleFileManager
             catch (Exception d)
             {
                 ClassLibrary.Do.ShowAlert(d.Message, UntilX - FromX);
-                //Active.ShowAlert(d.Message);
             }
         }   
 
@@ -284,7 +279,6 @@ namespace ConsoleFileManager
             catch (Exception ex)
             {
                 ClassLibrary.Do.ShowAlert(ex.Message, UntilX - FromX);
-                //Active.ShowAlert(ex.Message);
             }
         }
 
@@ -349,7 +343,6 @@ namespace ConsoleFileManager
                 catch (Exception ex)
                 {
                     ClassLibrary.Do.ShowAlert(" Creation Directory Error: " + ex.Message, UntilX - FromX);
-                    //Active.ShowAlert("Creation Directory Error: " + ex.Message);
                 }
             }
             else
@@ -364,7 +357,6 @@ namespace ConsoleFileManager
                     catch (Exception ex)
                     {
                         ClassLibrary.Do.ShowAlert(" Creation Directory Error: " + ex.Message, UntilX - FromX);
-                        //Active.ShowAlert("Creation Directory Error: " + ex.Message);
                     }
                 }
             }            
@@ -379,7 +371,6 @@ namespace ConsoleFileManager
                 catch (Exception ex)
                 {
                     ClassLibrary.Do.ShowAlert(" File copy error: " + ex.Message, UntilX - FromX);
-                    //Active.ShowAlert("File copy error: " + ex.Message);
                 }                
             }
         }
@@ -402,7 +393,6 @@ namespace ConsoleFileManager
             catch (Exception ex)
             {
                 ClassLibrary.Do.ShowAlert("Creation Directory Error: " + ex.Message, UntilX - FromX);
-                //Active.ShowAlert("Creation Directory Error: " + ex.Message);
             }
 
             try
@@ -412,7 +402,6 @@ namespace ConsoleFileManager
             catch (Exception ex)
             {
                 ClassLibrary.Do.ShowAlert(" File copy error: " + ex.Message, UntilX - FromX);
-                //Active.ShowAlert("File copy error: " + ex.Message);
             }
         }
 
@@ -437,32 +426,43 @@ namespace ConsoleFileManager
                 if (!dirInfo.Attributes.ToString().Contains("Directory")) //  files
                 {
                     FileInfo fileInf = new FileInfo(itemPath);
-                    PrintLinePanelText( "        File", xCursor, ++lineNumber, xCursor * 2);
-                    PrintLinePanelText($"        Name: {fileInf.Name}", xCursor, ++lineNumber, xCursor * 2);
-                    PrintLinePanelText($"     Created: {fileInf.CreationTime}", xCursor, ++lineNumber, xCursor * 2);
-                    PrintLinePanelText($" Last writed: {fileInf.LastWriteTime}", xCursor, ++lineNumber, xCursor * 2);
-                    PrintLinePanelText($"    ReadOnly: {fileInf.IsReadOnly}", xCursor, ++lineNumber, xCursor * 2);
-                    PrintLinePanelText($" Size, bytes: {fileInf.Length}", xCursor, ++lineNumber, xCursor * 2);
-                    PrintLinePanelText($"  Attributes: {fileInf.Attributes}", xCursor, ++lineNumber, xCursor * 2);
+                    ClassLibrary.Do.PrintLinePanelText( "        File", xCursor, ++lineNumber, xCursor * 2);
+                    ClassLibrary.Do.PrintLinePanelText($"        Name: {fileInf.Name}", xCursor, ++lineNumber, xCursor * 2);
+                    ClassLibrary.Do.PrintLinePanelText($"     Created: {fileInf.CreationTime}", xCursor, ++lineNumber, xCursor * 2);
+                    ClassLibrary.Do.PrintLinePanelText($" Last writed: {fileInf.LastWriteTime}", xCursor, ++lineNumber, xCursor * 2);
+                    ClassLibrary.Do.PrintLinePanelText($"    ReadOnly: {fileInf.IsReadOnly}", xCursor, ++lineNumber, xCursor * 2);
+                    ClassLibrary.Do.PrintLinePanelText($" Size, bytes: {fileInf.Length}", xCursor, ++lineNumber, xCursor * 2);
+                    if (fileInf.Attributes.ToString().Contains(','))
+                    {
+                        string[] attr = fileInf.Attributes.ToString().Split(',');
+                        ClassLibrary.Do.PrintLinePanelText($"  Attributes: {attr[0]}", xCursor, ++lineNumber, xCursor * 2);
+
+                        for (int i = 1; i < attr.Length; i++)
+                        {
+                            ClassLibrary.Do.PrintLinePanelText($"             {attr[i]}", xCursor, ++lineNumber, xCursor * 2);
+                        }
+                    }
+                    else
+                        ClassLibrary.Do.PrintLinePanelText($"  Attributes: {fileInf.Attributes}", xCursor, ++lineNumber, xCursor * 2);
                 }
                 else // dirs
                 {
-                    PrintLinePanelText( "   Directory", xCursor, ++lineNumber, xCursor * 2);
-                    PrintLinePanelText($"        Name: {dirInfo.Name}", xCursor, ++lineNumber, xCursor * 2);
-                    PrintLinePanelText($"     Created: {dirInfo.CreationTime}", xCursor, ++lineNumber, xCursor * 2);
-                    PrintLinePanelText($" Last writed: {dirInfo.LastWriteTime}", xCursor, ++lineNumber, xCursor * 2);
-                    PrintLinePanelText($"  Attributes: {dirInfo.Attributes}", xCursor, ++lineNumber, xCursor * 2);
+                    ClassLibrary.Do.PrintLinePanelText( "   Directory", xCursor, ++lineNumber, xCursor * 2);
+                    ClassLibrary.Do.PrintLinePanelText($"        Name: {dirInfo.Name}", xCursor, ++lineNumber, xCursor * 2);
+                    ClassLibrary.Do.PrintLinePanelText($"     Created: {dirInfo.CreationTime}", xCursor, ++lineNumber, xCursor * 2);
+                    ClassLibrary.Do.PrintLinePanelText($" Last writed: {dirInfo.LastWriteTime}", xCursor, ++lineNumber, xCursor * 2);
+                    ClassLibrary.Do.PrintLinePanelText($"  Attributes: {dirInfo.Attributes}", xCursor, ++lineNumber, xCursor * 2);
                 }
             }
             else
             {
-                PrintLinePanelText(" Info about parent directory not avaliable.", xCursor, ++lineNumber, xCursor * 2);
-                PrintLinePanelText(" Firstly go there and select directory", xCursor, ++lineNumber, xCursor * 2);
+                ClassLibrary.Do.PrintLinePanelText(" Info about parent directory not avaliable.", xCursor, ++lineNumber, xCursor * 2);
+                ClassLibrary.Do.PrintLinePanelText(" Firstly go there and select directory", xCursor, ++lineNumber, xCursor * 2);
             }
 
             //footer
-            PrintLinePanelText(" ", xCursor, ++lineNumber, xCursor * 2);
-            PrintLinePanelText(" Press Enter to close panel.", xCursor, ++lineNumber, xCursor * 2);
+            ClassLibrary.Do.PrintLinePanelText(" ", xCursor, ++lineNumber, xCursor * 2);
+            ClassLibrary.Do.PrintLinePanelText(" Press Enter to close panel.", xCursor, ++lineNumber, xCursor * 2);
             ClassLibrary.Do.SetCursorPosition(xCursor + 28, lineNumber);
             Console.ReadLine();
 
@@ -475,8 +475,7 @@ namespace ConsoleFileManager
         internal void ShowHelp()
         {
             int lineNumber = Height / 10;
-            //string actionName = "Help";
-            string longest = " (Ctrl + Enter): Copy current element to command line"; // longest text lenght
+            string longest = " arrows Up and Down, PgUp PgDown, Home End - select items"; // longest text lenght
             int xCursor = (UntilX - FromX) - (longest.Length / 2);
             int totalLenght = longest.Length + 1;
 
@@ -486,46 +485,33 @@ namespace ConsoleFileManager
             int padding = (totalLenght / 2) + ("Help".Length / 2);
             Console.Write("Help".PadRight(padding).PadLeft(totalLenght));
 
-            PrintLinePanelText(" F1 - Help Panel", xCursor, ++lineNumber, totalLenght);
-            PrintLinePanelText(" F3 - File or Directory Information", xCursor, ++lineNumber, totalLenght);
-            PrintLinePanelText(" F5 - Copy File or Directory", xCursor, ++lineNumber, totalLenght);
-            PrintLinePanelText(" F6 - Move File or Directory", xCursor, ++lineNumber, totalLenght);
-            PrintLinePanelText(" F7 - Create new Directory", xCursor, ++lineNumber, totalLenght);
-            PrintLinePanelText(" F8 - Delete File or Directory", xCursor, ++lineNumber, totalLenght);
-            PrintLinePanelText(" F9 - Rename File or Directory", xCursor, ++lineNumber, totalLenght);
-            PrintLinePanelText(" arrows Up and Down, PgUp PgDown, Home End - select items", xCursor, ++lineNumber, totalLenght);
-            PrintLinePanelText(" Tab - switch between panels", xCursor, ++lineNumber, totalLenght);
-            PrintLinePanelText(" ", xCursor, ++lineNumber, totalLenght);
-            PrintLinePanelText(" Manual commands, commands - case insensitive.", xCursor, ++lineNumber, totalLenght);
-            PrintLinePanelText(longest, xCursor, ++lineNumber, totalLenght);
-            PrintLinePanelText(" Set passive panel same as active: equal", xCursor, ++lineNumber, totalLenght);
-            PrintLinePanelText(" Change directory: cd NewPath ", xCursor, ++lineNumber, totalLenght);
-            PrintLinePanelText(" Copy: cp sourcePath (to passive panel)", xCursor, ++lineNumber, totalLenght);
-            PrintLinePanelText(" Move: mv sourcePath (to passive panel)", xCursor, ++lineNumber, totalLenght);
-            PrintLinePanelText(" Remove: rm sourcePath", xCursor, ++lineNumber, totalLenght);
-            PrintLinePanelText(" New Directory: mkdir newName", xCursor, ++lineNumber, totalLenght);
-            PrintLinePanelText(" Execute File: run FileName", xCursor, ++lineNumber, totalLenght);
-            PrintLinePanelText(" Rename: name sourcePath, newName", xCursor, ++lineNumber, totalLenght);
-            PrintLinePanelText(" ", xCursor, ++lineNumber, totalLenght);
-            PrintLinePanelText(" Press Enter to close panel.", xCursor, ++lineNumber, totalLenght);
+            ClassLibrary.Do.PrintLinePanelText(" F1 - Help Panel", xCursor, ++lineNumber, totalLenght);
+            ClassLibrary.Do.PrintLinePanelText(" F3 - File or Directory Information", xCursor, ++lineNumber, totalLenght);
+            ClassLibrary.Do.PrintLinePanelText(" F5 - Copy File or Directory", xCursor, ++lineNumber, totalLenght);
+            ClassLibrary.Do.PrintLinePanelText(" F6 - Move File or Directory", xCursor, ++lineNumber, totalLenght);
+            ClassLibrary.Do.PrintLinePanelText(" F7 - Create new Directory", xCursor, ++lineNumber, totalLenght);
+            ClassLibrary.Do.PrintLinePanelText(" F8 - Delete File or Directory", xCursor, ++lineNumber, totalLenght);
+            ClassLibrary.Do.PrintLinePanelText(" F9 - Rename File or Directory", xCursor, ++lineNumber, totalLenght);
+            ClassLibrary.Do.PrintLinePanelText(longest, xCursor, ++lineNumber, totalLenght);
+            ClassLibrary.Do.PrintLinePanelText(" Tab - switch between panels", xCursor, ++lineNumber, totalLenght);
+            ClassLibrary.Do.PrintLinePanelText(" ", xCursor, ++lineNumber, totalLenght);
+            ClassLibrary.Do.PrintLinePanelText(" Manual commands, commands - case insensitive.", xCursor, ++lineNumber, totalLenght);
+            ClassLibrary.Do.PrintLinePanelText(" (Ctrl + Enter): Copy current element to command line", xCursor, ++lineNumber, totalLenght);
+            ClassLibrary.Do.PrintLinePanelText(" Set passive panel same as active: equal", xCursor, ++lineNumber, totalLenght);
+            ClassLibrary.Do.PrintLinePanelText(" Change directory: cd NewPath ", xCursor, ++lineNumber, totalLenght);
+            ClassLibrary.Do.PrintLinePanelText(" Copy: cp sourcePath (to passive panel)", xCursor, ++lineNumber, totalLenght);
+            ClassLibrary.Do.PrintLinePanelText(" Move: mv sourcePath (to passive panel)", xCursor, ++lineNumber, totalLenght);
+            ClassLibrary.Do.PrintLinePanelText(" Remove: rm sourcePath", xCursor, ++lineNumber, totalLenght);
+            ClassLibrary.Do.PrintLinePanelText(" New Directory: mkdir newName", xCursor, ++lineNumber, totalLenght);
+            ClassLibrary.Do.PrintLinePanelText(" Execute File: run FileName", xCursor, ++lineNumber, totalLenght);
+            ClassLibrary.Do.PrintLinePanelText(" Rename: name sourcePath, newName", xCursor, ++lineNumber, totalLenght);
+            ClassLibrary.Do.PrintLinePanelText(" ", xCursor, ++lineNumber, totalLenght);
+            ClassLibrary.Do.PrintLinePanelText(" Press Enter to close panel.", xCursor, ++lineNumber, totalLenght);
 
             ClassLibrary.Do.SetCursorPosition(xCursor + 28, lineNumber);
             Console.ReadLine();
 
             Console.BackgroundColor = ConsoleColor.Black;
-        }
-
-        /// <summary>
-        /// to shrink code to one line - set cursor and print
-        /// </summary>
-        /// <param name="text"></param>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <param name="lenght"></param>
-        private void PrintLinePanelText(string text, int x, int y, int lenght)
-        {
-            ClassLibrary.Do.SetCursorPosition(x, y);
-            Console.WriteLine(text.PadRight(lenght));
         }
 
         /// <summary>
@@ -553,20 +539,19 @@ namespace ConsoleFileManager
                     lenght = GetLongestInt(text, source);
                 }
 
-                int xCursor = (UntilX - FromX) - (lenght / 2);
-
-                ClassLibrary.Do.SetCursorPosition(xCursor, lineNumber);
                 Console.BackgroundColor = ConsoleColor.DarkRed;
-                //int padding = (xCursor) + (actionName.Length / 2);
+
+                int xCursor = (UntilX - FromX) - (lenght / 2);
+                ClassLibrary.Do.SetCursorPosition(xCursor, lineNumber);
                 Console.Write(actionName.PadRight((lenght / 2) + (actionName.Length / 2)).PadLeft(lenght));
 
-                PrintLinePanelText(source, xCursor, ++lineNumber, lenght);
+                ClassLibrary.Do.PrintLinePanelText(source, xCursor, ++lineNumber, lenght);
                 if (actionName.Equals("Move") || actionName.Equals("Copy"))
                 {
-                    PrintLinePanelText(" to " + targetDirectory, xCursor, ++lineNumber, lenght);
+                    ClassLibrary.Do.PrintLinePanelText(" to " + targetDirectory, xCursor, ++lineNumber, lenght);
                 }
-                PrintLinePanelText(text, xCursor, ++lineNumber, lenght);
-                PrintLinePanelText(" Y ? ", xCursor, ++lineNumber, lenght);
+                ClassLibrary.Do.PrintLinePanelText(text, xCursor, ++lineNumber, lenght);
+                ClassLibrary.Do.PrintLinePanelText(" Y ? ", xCursor, ++lineNumber, lenght);
 
                 ClassLibrary.Do.SetCursorPosition(xCursor + 6, lineNumber);
                 string decision = Console.ReadLine();
@@ -681,7 +666,6 @@ namespace ConsoleFileManager
                 else
                 {
                     ClassLibrary.Do.ShowAlert("Unknown command or not correct arguments", UntilX - FromX);
-                    //Active.ShowAlert("Unknown command or not correct arguments");
                 }
 
                 Info = "";
@@ -721,7 +705,7 @@ namespace ConsoleFileManager
                 catch (Exception e)
                 {
                     ClassLibrary.Do.ShowAlert(e.Message, UntilX - FromX);
-                    //Active.ShowAlert(e.Message);
+
                 }
             }
 
@@ -785,6 +769,7 @@ namespace ConsoleFileManager
                     {
                         CanBeExecute = true;
                         CommandType = (int)Command.ChangeDir;
+                        arguments = " " + CheckParentRelativePath(arguments.Substring(1));
                         ArgumentSource = GetCorrectPath(arguments.Substring(1));
                         ArgumentSource = ItIsDirectory(ArgumentSource); // files not allowed here. Cut path to directory
                     }
@@ -983,6 +968,14 @@ namespace ConsoleFileManager
                 string sourceItem = arguments.Substring(1);
                 if (sourceItem.Length > 0)
                 {
+                    if (sourceItem.Contains("...")) // wrong path
+                    {
+                        Info = $"Directory or file '{arguments.Substring(1)}' not found!";
+                        return false;
+                    }
+
+                    sourceItem = CheckParentRelativePath(sourceItem);
+
                     // firsly check if it is direct path to file or dir
                     actual = CheckIsItFullPath(sourceItem);
 
@@ -1033,6 +1026,68 @@ namespace ConsoleFileManager
             }
         }
 
+        private string CheckParentRelativePath(string sourceItem)
+        {
+            // ..                   = to parent
+            // ..\..                = to parent \ to parent
+            // ..\..\dirname        = to parent \ to parent \ to dir
+            // .                    = the current directory - remove
+            // .\..\dirname         = current \ parent \ dir
+
+            bool parent = true;
+
+            while (parent)
+            {
+                if (sourceItem.Contains(".."))
+                {
+                    string head = sourceItem.Substring(0, sourceItem.IndexOf(".."));
+                    string tale = sourceItem.Substring(sourceItem.IndexOf("..") + 2);
+
+                    if (head.Length > 0 && head[0].Equals('\\'))
+                        head = head.Substring(1);
+
+                    //first - try to get parent
+                    if (head.Length == 0) // if at beginning of path
+                    {
+                        DirectoryInfo dir = new DirectoryInfo(StartDirectory);
+                        if (dir.Parent != null && dir.Parent.Exists)
+                        {
+                            sourceItem = dir.Parent.FullName.ToString();
+                        }
+                    }
+                    else // middle of string path 
+                    {
+                        sourceItem = Path.Combine(StartDirectory, head);
+
+                        DirectoryInfo dir = new DirectoryInfo(sourceItem);
+                        if (dir.Parent != null && dir.Parent.Exists)
+                        {
+                            sourceItem = dir.Parent.FullName.ToString();
+                        }
+                    }
+
+                    //secong = glue tale if exist
+                    if (tale.Length > 0)
+                    {
+                        sourceItem = sourceItem + tale;
+                    }
+                }
+                else if (sourceItem.Length > 1 && sourceItem.Substring(0, 1).Equals("."))
+                {
+                    sourceItem = sourceItem.Substring(1);
+                }
+                else if (sourceItem.Length > 2 && sourceItem.Substring(0, 2).Equals("\\."))
+                {
+                    sourceItem = sourceItem.Substring(2);
+                }
+
+                if (!sourceItem.Contains("..")) // exit from while
+                    parent = false;
+            }
+
+            return sourceItem;
+        }
+
         /// <summary>
         /// panel when user input new name
         /// </summary>
@@ -1057,8 +1112,8 @@ namespace ConsoleFileManager
             ClassLibrary.Do.SetCursorPosition(cursorX, lineNumber);
             Console.Write(actionName.PadRight(((lenght - actionName.Length) / 2) + actionName.Length).PadLeft(lenght));
 
-            PrintLinePanelText(requestText, cursorX, ++lineNumber, lenght);
-            PrintLinePanelText(" ", cursorX, ++lineNumber, lenght);
+            ClassLibrary.Do.PrintLinePanelText(requestText, cursorX, ++lineNumber, lenght);
+            ClassLibrary.Do.PrintLinePanelText(" ", cursorX, ++lineNumber, lenght);
 
             ClassLibrary.Do.SetCursorPosition(cursorX + 1, lineNumber);
             string newName = Console.ReadLine();
@@ -1067,50 +1122,5 @@ namespace ConsoleFileManager
 
             return newName;
         }
-
-        //public void ShowAlertx(string alertText)
-        //{
-        //    int cursorX = (UntilX - FromX) / 2;
-        //    int lineNumber = Height / 3;
-        //    string actionName = "Error when execute!";
-
-        //    //header
-        //    Console.SetCursorPosition(cursorX, lineNumber);
-        //    Console.BackgroundColor = ConsoleColor.Red;
-        //    int padding = (cursorX) + (actionName.Length / 2);
-        //    Console.Write(actionName.PadRight(padding).PadLeft(UntilX - FromX));
-
-        //    //int delimeter = alertText.Length / (UntilX - FromX);
-        //    int charPointer = 0;
-        //    int charPointerEnd = (UntilX - FromX) - 2;
-        //    while (charPointer < alertText.Length)
-        //    {
-        //        Console.SetCursorPosition(cursorX, ++lineNumber);
-        //        if (charPointerEnd > alertText.Length)
-        //        {                    
-        //            Console.WriteLine(" " + alertText.Substring(charPointer).PadRight(UntilX - (FromX + 2)) + " ");
-        //        }
-        //        else
-        //        {
-        //            Console.WriteLine(" " + alertText.Substring(charPointer, charPointerEnd) + " ");
-        //        }
-                
-        //        charPointer = charPointerEnd;
-        //        charPointerEnd = charPointer + charPointerEnd;
-        //    }
-
-        //    //footer
-        //    PrintLinePanelText("  ", cursorX, ++lineNumber, UntilX - FromX);
-        //    PrintLinePanelText(" Press Enter to close alert.", cursorX, ++lineNumber, UntilX - FromX);
-        //    //Console.SetCursorPosition(cursorX, ++lineNumber);
-        //    //Console.Write(" ".PadRight(UntilX - FromX));
-        //    //Console.SetCursorPosition(cursorX, ++lineNumber);
-        //    //Console.Write(" Press Enter to close alert.".PadRight(UntilX - FromX));
-
-        //    Console.SetCursorPosition(cursorX + 29, lineNumber);
-        //    Console.ReadLine();
-
-        //    Console.BackgroundColor = ConsoleColor.Black;
-        //}
     }
 }

@@ -130,19 +130,5 @@ namespace ConsoleFileManager
             if (exeption == false)
                 Console.WriteLine(lineHoriz.ToString().PadLeft(finishX - startX - 1, lineHoriz));
         }
-
-        //private bool SetCursorPosition1(int x, int y)
-        //{
-        //    try
-        //    {
-        //        Console.SetCursorPosition(x, y);
-        //    }
-        //    catch (System.ArgumentOutOfRangeException)
-        //    {
-        //        return true;
-        //    }
-
-        //    return false;
-        //}
     }
 }

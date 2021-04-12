@@ -12,19 +12,31 @@ namespace ConsoleFileManager
             * asbuka@gmail.com
             */
 
+            //string str = @"c:\temp\5 erw yr tyrtey\";
+            //string str1 = ".";
+            //string str2 = "..";
+            //string str3 = "\\";
+            //string str4 = "\\..";
+            ////str = Path.Combine(str, str1);
+            //bool a1 = EXIST(Path.Combine(str, str1));
+            //bool a2 = EXIST(Path.Combine(str, str2));
+            //bool a3 = EXIST(Path.Combine(str, str3));
+            //bool a4 = EXIST(Path.Combine(str, str4));
+
 
             Console.Title = "Console File Manager, Alexander Fakhrudinov";
             FileManager fm = new FileManager();
-
-            //FilePanel filePanelLeft = new FilePanel(fm.StartDirectoryLeft, 1, fm.ConsoleWidth / 2 - 1);
-            //filePanelLeft.PanelHeight = fm.ConsoleHeight;
-            //filePanelLeft.ShowDirectoryContent(fm.StartDirectoryLeft);
-
-            //FilePanel filePanelRight = new FilePanel(fm.StartDirectoryRight, fm.ConsoleWidth / 2 + 1, fm.ConsoleWidth - 1);
-            //filePanelRight.PanelHeight = fm.ConsoleHeight;
-            //filePanelRight.ShowDirectoryContent(fm.StartDirectoryRight);
-
-            //fm.GetUserCommands(filePanelLeft, filePanelRight);
         }
+
+        //private static bool EXIST(string v)
+        //{
+        //    DirectoryInfo dirSource = new DirectoryInfo(v);
+        //    if (dirSource.Exists)
+        //    {
+        //        return true;
+        //    }
+
+        //    return false;
+        //}
     }
 }

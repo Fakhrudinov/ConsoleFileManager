@@ -4,6 +4,19 @@ namespace ClassLibrary
 {
     public class Do
     {
+        /// <summary>
+        /// to shrink code to one line - set cursor and print
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="lenght"></param>
+        public static void PrintLinePanelText(string text, int x, int y, int lenght)
+        {
+            ClassLibrary.Do.SetCursorPosition(x, y);
+            Console.WriteLine(text.PadRight(lenght));
+        }
+
         public static void ShowAlert(string alertText, int xCursor)
         {
             int cursorX = (xCursor) / 2;

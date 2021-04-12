@@ -230,12 +230,24 @@ namespace ConsoleFileManager
             }
         }
 
+        /// <summary>
+        /// set value and save xml doc
+        /// </summary>
+        /// <param name="xmlDoc"></param>
+        /// <param name="nodeToChange"></param>
+        /// <param name="pathConfigXML"></param>
+        /// <param name="nodeValue"></param>
         private void SetValueToXML(XmlDocument xmlDoc, XmlNode nodeToChange, string pathConfigXML, string nodeValue)
         {
             nodeToChange.InnerText = nodeValue;
             xmlDoc.Save(pathConfigXML);
         }
 
+        /// <summary>
+        /// create default file
+        /// </summary>
+        /// <param name="pathConfigXML"></param>
+        /// <param name="defaultDrive"></param>
         private void CreateFile(string pathConfigXML, string defaultDrive)
         {
             string text = $"" +
@@ -264,9 +276,16 @@ namespace ConsoleFileManager
             }
         }
 
+        /// <summary>
+        /// new node to xml
+        /// </summary>
+        /// <param name="xmlConfig"></param>
+        /// <param name="pathConfigXML"></param>
+        /// <param name="nodeName"></param>
+        /// <param name="nodeValue"></param>
         private void CreateNodeXML(XmlDocument xmlConfig, string pathConfigXML, string nodeName, string nodeValue)
         {
-            //создать ноду в xml
+            //create node in xml
             XmlNode newNode = xmlConfig.CreateNode("element", nodeName, "");
             newNode.InnerText = nodeValue;//default value
 
