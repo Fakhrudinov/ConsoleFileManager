@@ -114,10 +114,6 @@ namespace ConsoleFileManager
             bool exit = false;
             while (!exit)
             {
-                string pathConfigXML = "Resources/Config.xml";
-                XmlDocument xmlConfig = new XmlDocument();
-                xmlConfig.Load(pathConfigXML);
-
                 bool xmlBeSaved = false;
 
                 if (Console.WindowWidth != ConsoleWidth || Console.WindowHeight != ConsoleHeight)
@@ -125,15 +121,11 @@ namespace ConsoleFileManager
 
                     if (Console.WindowWidth != ConsoleWidth)
                     {
-                        XmlNode nodeWidth = xmlConfig.SelectSingleNode("//Width");
-                        nodeWidth.InnerText = Console.WindowWidth.ToString();
                         xmlBeSaved = true;
                     }
 
                     if (Console.WindowHeight != ConsoleHeight)
                     {
-                        XmlNode nodeHeight = xmlConfig.SelectSingleNode("//Height");
-                        nodeHeight.InnerText = Console.WindowHeight.ToString();
                         xmlBeSaved = true;
                     }
 
@@ -147,61 +139,82 @@ namespace ConsoleFileManager
                 //else values to xml check for changes
                 if (filePanelLeft.StartDirectory != StartDirectoryLeft)
                 {
-                    XmlNode nodeLastDirL = xmlConfig.SelectSingleNode("//LeftStartDir");
-                    nodeLastDirL.InnerText = filePanelLeft.StartDirectory;
                     xmlBeSaved = true;
                 }
 
                 if (filePanelRight.StartDirectory != StartDirectoryRight)
                 {
-                    XmlNode nodeLastDirR = xmlConfig.SelectSingleNode("//RightStartDir");
-                    nodeLastDirR.InnerText = filePanelRight.StartDirectory;
                     xmlBeSaved = true;
                 }
 
                 if (filePanelLeft.CurrentItem != CurrentItemLeft)
                 {
-                    XmlNode nodeLeftActive = xmlConfig.SelectSingleNode("//LeftActiveItem");
-                    nodeLeftActive.InnerText = filePanelLeft.CurrentItem.ToString();
                     xmlBeSaved = true;
                 }
 
                 if (filePanelRight.CurrentItem != CurrentItemRight)
                 {
-                    XmlNode nodeRightActive = xmlConfig.SelectSingleNode("//RightActiveItem");
-                    nodeRightActive.InnerText = filePanelRight.CurrentItem.ToString();
                     xmlBeSaved = true;
                 }
 
                 if (filePanelLeft.IsActive != LeftIsActive)
                 {
-                    XmlNode nodeActive = xmlConfig.SelectSingleNode("//LeftIsActive");
-                    nodeActive.InnerText = filePanelLeft.IsActive.ToString();
                     xmlBeSaved = true;
                     LeftIsActive = filePanelLeft.IsActive;
                 }
 
                 if (xmlBeSaved)
                 {
+                    string pathConfigXML = "Resources/Config.xml";
+                    XmlDocument xmlConfig = new XmlDocument();
+                    xmlConfig.Load(pathConfigXML);
+
+                    XmlNode nodeWidth = xmlConfig.SelectSingleNode("//Width");
+                    nodeWidth.InnerText = Console.WindowWidth.ToString();
+
+                    XmlNode nodeHeight = xmlConfig.SelectSingleNode("//Height");
+                    nodeHeight.InnerText = Console.WindowHeight.ToString();
+
+                    XmlNode nodeLastDirL = xmlConfig.SelectSingleNode("//LeftStartDir");
+                    nodeLastDirL.InnerText = filePanelLeft.StartDirectory;
+
+                    XmlNode nodeLastDirR = xmlConfig.SelectSingleNode("//RightStartDir");
+                    nodeLastDirR.InnerText = filePanelRight.StartDirectory;
+
+                    XmlNode nodeLeftActive = xmlConfig.SelectSingleNode("//LeftActiveItem");
+                    nodeLeftActive.InnerText = filePanelLeft.CurrentItem.ToString();
+
+                    XmlNode nodeRightActive = xmlConfig.SelectSingleNode("//RightActiveItem");
+                    nodeRightActive.InnerText = filePanelRight.CurrentItem.ToString();
+
+                    XmlNode nodeActive = xmlConfig.SelectSingleNode("//LeftIsActive");
+                    nodeActive.InnerText = filePanelLeft.IsActive.ToString();
+
                     try
                     {
                         xmlConfig.Save(pathConfigXML);
                     }
                     catch (Exception s)
                     {
-                        ClassLibrary.Do.ShowAlert($"Can't save data to xml file {pathConfigXML}.\r" + s.Message, ConsoleWidth / 2);
-                        //Active.ShowAlert($"Can't save data to xml file {pathConfigXML}.\r" + s.Message);
+                        ClassLibrary.Do.ShowAlert($"Save to configuration XML file {pathConfigXML} Error - " + s.Message, ConsoleWidth / 2);
                     }
                 }
 
+                Actions newActon = new Actions(Active, Passive, ConsoleWidth);
                 if (Console.KeyAvailable)
                 {
                     ConsoleKeyInfo userKey = Console.ReadKey(true);
 
+                    if ((ConsoleModifiers.Control & userKey.Modifiers) != 0 && userKey.Key == ConsoleKey.E)
+                    {
+                        NewCommandText = newActon.GetCommandsHystory();
+
+                        PrintFileManager(filePanelLeft, filePanelRight, border);
+                    }
+
                     if (Char.IsControl(userKey.KeyChar))
                     {
                         bool isConfirmed = false;
-                        Actions newActon = new Actions(Active, Passive, ConsoleWidth);
 
                         switch (userKey.Key)
                         {
@@ -290,7 +303,7 @@ namespace ConsoleFileManager
                                     if (NewCommandText.Length > 0)
                                     {
                                         newActon.AnalizeCommand(NewCommandText, true);
-
+                                        ClassLibrary.Do.WriteCommandToFile(NewCommandText);
                                         NewCommandText = "";                                        
                                     }
                                     else
@@ -309,8 +322,6 @@ namespace ConsoleFileManager
                             default:
                                 break;
                         }
-                        //// return pointer at command line
-                        //PrintUserCommand();
                     }
                     else
                     {
@@ -324,8 +335,6 @@ namespace ConsoleFileManager
                             NewCommandText = NewCommandText + userKey.KeyChar.ToString().ToLower();
                             Console.Write(userKey.KeyChar.ToString().ToLower());
                         }
-
-                        //PrintUserCommand();
                     }
 
                     // return pointer at command line
@@ -363,8 +372,6 @@ namespace ConsoleFileManager
         /// </summary>
         private void PrintUserCommand()
         {
-            //string info = "";
-
             if (NewCommandText.Length > 0)
             {
                 Actions newUserAction = new Actions(Active, Passive, ConsoleWidth);

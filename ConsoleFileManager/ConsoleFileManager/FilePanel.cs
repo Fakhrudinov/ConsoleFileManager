@@ -101,8 +101,7 @@ namespace ConsoleFileManager
                 }
                 catch (Exception e)
                 {
-                    ClassLibrary.Do.ShowAlert(e.Message, UntilX - FromX);
-                    //ShowAlert(e.Message);
+                    ClassLibrary.Do.ShowAlert($"File panel - when try to get dirs and files from {StartDirectory} Error - " + e.Message, UntilX - FromX);
                 }
                 // fill List<string>
                 dirsCount = dirs.Length;
@@ -190,13 +189,19 @@ namespace ConsoleFileManager
                             }
                             catch (Exception e)
                             {
-                                ClassLibrary.Do.ShowAlert(StartDirectory + " " + e.Message, UntilX - FromX);
-                                //ShowAlert(StartDirectory + " " + e.Message);
+                                ClassLibrary.Do.ShowAlert($"File panel - when try get data from file {allItems[itemsToShow[i]]} error - " + e.Message, UntilX - FromX);
                             }                            
                         }
                         else // dirs
                         {
-                            PrintStringToConsole(dirInfo.Name, dirInfo.Attributes.ToString(), dirInfo.CreationTime, 0, i);
+                            try
+                            {
+                                PrintStringToConsole(dirInfo.Name, dirInfo.Attributes.ToString(), dirInfo.CreationTime, 0, i);
+                            }
+                            catch (Exception e)
+                            {
+                                ClassLibrary.Do.ShowAlert($"File panel - when try get data from directory {allItems[itemsToShow[i]]} error - " + e.Message, UntilX - FromX);
+                            }                            
                         }
                     }
 
@@ -310,60 +315,5 @@ namespace ConsoleFileManager
 
             return string.Format("{0:n2}{1}", dValue, SizeSuffixes[i]);
         }
-
-        //public void ShowAlert(string alertText)
-        //{
-        //    int cursorX = (UntilX - FromX) / 2;
-        //    int lineNumber = PanelHeight / 3;
-        //    string actionName = "Error when execute!";
-
-        //    //header
-        //    SetCursorPosition(cursorX, lineNumber);
-        //    Console.BackgroundColor = ConsoleColor.Red;
-        //    int padding = (cursorX) + (actionName.Length / 2);
-        //    Console.Write(actionName.PadRight(padding).PadLeft(UntilX - FromX));
-
-        //    //int delimeter = alertText.Length / (UntilX - FromX);
-        //    int charPointer = 0;
-        //    int charPointerEnd = (UntilX - FromX) - 2;
-        //    while (charPointer < alertText.Length)
-        //    {
-        //        SetCursorPosition(cursorX, ++lineNumber);
-        //        if (charPointerEnd > alertText.Length)
-        //        {
-        //            Console.WriteLine(" " + alertText.Substring(charPointer).PadRight(UntilX - (FromX + 2)) + " ");
-        //        }
-        //        else
-        //        {
-        //            Console.WriteLine(" " + alertText.Substring(charPointer, charPointerEnd) + " ");
-        //        }
-
-        //        charPointer = charPointerEnd;
-        //        charPointerEnd = charPointer + charPointerEnd;
-        //    }
-
-        //    //footer
-        //    SetCursorPosition(cursorX, ++lineNumber);
-        //    Console.Write(" ".PadRight(UntilX - FromX));
-        //    SetCursorPosition(cursorX, ++lineNumber);
-        //    Console.Write(" Press Enter to close alert.".PadRight(UntilX - FromX));
-
-        //    SetCursorPosition(cursorX + 29, lineNumber);
-        //    Console.ReadLine();
-
-        //    Console.BackgroundColor = ConsoleColor.Black;
-        //}
-
-        //private void SetCursorPosition1(int x, int y)
-        //{
-        //    try
-        //    {
-        //        Console.SetCursorPosition(x, y);
-        //    }
-        //    catch (System.ArgumentOutOfRangeException)
-        //    {
-
-        //    }
-        //}
     }
 }

@@ -137,7 +137,7 @@ namespace ConsoleFileManager
                 }
                 catch (Exception f)
                 {
-                    ClassLibrary.Do.ShowAlert(f.Message, UntilX - FromX);
+                    ClassLibrary.Do.ShowAlert("Move Or Rename - File - " + f.Message, UntilX - FromX);
                 }
             }
             if (dirr.Exists) // dir
@@ -148,7 +148,7 @@ namespace ConsoleFileManager
                 }
                 catch (Exception d)
                 {
-                    ClassLibrary.Do.ShowAlert(d.Message, UntilX - FromX);
+                    ClassLibrary.Do.ShowAlert("Move Or Rename - Directory - " + d.Message, UntilX - FromX);
                 }
             }
         }
@@ -189,7 +189,7 @@ namespace ConsoleFileManager
             }
             else
             {
-                ClassLibrary.Do.ShowAlert($"Directory '{newDir}' already exist!", UntilX - FromX);
+                ClassLibrary.Do.ShowAlert($"Make New Directory - Directory '{newDir}' already exist!", UntilX - FromX);
             }
         }
 
@@ -220,7 +220,7 @@ namespace ConsoleFileManager
             }
             catch (Exception d)
             {
-                ClassLibrary.Do.ShowAlert(d.Message, UntilX - FromX);
+                ClassLibrary.Do.ShowAlert("Delete - " + d.Message, UntilX - FromX);
             }
         }   
 
@@ -264,6 +264,9 @@ namespace ConsoleFileManager
             }
         }
 
+        /// <summary>
+        /// change disk dialog
+        /// </summary>
         private void ShowChangeDisk()
         {
             int lineNumber = Height / 4;
@@ -272,7 +275,7 @@ namespace ConsoleFileManager
             //header
             ClassLibrary.Do.SetCursorPosition(xCursor, lineNumber);
             Console.BackgroundColor = ConsoleColor.DarkBlue;
-            int padding = (xCursor) + ("Change Disk".Length / 2);
+            int padding = xCursor + ("Change Disk".Length / 2);
             Console.Write("Change Disk".PadRight(padding).PadLeft(xCursor * 2));
 
             DriveInfo[] drives = DriveInfo.GetDrives();
@@ -287,9 +290,13 @@ namespace ConsoleFileManager
                 {
                     Console.BackgroundColor = ConsoleColor.DarkGray;
                 }
+                if (drive.IsReady == false)
+                    Console.ForegroundColor = ConsoleColor.Red;
+
+                ClassLibrary.Do.PrintLinePanelText($" {index++} {drive.Name} {drive.DriveType.ToString().PadRight(9)} {drive.VolumeLabel}", xCursor, ++lineNumber, xCursor * 2);
+                Console.ResetColor(); // reset ConsoleColor.Red
+                Console.BackgroundColor = ConsoleColor.DarkBlue;
                 
-                ClassLibrary.Do.PrintLinePanelText($" {index++} {drive.Name} {drive.IsReady} {drive.DriveType}", xCursor, ++lineNumber, xCursor * 2);
-                Console.BackgroundColor = ConsoleColor.DarkBlue;                
             }
 
             string text = "Enter drive letter or index number and press Enter. Leave empty to cancel.";
@@ -317,9 +324,7 @@ namespace ConsoleFileManager
             ClassLibrary.Do.SetCursorPosition(xCursor + 1, lineNumber);
             string newDisk = Console.ReadLine();
 
-
             bool match = false;
-
             if (Int32.TryParse(newDisk, out int userDiskInt)) // is it disk index number ?
             {
                 match = dictionaryDisk.ContainsKey(userDiskInt);
@@ -329,22 +334,25 @@ namespace ConsoleFileManager
                     Active.CurrentItem = 0;
                 }
                 else
-                    ClassLibrary.Do.ShowAlert($"Disk with index number '{userDiskInt}' not found.", UntilX - FromX);
+                    ClassLibrary.Do.ShowAlert($"Change disk - Disk with index number '{userDiskInt}' not found.", UntilX - FromX);
             }
             else // is it disk name ?
             {
                 foreach (int indx in dictionaryDisk.Keys)
                 {
-                    if (dictionaryDisk[indx].Substring(0, newDisk.Length).Equals(newDisk))
+                    if (newDisk.Length <= dictionaryDisk[indx].Length)
                     {
-                        Active.StartDirectory = dictionaryDisk[indx];
-                        Active.CurrentItem = 0;
-                        match = true;
+                        if (dictionaryDisk[indx].Substring(0, newDisk.Length).Equals(newDisk))
+                        {
+                            Active.StartDirectory = dictionaryDisk[indx];
+                            Active.CurrentItem = 0;
+                            match = true;
+                        }
                     }
                 }
 
                 if(!match)
-                    ClassLibrary.Do.ShowAlert($"Disk with name '{newDisk}' not found.", UntilX - FromX);
+                    ClassLibrary.Do.ShowAlert($"Change disk - Disk with name '{newDisk}' not found.", UntilX - FromX);
             }
         }
 
@@ -363,7 +371,7 @@ namespace ConsoleFileManager
             }
             catch (Exception ex)
             {
-                ClassLibrary.Do.ShowAlert(ex.Message, UntilX - FromX);
+                ClassLibrary.Do.ShowAlert("Try to execute file - " + ex.Message, UntilX - FromX);
             }
         }
 
@@ -390,13 +398,72 @@ namespace ConsoleFileManager
             }
         }
 
+        internal string GetCommandsHystory()
+        {
+            //read file
+            string fileName = ".\\commandHystory.log";
+            string[] lines = File.ReadAllLines(fileName);
+
+            int selected = lines.Length - 1;
+            bool quit = false;
+
+            while (quit == false)
+            {
+                int lineNumber = (Height - lines.Length) / 2;
+                int xCursor = 2;
+                int totalLenght = (UntilX - FromX) * 2;
+
+                //header
+                ClassLibrary.Do.SetCursorPosition(xCursor, lineNumber);
+                Console.BackgroundColor = ConsoleColor.DarkBlue;
+                int padding = (totalLenght / 2) + ("Commands hystory".Length / 2);
+                Console.Write("Commands hystory".PadRight(padding).PadLeft(totalLenght));
+
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    if (selected == i)
+                        Console.BackgroundColor = ConsoleColor.DarkGray;
+                    else
+                        Console.BackgroundColor = ConsoleColor.DarkBlue;
+
+                    string line = lines[i];
+                    if (lines[i].Length > totalLenght - 2)
+                        line = lines[i].Substring(0, totalLenght - 2);
+
+                    ClassLibrary.Do.PrintLinePanelText(" " + line, xCursor, ++lineNumber, totalLenght);
+                    Console.BackgroundColor = ConsoleColor.DarkBlue;
+                }
+
+                ClassLibrary.Do.PrintLinePanelText(" Press UpArrow or DownArrow to select line", xCursor, ++lineNumber, totalLenght);
+                Console.BackgroundColor = ConsoleColor.DarkBlue;
+                ClassLibrary.Do.PrintLinePanelText(" Enter to choise.", xCursor, ++lineNumber, totalLenght);
+                Console.BackgroundColor = ConsoleColor.Black;
+
+                ConsoleKeyInfo keyInfo = Console.ReadKey(true);
+                switch (keyInfo.Key)
+                {
+                    case ConsoleKey.Enter:
+                        quit = true;
+                        break;
+                    case ConsoleKey.UpArrow:
+                        if (selected > 0)
+                            selected--;
+                        break;
+                    case ConsoleKey.DownArrow:
+                        if (selected < lines.Length - 1)
+                            selected++;
+                        break;
+                }
+            }
+
+            return lines[selected];
+        }
+
         /// <summary>
         /// Copy - user action 'cp'
         /// </summary>
         internal void CopyFromCommandLine()
         {
-            //ArgumentSource
-
             DirectoryInfo dirInfo = new DirectoryInfo(ArgumentSource);
 
             if (!dirInfo.Attributes.ToString().Contains("Directory")) // file copy
@@ -559,7 +626,7 @@ namespace ConsoleFileManager
         /// </summary>
         internal void ShowHelp()
         {
-            int lineNumber = Height / 10;
+            int lineNumber = (Height - 25) / 2;
             string longest = " arrows Up and Down, PgUp PgDown, Home End - select items"; // longest text lenght
             int xCursor = (UntilX - FromX) - (longest.Length / 2);
             int totalLenght = longest.Length + 1;
@@ -582,6 +649,7 @@ namespace ConsoleFileManager
             ClassLibrary.Do.PrintLinePanelText(" ", xCursor, ++lineNumber, totalLenght);
             ClassLibrary.Do.PrintLinePanelText(" Manual commands, commands - case insensitive.", xCursor, ++lineNumber, totalLenght);
             ClassLibrary.Do.PrintLinePanelText(" (Ctrl + Enter): Copy current element to command line", xCursor, ++lineNumber, totalLenght);
+            ClassLibrary.Do.PrintLinePanelText(" (Ctrl + E): Command history select dialog", xCursor, ++lineNumber, totalLenght);
             ClassLibrary.Do.PrintLinePanelText(" Set passive panel same as active: equal", xCursor, ++lineNumber, totalLenght);
             ClassLibrary.Do.PrintLinePanelText(" Change directory: cd NewPath ", xCursor, ++lineNumber, totalLenght);
             ClassLibrary.Do.PrintLinePanelText(" Copy: cp sourcePath (to passive panel)", xCursor, ++lineNumber, totalLenght);
@@ -750,7 +818,7 @@ namespace ConsoleFileManager
                 }
                 else
                 {
-                    ClassLibrary.Do.ShowAlert("Unknown command or not correct arguments", UntilX - FromX);
+                    ClassLibrary.Do.ShowAlert("Try to execute command line - Unknown command or not correct arguments", UntilX - FromX);
                 }
 
                 Info = "";
@@ -789,7 +857,7 @@ namespace ConsoleFileManager
                 }
                 catch (Exception e)
                 {
-                    ClassLibrary.Do.ShowAlert(e.Message, UntilX - FromX);
+                    ClassLibrary.Do.ShowAlert("Execute User Command - Try to get directory - " + e.Message, UntilX - FromX);
 
                 }
             }
