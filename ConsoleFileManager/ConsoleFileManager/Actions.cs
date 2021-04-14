@@ -265,98 +265,6 @@ namespace ConsoleFileManager
         }
 
         /// <summary>
-        /// change disk dialog
-        /// </summary>
-        private void ShowChangeDisk()
-        {
-            int lineNumber = Height / 4;
-            int xCursor = (UntilX - FromX) / 2;
-
-            //header
-            ClassLibrary.Do.SetCursorPosition(xCursor, lineNumber);
-            Console.BackgroundColor = ConsoleColor.DarkBlue;
-            int padding = xCursor + ("Change Disk".Length / 2);
-            Console.Write("Change Disk".PadRight(padding).PadLeft(xCursor * 2));
-
-            DriveInfo[] drives = DriveInfo.GetDrives();
-            int index = 1;
-            var dictionaryDisk = new System.Collections.Generic.Dictionary<int, string>();            
-
-            foreach (DriveInfo drive in drives)
-            {
-                dictionaryDisk.Add(index, drive.Name.ToLower()); // добавление нового элемента
-
-                if (drive.Name.ToLower().Contains(StartDirectory.ToLower().Substring(0, 2)))
-                {
-                    Console.BackgroundColor = ConsoleColor.DarkGray;
-                }
-                if (drive.IsReady == false)
-                    Console.ForegroundColor = ConsoleColor.Red;
-
-                ClassLibrary.Do.PrintLinePanelText($" {index++} {drive.Name} {drive.DriveType.ToString().PadRight(9)} {drive.VolumeLabel}", xCursor, ++lineNumber, xCursor * 2);
-                Console.ResetColor(); // reset ConsoleColor.Red
-                Console.BackgroundColor = ConsoleColor.DarkBlue;
-                
-            }
-
-            string text = "Enter drive letter or index number and press Enter. Leave empty to cancel.";
-
-            int charPointer = 0;
-            int charPointerEnd = (xCursor * 2) - 2;
-            while (charPointer < text.Length)
-            {
-                ClassLibrary.Do.SetCursorPosition(xCursor, ++lineNumber);
-                if (charPointerEnd > text.Length)
-                {
-                    Console.WriteLine(" " + text.Substring(charPointer).PadRight((xCursor * 2) - 2) + " ");
-                }
-                else
-                {
-                    Console.WriteLine(" " + text.Substring(charPointer, charPointerEnd) + " ");
-                }
-
-                charPointer = charPointerEnd;
-                charPointerEnd = charPointer + charPointerEnd;
-            }
-
-            ClassLibrary.Do.PrintLinePanelText(" ", xCursor, ++lineNumber, xCursor * 2);
-
-            ClassLibrary.Do.SetCursorPosition(xCursor + 1, lineNumber);
-            string newDisk = Console.ReadLine();
-
-            bool match = false;
-            if (Int32.TryParse(newDisk, out int userDiskInt)) // is it disk index number ?
-            {
-                match = dictionaryDisk.ContainsKey(userDiskInt);
-                if (match)
-                {
-                    Active.StartDirectory = dictionaryDisk[userDiskInt];
-                    Active.CurrentItem = 0;
-                }
-                else
-                    ClassLibrary.Do.ShowAlert($"Change disk - Disk with index number '{userDiskInt}' not found.", UntilX - FromX);
-            }
-            else // is it disk name ?
-            {
-                foreach (int indx in dictionaryDisk.Keys)
-                {
-                    if (newDisk.Length <= dictionaryDisk[indx].Length)
-                    {
-                        if (dictionaryDisk[indx].Substring(0, newDisk.Length).Equals(newDisk))
-                        {
-                            Active.StartDirectory = dictionaryDisk[indx];
-                            Active.CurrentItem = 0;
-                            match = true;
-                        }
-                    }
-                }
-
-                if(!match)
-                    ClassLibrary.Do.ShowAlert($"Change disk - Disk with name '{newDisk}' not found.", UntilX - FromX);
-            }
-        }
-
-        /// <summary>
         /// run current object
         /// </summary>
         /// <param name="itemToExe"></param>
@@ -398,15 +306,34 @@ namespace ConsoleFileManager
             }
         }
 
-        internal string GetCommandsHystory()
+
+        /// <summary>
+        /// change disk dialog
+        /// </summary>
+        private void ShowChangeDisk()
+        {         
+            int selected = 0;
+            DriveInfo[] drives = DriveInfo.GetDrives();
+            string[] lines = new string[drives.Length];
+            for (int i = 0; i < drives.Length; i++)
+            {
+                lines[i] = drives[i].Name.ToLower();
+
+                if (drives[i].Name.ToLower().Contains(StartDirectory.ToLower().Substring(0, 2)))
+                {
+                    selected = i;
+                }
+            }
+
+            string choise =  SelectDialogFromArray(lines, selected, "Change Disk"); 
+            //change drive
+                Active.StartDirectory = choise;
+                Active.CurrentItem = 0;
+        }
+
+        private string SelectDialogFromArray(string[] lines, int selected, string dialogName)
         {
-            //read file
-            string fileName = ".\\commandHystory.log";
-            string[] lines = File.ReadAllLines(fileName);
-
-            int selected = lines.Length - 1;
             bool quit = false;
-
             while (quit == false)
             {
                 int lineNumber = (Height - lines.Length) / 2;
@@ -416,8 +343,8 @@ namespace ConsoleFileManager
                 //header
                 ClassLibrary.Do.SetCursorPosition(xCursor, lineNumber);
                 Console.BackgroundColor = ConsoleColor.DarkBlue;
-                int padding = (totalLenght / 2) + ("Commands hystory".Length / 2);
-                Console.Write("Commands hystory".PadRight(padding).PadLeft(totalLenght));
+                int padding = (totalLenght / 2) + (dialogName.Length / 2);
+                Console.Write(dialogName.PadRight(padding).PadLeft(totalLenght));
 
                 for (int i = 0; i < lines.Length; i++)
                 {
@@ -457,6 +384,23 @@ namespace ConsoleFileManager
             }
 
             return lines[selected];
+        }
+
+        /// <summary>
+        /// Show content from file commandHystory.log. Selected line copy to command line
+        /// </summary>
+        /// <returns></returns>
+        internal string GetCommandsHystory()
+        {
+            //read file
+            string fileName = ".\\commandHystory.log";
+            string[] lines = File.ReadAllLines(fileName);
+
+            //last command selected
+            int selected = lines.Length - 1;
+
+            string choise = SelectDialogFromArray(lines, selected, "Commands hystory");
+            return choise;
         }
 
         /// <summary>
@@ -833,10 +777,11 @@ namespace ConsoleFileManager
         private void PrintCommandInfo()
         {
             ClassLibrary.Do.SetCursorPosition(1, Height - 4);
-            Console.Write(Info);
+            string infoOnConsole = ClassLibrary.Do.TextLineCutter(Info, (UntilX - FromX) * 2);
+            Console.Write(infoOnConsole);
 
-            if (Info.Length < Width - 2)
-                Console.Write("`".PadRight(Width - (2 + Info.Length), '`'));
+            //if (Info.Length < Width - 2)
+            //    Console.Write("`".PadRight(Width - (2 + Info.Length), '`'));
         }
 
         /// <summary>

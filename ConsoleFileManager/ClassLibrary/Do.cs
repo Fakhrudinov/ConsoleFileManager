@@ -65,6 +65,21 @@ namespace ClassLibrary
             WriteAlertToFile(alertText);
         }
 
+        public static string TextLineCutter(string text, int maxLenght)
+        {
+            if (text.Length > maxLenght)
+            {
+                string text1 = text.Substring(0, maxLenght / 2 - 1) + "..";
+                text = text1 + text.Substring((text.Length - (maxLenght / 2) + 1));
+            }
+            else
+            {
+                text = text.PadRight(maxLenght);
+            }
+
+            return text;
+        }
+
         private static void CheckCreateDirectory(string dirName)
         {
             //check update temp dir exist/create

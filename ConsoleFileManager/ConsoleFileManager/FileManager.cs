@@ -379,14 +379,18 @@ namespace ConsoleFileManager
             }
 
             ClassLibrary.Do.SetCursorPosition(1, ConsoleHeight - 3);
-            Console.Write("Command:" + NewCommandText);
 
-            int cursor = Console.CursorLeft;
-            int pad = ConsoleWidth - (NewCommandText.Length + 10);
-            if (pad < 0)
-                pad = 0;
-            Console.Write("*".PadRight(pad, '*'));
-            Console.CursorLeft = cursor;
+            string commandOnConsole = ClassLibrary.Do.TextLineCutter("Command:" + NewCommandText, ConsoleWidth - 3);
+            Console.Write(commandOnConsole);
+            
+            if(("Command:" + NewCommandText).Length < ConsoleWidth - 2)
+            Console.CursorLeft = ("Command:" + NewCommandText).Length + 1;
+            //int cursor = Console.CursorLeft;
+            //int pad = ConsoleWidth - (NewCommandText.Length + 10);
+            //if (pad < 0)
+            //    pad = 0;
+            //Console.Write("*".PadRight(pad, '*'));
+            //Console.CursorLeft = cursor;
         }
     }
 }

@@ -37,20 +37,20 @@ namespace ConsoleFileManager
             UntilX = untilX;
         }
 
-        private string TextLineCutter(string text, int maxLenght)
-        {
-            if (text.Length > maxLenght)
-            {
-                string text1 = text.Substring(0, maxLenght / 2 - 1) + ".."; 
-                text = text1 + text.Substring((text.Length - (maxLenght / 2) + 1));
-            }
-            else
-            {
-                text = text.PadRight(maxLenght);
-            }
+        //private string TextLineCutter(string text, int maxLenght)
+        //{
+        //    if (text.Length > maxLenght)
+        //    {
+        //        string text1 = text.Substring(0, maxLenght / 2 - 1) + ".."; 
+        //        text = text1 + text.Substring((text.Length - (maxLenght / 2) + 1));
+        //    }
+        //    else
+        //    {
+        //        text = text.PadRight(maxLenght);
+        //    }
 
-            return text;
-        }
+        //    return text;
+        //}
 
         public void ShowDirectoryContent()
         {
@@ -64,7 +64,7 @@ namespace ConsoleFileManager
 
             currDir = currDir + StartDirectory;
 
-            currDir = TextLineCutter(currDir, UntilX - FromX);
+            currDir = ClassLibrary.Do.TextLineCutter(currDir, UntilX - FromX);
             Console.Write(currDir);
 
             TotalItems = 0;
@@ -84,10 +84,12 @@ namespace ConsoleFileManager
                     {
                         ClassLibrary.Do.SetCursorPosition(FromX, 2);
 
-                        string currDisk = $"Current Disk: ";
-                        if((currDisk + $"{drive.Name} Total:{GetFileSize(drive.TotalSize)} Free:{ GetFileSize(drive.TotalFreeSpace)}").Length > UntilX - FromX)
-                            currDisk = "";
-                        Console.Write(currDisk + $"{drive.Name} Total:{GetFileSize(drive.TotalSize)} Free:{ GetFileSize(drive.TotalFreeSpace)}");
+                        string currDisk = $"Current Disk: " + $"{drive.Name} Total:{GetFileSize(drive.TotalSize)} Free:{ GetFileSize(drive.TotalFreeSpace)}";
+                        if(currDisk.Length > UntilX - FromX)
+                            currDisk = $"{drive.Name} Total:{GetFileSize(drive.TotalSize)}";
+                        
+                        currDisk = ClassLibrary.Do.TextLineCutter(currDisk, UntilX - FromX);
+                        Console.Write(currDisk);
                     }
                 }
 
