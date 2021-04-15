@@ -37,21 +37,6 @@ namespace ConsoleFileManager
             UntilX = untilX;
         }
 
-        //private string TextLineCutter(string text, int maxLenght)
-        //{
-        //    if (text.Length > maxLenght)
-        //    {
-        //        string text1 = text.Substring(0, maxLenght / 2 - 1) + ".."; 
-        //        text = text1 + text.Substring((text.Length - (maxLenght / 2) + 1));
-        //    }
-        //    else
-        //    {
-        //        text = text.PadRight(maxLenght);
-        //    }
-
-        //    return text;
-        //}
-
         public void ShowDirectoryContent()
         {
             if (!IsActive)

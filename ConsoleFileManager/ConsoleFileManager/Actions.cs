@@ -349,7 +349,7 @@ namespace ConsoleFileManager
             {
                 int lineNumber = (Height - lines.Length) / 2;
                 int xCursor = 2;
-                int totalLenght = (UntilX - FromX) * 2;
+                int totalLenght = Width - 4;
 
                 //header
                 ClassLibrary.Do.SetCursorPosition(xCursor, lineNumber);
@@ -775,7 +775,6 @@ namespace ConsoleFileManager
                 {
                     ClassLibrary.Do.ShowAlert("Try to execute command line - Unknown command or not correct arguments", UntilX - FromX);
                 }
-
                 Info = "";
             }
 
@@ -788,11 +787,8 @@ namespace ConsoleFileManager
         private void PrintCommandInfo()
         {
             ClassLibrary.Do.SetCursorPosition(1, Height - 4);
-            string infoOnConsole = ClassLibrary.Do.TextLineCutter(Info, (UntilX - FromX) * 2);
+            string infoOnConsole = ClassLibrary.Do.TextLineCutter(Info, Width - 2);
             Console.Write(infoOnConsole);
-
-            //if (Info.Length < Width - 2)
-            //    Console.Write("`".PadRight(Width - (2 + Info.Length), '`'));
         }
 
         /// <summary>
@@ -963,18 +959,25 @@ namespace ConsoleFileManager
                 //without correct first argument - second is useless
                 if (checkFirstArguments == true)
                 {
-                    //Info = "First argument correct, now enter second argument";
                     if (arguments.Substring(arguments.IndexOf(',')).Length > 1)
                     {
                         checkSecondArguments = CheckExist(arguments.Substring(arguments.IndexOf(',') + 1), secondMustExist);
 
                         if (checkSecondArguments == true)// OK both correct
                         {
-                            //Info = $"OK, From '{arguments.Substring(1, arguments.IndexOf(',') - 1)}' " +
-                            //    $"to '{arguments.Substring(arguments.IndexOf(',') + 2)}'";
-
+                            //set path from first argument
                             ArgumentSource = GetCorrectPath(arguments.Substring(1, arguments.IndexOf(',') - 1));
-                            ArgumentTarget = GetNonExistPath(arguments.Substring(arguments.IndexOf(',') + 2));
+
+                            //set path from second argument
+                            //if it is RENAME - we need to use active panel current directory. Else - passive current directory
+                            if (Info.Contains("Rename"))
+                            {
+                                ArgumentTarget = GetNonExistPath(arguments.Substring(arguments.IndexOf(',') + 2), true);
+                            }
+                            else
+                            {
+                                ArgumentTarget = GetNonExistPath(arguments.Substring(arguments.IndexOf(',') + 2), false);
+                            } 
                             
                             CanBeExecute = true;
                             return true;
@@ -1000,27 +1003,44 @@ namespace ConsoleFileManager
         }
 
         /// <summary>
-        /// Checking path in case, when path must be NOT exist
+        /// Checking path in case, when path must be NOT exist. inActivePanel set which panel must be used
         /// </summary>
         /// <param name="path"></param>
+        /// <param name="inActivePanel"></param>
         /// <returns></returns>
-        private string GetNonExistPath(string path)
+        private string GetNonExistPath(string path, bool inActivePanel)
         {
             if (path.Contains('\\')) // full path
             {
                //check exist - for full path - must be NOT exist
                if (!CheckIsItFullPath(path))
                {
-                    //check exist - for first part before last '\' - must be exist
+                    //check exist - for first part before last '\' - must be exist - root dir for new item
                     if (!CheckIsItFullPath(path.Substring(0, path.LastIndexOf('\\'))))
-                        path = Path.Combine(Passive.StartDirectory, path);
+                    {
+                        if (inActivePanel) // Rename
+                        {
+                            path = Path.Combine(Active.StartDirectory, path);
+                        }
+                        else // copy move
+                        {
+                            path = Path.Combine(Passive.StartDirectory, path);
+                        }
+                    }                     
                }
 
                 return path;
             }
             else // just name
             {
-                path = Path.Combine(Passive.StartDirectory, path);
+                if (inActivePanel) // Rename
+                {
+                    path = Path.Combine(Active.StartDirectory, path);
+                }
+                else // copy move
+                {
+                    path = Path.Combine(Passive.StartDirectory, path);
+                }
             }
             return path;
         }
