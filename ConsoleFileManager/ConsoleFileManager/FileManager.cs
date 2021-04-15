@@ -225,7 +225,8 @@ namespace ConsoleFileManager
                                 Active.IsActive = true;
                                 Passive.IsActive = false;
                                 filePanelLeft.ShowDirectoryContent();
-                                filePanelRight.ShowDirectoryContent();                                
+                                filePanelRight.ShowDirectoryContent();
+                                ClassLibrary.Do.WriteCommandToFile($"cd {Active.StartDirectory}");
                                 break;
 
                             case ConsoleKey.DownArrow:
@@ -384,13 +385,7 @@ namespace ConsoleFileManager
             Console.Write(commandOnConsole);
             
             if(("Command:" + NewCommandText).Length < ConsoleWidth - 2)
-            Console.CursorLeft = ("Command:" + NewCommandText).Length + 1;
-            //int cursor = Console.CursorLeft;
-            //int pad = ConsoleWidth - (NewCommandText.Length + 10);
-            //if (pad < 0)
-            //    pad = 0;
-            //Console.Write("*".PadRight(pad, '*'));
-            //Console.CursorLeft = cursor;
+                ClassLibrary.Do.SetCursorPosition(("Command:" + NewCommandText).Length + 1, Console.CursorTop);
         }
     }
 }

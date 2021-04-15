@@ -103,6 +103,7 @@ namespace ConsoleFileManager
                 string targetItem = Path.Combine(StartDirectory, newName);
 
                 MoveOrRename(sourceItem, targetItem);
+                ClassLibrary.Do.WriteCommandToFile($"name {sourceItem}, {targetItem}");
             }
         }
 
@@ -118,6 +119,8 @@ namespace ConsoleFileManager
                 string targetItem = Path.Combine(targetDirectory, CurrentItemName);
 
                 MoveOrRename(sourceItem, targetItem);
+
+                ClassLibrary.Do.WriteCommandToFile($"mv {sourceItem}, {targetItem}");
             }
         }
         
@@ -165,6 +168,8 @@ namespace ConsoleFileManager
             {
                 MkDir(newName);
             }
+
+            ClassLibrary.Do.WriteCommandToFile($"mkdir {newName}");
         }
 
         /// <summary>
@@ -222,6 +227,8 @@ namespace ConsoleFileManager
             {
                 ClassLibrary.Do.ShowAlert("Delete - " + d.Message, UntilX - FromX);
             }
+
+            ClassLibrary.Do.WriteCommandToFile($"rm {itemPath}");
         }   
 
         /// <summary>
@@ -233,6 +240,8 @@ namespace ConsoleFileManager
             {
                 string itemToExe = Path.Combine(StartDirectory, CurrentItemName);
                 DirectoryInfo dir = new DirectoryInfo(itemToExe);
+
+                ClassLibrary.Do.WriteCommandToFile("run " + itemToExe);
 
                 if (!dir.Attributes.ToString().Contains("Directory")) // file 
                 {
@@ -251,11 +260,10 @@ namespace ConsoleFileManager
                 if (dir.Parent != null && dir.Parent.Exists) // normal directory
                 {
                     Active.StartDirectory = dir.Parent.FullName.ToString();
+                    ClassLibrary.Do.WriteCommandToFile("cd " + dir.Parent.FullName);
                 }
                 else
                 {
-                    //  go to disk root
-                    //Active.StartDirectory = dir.Root.ToString();
                     ShowChangeDisk();
                 }
 
@@ -303,6 +311,8 @@ namespace ConsoleFileManager
                 {
                     CopyDir(sourceItem, targetItem); 
                 }
+
+                ClassLibrary.Do.WriteCommandToFile($"cp {sourceItem}, {targetItem}");
             }
         }
 
@@ -325,10 +335,11 @@ namespace ConsoleFileManager
                 }
             }
 
-            string choise =  SelectDialogFromArray(lines, selected, "Change Disk"); 
+            string choise =  SelectDialogFromArray(lines, selected, "Change Disk");
             //change drive
-                Active.StartDirectory = choise;
-                Active.CurrentItem = 0;
+            ClassLibrary.Do.WriteCommandToFile("cd " + choise);
+            Active.StartDirectory = choise;
+            Active.CurrentItem = 0;
         }
 
         private string SelectDialogFromArray(string[] lines, int selected, string dialogName)

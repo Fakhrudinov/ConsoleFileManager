@@ -84,7 +84,8 @@ namespace ConsoleFileManager
                     {
                         ClassLibrary.Do.SetCursorPosition(FromX, 2);
 
-                        string currDisk = $"Current Disk: " + $"{drive.Name} Total:{GetFileSize(drive.TotalSize)} Free:{ GetFileSize(drive.TotalFreeSpace)}";
+                        string currDisk = $"Current Disk: " + $"{drive.Name} Total:{GetFileSize(drive.TotalSize)} " +
+                            $"Free:{ GetFileSize(drive.TotalFreeSpace)}";
                         if(currDisk.Length > UntilX - FromX)
                             currDisk = $"{drive.Name} Total:{GetFileSize(drive.TotalSize)}";
                         
