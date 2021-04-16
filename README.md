@@ -12,14 +12,17 @@
 <p>Changes to the dimensions opened in the directory panels are saved and will be applied the next time the program is started.</p>
 <p>The history of the commands entered by the user is saved, including the commands made in the file manager from the "F" buttons, such as F5, F6, etc. </p>
 <h2>Main areas of the program </h2>
-<p><img alt="Panel" title="Panel" src="onePanel.png" /><br>Panel.</p>
+<h3>Panel.</h3>
+<p><img alt="Panel" title="Panel" src="onePanel.png" /></p>
 <p>Above - an information panel about the current directory and disk.<br>
 Below is the line with directories and files in the current directory.
 The highlighted line shows the currently selected object.<br>
-Bottom line - information about pagination on the panel and the total number of directories and files. </p>
-<p><img alt="F bar" title="F bar" src="FBar.png" /><br>F buttons information</p>
-<p>The available 'F' keys are shown here with a brief description of the action to be performed. </p>
-<p><img alt="Command bar" title="Command bar" src="CommandBar.png" /><br>Command panel</p>
+Bottom line - information about pagination on the panel and the total number of directories and files.</p>
+<h3>F buttons information</h3>
+<p><img alt="F bar" title="F bar" src="FBar.png" /></p>
+<p>The available 'F' keys are shown here with a brief description of the action to be performed.</p>
+<h3>Command panel</h3>
+<p><img alt="Command bar" title="Command bar" src="CommandBar.png" /></p>
 <p>On the command panel there are 2 lines - at the bottom, the user enters the command and its arguments. The top line shows a hint for the entered command and an estimate of the entered path.</p>
 <h2>User manual</h2>
 <h3>Panel operations</h3>
@@ -36,10 +39,17 @@ To change the disk, press enter on ".." while in the root directory of the disk.
 <p><strong>F9 Rename</strong> Rename selected object in active panel. New name request will be displayed. Enter a name to create or leave blank to cancel the action.</p>
 <p><strong>Alt + F4 Exit.</strong> Close this program.</p>
 <h3>Command line operations</h3>
-<p><strong>Ctrl + Enter</strong></p>
-<p><strong>Ctrl + E</strong></p>
-<p><strong>equal</strong> </p>
-<p><strong>cd argument</strong> </p>
+<p><strong>Ctrl + Enter</strong> Paste the selected in active panel object into the command line </p>
+<p><strong>Ctrl + E</strong> Show a list of the last used commands. Use the up and down arrows to navigate through the list. Press Enter to select </p>
+<p><strong>equal</strong> Changes the working directory of the inactive panel to the working directory of the active panel. All panels show the same directory. </p>
+<p><strong>cd argument</strong> Change directory. The full path, the name of the directory in the active panel, or a relative path are accepted as an argument.<br>
+Examples:
+<ul>
+<li>cd d: (change drive)
+<li>cd .. (go to the to parent directory)
+<li>cd folderName (go to the folder 'folderName', located in the current directory of the active panel)
+<li>cd c:\temp\333\ (go to the absolute path) 
+</ul></p>
 <p><strong>cp argument</strong> </p>
 <p><strong>cp argument1, argument2</strong> </p>
 <p><strong>mv argument</strong> </p>
