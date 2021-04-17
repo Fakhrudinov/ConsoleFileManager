@@ -50,13 +50,48 @@ Examples:
 <li>cd folderName (go to the folder 'folderName', located in the current directory of the active panel)
 <li>cd c:\temp\333\ (go to the absolute path) 
 </ul></p>
-<p><strong>cp argument</strong> </p>
-<p><strong>cp argument1, argument2</strong> </p>
-<p><strong>mv argument</strong> </p>
-<p><strong>mv argument1, argument2</strong> </p>
-<p><strong>rm argument</strong> </p>
-<p><strong>mkdir argument</strong> </p>
-<p><strong>run argument</strong> </p>
-<p><strong>name argument, argument2</strong> ???</p>
-<p><strong></strong> </p>
-<p></p>
+<p><strong>cp argument</strong> Copy, one argument. The object will be copied to the directory on the inactive panel. The full path, the name of the directory or file in the active panel, or a relative path are accepted as an argument.<br>
+Examples:
+<ul>
+<li>cp folderName (copy the folderName located in the current directory of the active panel to the directory on the inactive panel) </ul></p>
+<p><strong>cp argument1, argument2</strong>  Copy, two arguments. Arguments delimiter is ', '. The full path, the name of the directory or file in the active panel, or a relative path are accepted as an arguments<br>
+Examples:
+<ul>
+<li>cp folderName, NewFolderName (copy the folderName located in the current directory of the active panel to the directory with new name on the inactive panel)
+<li>cp c:\temp\111\folderName, c:\222\333\folderName (copy from absolute path to the absolute path) 
+</ul></p>
+<p><strong>mv argument</strong>  Move, one argument. The object will be movied to the directory on the inactive panel. The full path, the name of the directory or file in the active panel, or a relative path are accepted as an argument.<br>
+Examples:
+<ul>
+<li>mv folderName (move the folderName located in the current directory of the active panel to the directory on the inactive panel) </ul></p>
+<p><strong>mv argument1, argument2</strong>  Move, two arguments. Arguments delimiter is ', '. The full path, the name of the directory or file in the active panel, or a relative path are accepted as an arguments<br>
+Examples:
+<ul>
+<li>mv folderName, NewFolderName (move the folderName located in the current directory of the active panel to the directory with new name on the inactive panel)
+<li>mv c:\temp\111\folderName, c:\222\333\folderName (move from absolute path to the absolute path) 
+</ul></p>
+<p><strong>rm argument</strong> Remove object. The full path, the name of the directory or file in the active panel, or a relative path are accepted as an argument.<br>
+Examples:
+<ul>
+<li>rm folderName (Remove folder 'folderName', located in the current directory of the active panel)
+<li>rm c:\temp\333 (Remove folder '333' by absolute path)</ul></p>
+<p><strong>mkdir argument</strong> Make new directory. The full path, the name of the new directory creatted in the active panel, or a relative path are accepted as an argument.<br>
+Examples:
+<ul>
+<li>mkdir ..\111 (create new directory '111' in the parent directory relatively current directory of the active panel)
+<li>mkdir folderName (create new directory 'folderName' in the current directory of the active panel)
+<li>mkdir c:\temp\333\111 (create new directory '111' by the absolute path) 
+</ul></p>
+<p><strong>run argument</strong> Try to execute in the default program. The full path, the name of the directory or file in the active panel, or a relative path are accepted as an argument.<br>
+Examples:
+<ul>
+<li>run 111 (open folder '111' located in the current directory of the active panel in default file manager)
+<li>run rtfm.txt (if exist, open file 'rtfm.txt' in the current directory of the active panel with default text editor program)
+<li>run c:\temp\333\111\rtfm.txt (if exist, open file 'rtfm.txt' by the absolute path with default text editor program) 
+</ul></p>
+<p><strong>name argument, argument2</strong> Rename the object. The first argument must exist. The second argument is the new name of the object. The full path, the name of the directory or file in the active panel, or a relative path are accepted as an first argument.<br>
+Examples:
+<ul>
+<li>name folderName, NewFolderName (Rename the folderName located in the current directory of the active panel with new name on the active panel)
+<li>name c:\temp\111\folderName, c:\222\333\folderName (copy from absolute path to the absolute path)  ????
+</ul></p>
