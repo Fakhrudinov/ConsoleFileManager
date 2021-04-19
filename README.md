@@ -135,5 +135,5 @@ Examples:
 Examples:
 <ul>
 <li>name folderName, NewFolderName (Rename the folderName located in the current directory of the active panel with new name on the active panel)
-<li>name c:\temp\111\folderName, c:\222\333\folderName (copy from absolute path to the absolute path)  ????
+<li>name c:\temp\111\folderName, c:\222\333\folderName (move from absolute path to the absolute path)
 </ul></p>
