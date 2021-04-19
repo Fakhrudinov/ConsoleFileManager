@@ -18,31 +18,39 @@ namespace ClassLibrary
             Console.WriteLine(text.PadRight(lenght));
         }
 
+
+        public static void PrintDialogHeader(string headerText, int xCursor, int yCursor, int totalLenght)
+        {
+            SetCursorPosition(xCursor, yCursor);
+            int padding = (totalLenght / 2) + (headerText.Length / 2);
+            Console.Write(headerText.PadRight(padding).PadLeft(totalLenght));
+        }
+
+
         /// <summary>
         /// Show alert. text, xCursor = width
         /// </summary>
         /// <param name="alertText"></param>
         /// <param name="xCursor"></param>
-        public static void ShowAlert(string alertText, int xCursor)
+        public static void ShowAlert(string alertText, int totalLenght)
         {
-            int cursorX = (xCursor) / 2;
+            int xCursor = totalLenght / 2;
             int lineNumber = 10;
             string actionName = "Error when execute!";
+            int padding = (xCursor) + (actionName.Length / 2);
+            Console.BackgroundColor = ConsoleColor.Red;
 
             //header
-            SetCursorPosition(cursorX, lineNumber);
-            Console.BackgroundColor = ConsoleColor.Red;
-            int padding = (cursorX) + (actionName.Length / 2);
-            Console.Write(actionName.PadRight(padding).PadLeft(xCursor));
+            PrintDialogHeader(actionName, xCursor, lineNumber, totalLenght);
 
             int charPointer = 0;
-            int charLenght = (xCursor) - 2;
+            int charLenght = (totalLenght) - 2;
             while (charPointer < alertText.Length)
             {
-                SetCursorPosition(cursorX, ++lineNumber);
+                SetCursorPosition(xCursor, ++lineNumber);
                 if (charPointer + charLenght > alertText.Length)
                 {
-                    Console.Write(" " + alertText.Substring(charPointer).PadRight(xCursor - 2) + " ");
+                    Console.Write(" " + alertText.Substring(charPointer).PadRight(totalLenght - 2) + " ");
                 }
                 else
                 {
@@ -53,12 +61,10 @@ namespace ClassLibrary
             }
 
             //footer
-            SetCursorPosition(cursorX, ++lineNumber);
-            Console.Write(" ".PadRight(xCursor));
-            SetCursorPosition(cursorX, ++lineNumber);
-            Console.Write(" Press Enter to close alert.".PadRight(xCursor));
+            PrintLinePanelText(" ", xCursor, ++lineNumber, totalLenght);
+            PrintLinePanelText(" Press Enter to close alert.", xCursor, ++lineNumber, totalLenght);
 
-            SetCursorPosition(cursorX + 29, lineNumber);
+            SetCursorPosition(xCursor + 29, lineNumber);
             Console.ReadLine();
 
             Console.BackgroundColor = ConsoleColor.Black;

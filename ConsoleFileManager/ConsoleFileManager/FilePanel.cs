@@ -211,7 +211,7 @@ namespace ConsoleFileManager
                     }
                 }
             }
-            else
+            else // something wrong with current dir
             {
                 ClassLibrary.Do.ShowAlert("Current directory path not found: " + StartDirectory, UntilX - FromX);
 

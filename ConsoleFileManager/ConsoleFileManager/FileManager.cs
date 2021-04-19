@@ -259,7 +259,7 @@ namespace ConsoleFileManager
                                 break;
 
                             case ConsoleKey.F3:                                
-                                newActon.ShowInfo(Path.Combine(Active.StartDirectory, Active.CurrentItemName));
+                                newActon.ShowInfo();
                                 PrintFileManager(filePanelLeft, filePanelRight, border);
                                 break;
 

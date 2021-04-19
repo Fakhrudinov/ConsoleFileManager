@@ -348,6 +348,13 @@ namespace ConsoleFileManager
             Active.CurrentItem = 0;
         }
 
+        /// <summary>
+        /// user select new disk or command from hystory, navigate with arrows
+        /// </summary>
+        /// <param name="lines"></param>
+        /// <param name="selected"></param>
+        /// <param name="dialogName"></param>
+        /// <returns></returns>
         private string SelectDialogFromArray(string[] lines, int selected, string dialogName)
         {
             bool quit = false;
@@ -357,11 +364,10 @@ namespace ConsoleFileManager
                 int xCursor = 2;
                 int totalLenght = Width - 4;
 
-                //header
-                ClassLibrary.Do.SetCursorPosition(xCursor, lineNumber);
                 Console.BackgroundColor = ConsoleColor.DarkBlue;
-                int padding = (totalLenght / 2) + (dialogName.Length / 2);
-                Console.Write(dialogName.PadRight(padding).PadLeft(totalLenght));
+
+                //header
+                ClassLibrary.Do.PrintDialogHeader(dialogName, xCursor, lineNumber, totalLenght);
 
                 for (int i = 0; i < lines.Length; i++)
                 {
@@ -379,7 +385,6 @@ namespace ConsoleFileManager
                 }
 
                 ClassLibrary.Do.PrintLinePanelText(" Press UpArrow or DownArrow to select line", xCursor, ++lineNumber, totalLenght);
-                Console.BackgroundColor = ConsoleColor.DarkBlue;
                 ClassLibrary.Do.PrintLinePanelText(" Enter to choise.", xCursor, ++lineNumber, totalLenght);
                 Console.BackgroundColor = ConsoleColor.Black;
 
@@ -522,29 +527,28 @@ namespace ConsoleFileManager
         /// F3 show info about object
         /// </summary>
         /// <param name="itemPath"></param>
-        internal void ShowInfo(string itemPath)
+        internal void ShowInfo()
         {
-            int lineNumber = Height / 4;
-            int xCursor = (UntilX - FromX) / 2;
-
-            //header
-            ClassLibrary.Do.SetCursorPosition(xCursor, lineNumber);
+            int lineNumber = Height / 4;            
             Console.BackgroundColor = ConsoleColor.DarkBlue;
-            int padding = (xCursor) + ("Information".Length / 2);
-            Console.Write("Information".PadRight(padding).PadLeft(xCursor * 2));
+            int totalLenght = 35; // ( Last writed: 14.04.2021 20:32:13 ).lenght
+            int xCursor = (Width - totalLenght) / 2;         
 
             if (Active.CurrentItem != 0) // not a parent dir
             {
-                DirectoryInfo dirInfo = new DirectoryInfo(itemPath);                 
+                //header
+                ClassLibrary.Do.PrintDialogHeader("Information", xCursor, lineNumber, totalLenght);
+
+                DirectoryInfo dirInfo = new DirectoryInfo(Path.Combine(Active.StartDirectory, Active.CurrentItemName));                 
                 if (!dirInfo.Attributes.ToString().Contains("Directory")) //  files
                 {
-                    FileInfo fileInf = new FileInfo(itemPath);
-                    ClassLibrary.Do.PrintLinePanelText( "        File", xCursor, ++lineNumber, xCursor * 2);
-                    ClassLibrary.Do.PrintLinePanelText($"        Name: {fileInf.Name}", xCursor, ++lineNumber, xCursor * 2);
-                    ClassLibrary.Do.PrintLinePanelText($"     Created: {fileInf.CreationTime}", xCursor, ++lineNumber, xCursor * 2);
-                    ClassLibrary.Do.PrintLinePanelText($" Last writed: {fileInf.LastWriteTime}", xCursor, ++lineNumber, xCursor * 2);
-                    ClassLibrary.Do.PrintLinePanelText($"    ReadOnly: {fileInf.IsReadOnly}", xCursor, ++lineNumber, xCursor * 2);
-                    ClassLibrary.Do.PrintLinePanelText($" Size, bytes: {fileInf.Length}", xCursor, ++lineNumber, xCursor * 2);
+                    FileInfo fileInf = new FileInfo(Path.Combine(Active.StartDirectory, Active.CurrentItemName));
+                    ClassLibrary.Do.PrintLinePanelText( "        File", xCursor, ++lineNumber, totalLenght);
+                    ClassLibrary.Do.PrintLinePanelText($"        Name: {fileInf.Name}", xCursor, ++lineNumber, totalLenght);
+                    ClassLibrary.Do.PrintLinePanelText($"     Created: {fileInf.CreationTime}", xCursor, ++lineNumber, totalLenght);
+                    ClassLibrary.Do.PrintLinePanelText($" Last writed: {fileInf.LastWriteTime}", xCursor, ++lineNumber, totalLenght);
+                    ClassLibrary.Do.PrintLinePanelText($"    ReadOnly: {fileInf.IsReadOnly}", xCursor, ++lineNumber, totalLenght);
+                    ClassLibrary.Do.PrintLinePanelText($" Size, bytes: {fileInf.Length}", xCursor, ++lineNumber, totalLenght);
 
                     if (fileInf.Attributes.ToString().Contains(','))
                     {
@@ -552,14 +556,14 @@ namespace ConsoleFileManager
                         lineNumber = ShowAttributes(attr, xCursor, lineNumber);
                     }
                     else
-                        ClassLibrary.Do.PrintLinePanelText($"  Attributes: {fileInf.Attributes}", xCursor, ++lineNumber, xCursor * 2);
+                        ClassLibrary.Do.PrintLinePanelText($"  Attributes: {fileInf.Attributes}", xCursor, ++lineNumber, totalLenght);
                 }
                 else // dirs
                 {
-                    ClassLibrary.Do.PrintLinePanelText( "   Directory", xCursor, ++lineNumber, xCursor * 2);
-                    ClassLibrary.Do.PrintLinePanelText($"        Name: {dirInfo.Name}", xCursor, ++lineNumber, xCursor * 2);
-                    ClassLibrary.Do.PrintLinePanelText($"     Created: {dirInfo.CreationTime}", xCursor, ++lineNumber, xCursor * 2);
-                    ClassLibrary.Do.PrintLinePanelText($" Last writed: {dirInfo.LastWriteTime}", xCursor, ++lineNumber, xCursor * 2);
+                    ClassLibrary.Do.PrintLinePanelText( "   Directory", xCursor, ++lineNumber, totalLenght);
+                    ClassLibrary.Do.PrintLinePanelText($"        Name: {dirInfo.Name}", xCursor, ++lineNumber, totalLenght);
+                    ClassLibrary.Do.PrintLinePanelText($"     Created: {dirInfo.CreationTime}", xCursor, ++lineNumber, totalLenght);
+                    ClassLibrary.Do.PrintLinePanelText($" Last writed: {dirInfo.LastWriteTime}", xCursor, ++lineNumber, totalLenght);
 
                     if (dirInfo.Attributes.ToString().Contains(','))
                     {
@@ -567,25 +571,35 @@ namespace ConsoleFileManager
                         lineNumber = ShowAttributes(attr, xCursor, lineNumber);
                     }
                     else
-                        ClassLibrary.Do.PrintLinePanelText($"  Attributes: {dirInfo.Attributes}", xCursor, ++lineNumber, xCursor * 2);
-
+                        ClassLibrary.Do.PrintLinePanelText($"  Attributes: {dirInfo.Attributes}", xCursor, ++lineNumber, totalLenght);
                 }
             }
             else
             {
-                ClassLibrary.Do.PrintLinePanelText(" Info about parent directory not avaliable.", xCursor, ++lineNumber, xCursor * 2);
-                ClassLibrary.Do.PrintLinePanelText(" Firstly go there and select directory", xCursor, ++lineNumber, xCursor * 2);
+                totalLenght = 39;
+                //header
+                ClassLibrary.Do.PrintDialogHeader("Information", xCursor, lineNumber, totalLenght);
+
+                ClassLibrary.Do.PrintLinePanelText(" Parent directory info not avaliable.", xCursor, ++lineNumber, totalLenght);
+                ClassLibrary.Do.PrintLinePanelText(" Firstly go there and select directory", xCursor, ++lineNumber, totalLenght);
             }
 
             //footer
-            ClassLibrary.Do.PrintLinePanelText(" ", xCursor, ++lineNumber, xCursor * 2);
-            ClassLibrary.Do.PrintLinePanelText(" Press Enter to close panel.", xCursor, ++lineNumber, xCursor * 2);
+            ClassLibrary.Do.PrintLinePanelText(" ", xCursor, ++lineNumber, totalLenght);
+            ClassLibrary.Do.PrintLinePanelText(" Press Enter to close panel.", xCursor, ++lineNumber, totalLenght);
             ClassLibrary.Do.SetCursorPosition(xCursor + 28, lineNumber);
             Console.ReadLine();
 
             Console.BackgroundColor = ConsoleColor.Black;
         }
 
+        /// <summary>
+        /// part of F3 panel
+        /// </summary>
+        /// <param name="attr"></param>
+        /// <param name="xCursor"></param>
+        /// <param name="lineNumber"></param>
+        /// <returns></returns>
         private int ShowAttributes(string[] attr, int xCursor, int lineNumber)
         {
             ClassLibrary.Do.PrintLinePanelText($"  Attributes: {attr[0]}", xCursor, ++lineNumber, xCursor * 2);
@@ -604,15 +618,13 @@ namespace ConsoleFileManager
         internal void ShowHelp()
         {
             int lineNumber = (Height - 25) / 2;
-            string longest = " arrows Up and Down, PgUp PgDown, Home End - select items"; // longest text lenght
+            string longest = " arrows Up and Down, PgUp PgDown, Home End - navigate inside panel"; // longest text lenght
             int xCursor = (UntilX - FromX) - (longest.Length / 2);
             int totalLenght = longest.Length + 1;
+            Console.BackgroundColor = ConsoleColor.DarkBlue;
 
             //header
-            ClassLibrary.Do.SetCursorPosition(xCursor, lineNumber);
-            Console.BackgroundColor = ConsoleColor.DarkBlue;
-            int padding = (totalLenght / 2) + ("Help".Length / 2);
-            Console.Write("Help".PadRight(padding).PadLeft(totalLenght));
+            ClassLibrary.Do.PrintDialogHeader("Help", xCursor, lineNumber, totalLenght);
 
             ClassLibrary.Do.PrintLinePanelText(" F1 - Help Panel", xCursor, ++lineNumber, totalLenght);
             ClassLibrary.Do.PrintLinePanelText(" F3 - File or Directory Information", xCursor, ++lineNumber, totalLenght);
@@ -655,33 +667,50 @@ namespace ConsoleFileManager
             bool isConfirm = false;
             if (CurrentItem != 0) // not a parent Dir
             {
-                int lenght;
-                int lineNumber = Height / 3;
-                
+                int totalLenght;
+                int lineNumber = Height / 3;               
+
                 string text = " Press Y to confirm, any other to decline, then Enter";
                 string source = $" {actionName} {CurrentItemName} ";                
                 if (actionName.Equals("Move") || actionName.Equals("Copy"))
                 {
-                    lenght = GetLongestInt(" to " + targetDirectory, text, source);
+                    totalLenght = GetLongestInt(" to " + targetDirectory, text, source);
                 }
                 else
                 {
-                    lenght = GetLongestInt(text, source);
+                    totalLenght = GetLongestInt(text, source);
                 }
+
+                if(totalLenght > Width - 4)
+                {
+                    totalLenght = Width - 4;
+                    source = ClassLibrary.Do.TextLineCutter(source, Width - (4 + 6)); // 6 is copy or move lenght
+                    targetDirectory = ClassLibrary.Do.TextLineCutter(targetDirectory, Width - (4 + 4));
+                }
+
+
+                int xCursor = ((Width - totalLenght) / 2);
 
                 Console.BackgroundColor = ConsoleColor.DarkRed;
 
-                int xCursor = (UntilX - FromX) - (lenght / 2);
-                ClassLibrary.Do.SetCursorPosition(xCursor, lineNumber);
-                Console.Write(actionName.PadRight((lenght / 2) + (actionName.Length / 2)).PadLeft(lenght));
+                //header
+                ClassLibrary.Do.PrintDialogHeader(actionName, xCursor, lineNumber, totalLenght);
 
-                ClassLibrary.Do.PrintLinePanelText(source, xCursor, ++lineNumber, lenght);
+                ClassLibrary.Do.PrintLinePanelText(source, xCursor, ++lineNumber, totalLenght);
                 if (actionName.Equals("Move") || actionName.Equals("Copy"))
                 {
-                    ClassLibrary.Do.PrintLinePanelText(" to " + targetDirectory, xCursor, ++lineNumber, lenght);
+                    ClassLibrary.Do.PrintLinePanelText(" to " + targetDirectory, xCursor, ++lineNumber, totalLenght);
                 }
-                ClassLibrary.Do.PrintLinePanelText(text, xCursor, ++lineNumber, lenght);
-                ClassLibrary.Do.PrintLinePanelText(" Y ? ", xCursor, ++lineNumber, lenght);
+
+                if(text.Length > totalLenght)
+                {
+                    ClassLibrary.Do.PrintLinePanelText(" Press Y to confirm, any other", xCursor, ++lineNumber, totalLenght);
+                    ClassLibrary.Do.PrintLinePanelText(" to decline, then Enter", xCursor, ++lineNumber, totalLenght);
+                }
+                else
+                    ClassLibrary.Do.PrintLinePanelText(text, xCursor, ++lineNumber, totalLenght);
+
+                ClassLibrary.Do.PrintLinePanelText(" Y ? ", xCursor, ++lineNumber, totalLenght);
 
                 ClassLibrary.Do.SetCursorPosition(xCursor + 6, lineNumber);
                 string decision = Console.ReadLine();
@@ -1269,27 +1298,32 @@ namespace ConsoleFileManager
         /// <returns></returns>
         private string AskUserForNewName(string actionName)
         {
-            int cursorX = (UntilX - FromX) / 2;
+            int xCursor = (UntilX - FromX) / 2;
             int lineNumber = Height / 3;
             string requestText = " Enter new name, or leave it empty and press Enter:";
-            int lenght = UntilX - FromX;
-
-
-            if ((UntilX - FromX) < requestText.Length)
-            {
-                lenght = requestText.Length + 1;
-                cursorX = (UntilX - FromX) - requestText.Length / 2;
-            }
-            
+            int totalLenght = requestText.Length + 1;
             Console.BackgroundColor = ConsoleColor.Blue;
 
-            ClassLibrary.Do.SetCursorPosition(cursorX, lineNumber);
-            Console.Write(actionName.PadRight(((lenght - actionName.Length) / 2) + actionName.Length).PadLeft(lenght));
+            //header
+            
 
-            ClassLibrary.Do.PrintLinePanelText(requestText, cursorX, ++lineNumber, lenght);
-            ClassLibrary.Do.PrintLinePanelText(" ", cursorX, ++lineNumber, lenght);
+            if (Width - 4 < totalLenght) // shorten text
+            {
+                totalLenght = Width - 4;
+                xCursor = 2;
+                ClassLibrary.Do.PrintDialogHeader(actionName, xCursor, lineNumber, totalLenght);
+                ClassLibrary.Do.PrintLinePanelText(" Enter new name, or leave ", xCursor, ++lineNumber, totalLenght);
+                ClassLibrary.Do.PrintLinePanelText(" it empty and press Enter:", xCursor, ++lineNumber, totalLenght);
+            }
+            else // normal lenght
+            {
+                ClassLibrary.Do.PrintDialogHeader(actionName, xCursor, lineNumber, totalLenght);
+                ClassLibrary.Do.PrintLinePanelText(requestText, xCursor, ++lineNumber, totalLenght);
+            }
 
-            ClassLibrary.Do.SetCursorPosition(cursorX + 1, lineNumber);
+            ClassLibrary.Do.PrintLinePanelText(" ", xCursor, ++lineNumber, totalLenght);
+
+            ClassLibrary.Do.SetCursorPosition(xCursor + 1, lineNumber);
             string newName = Console.ReadLine();
 
             Console.BackgroundColor = ConsoleColor.Black;
