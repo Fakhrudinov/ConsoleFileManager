@@ -12,7 +12,7 @@ namespace ConsoleFileManager
             * asbuka@gmail.com
             */
 
-            Console.Title = "Console File Manager, Alexander Fakhrudinov";
+            Console.Title = "Console File Manager";
             FileManager fm = new FileManager();
         }
     }
