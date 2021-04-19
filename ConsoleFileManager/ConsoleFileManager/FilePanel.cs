@@ -37,21 +37,6 @@ namespace ConsoleFileManager
             UntilX = untilX;
         }
 
-        private string TextLineCutter(string text, int maxLenght)
-        {
-            if (text.Length > maxLenght)
-            {
-                string text1 = text.Substring(0, maxLenght / 2 - 1) + ".."; 
-                text = text1 + text.Substring((text.Length - (maxLenght / 2) + 1));
-            }
-            else
-            {
-                text = text.PadRight(maxLenght);
-            }
-
-            return text;
-        }
-
         public void ShowDirectoryContent()
         {
             if (!IsActive)
@@ -64,7 +49,7 @@ namespace ConsoleFileManager
 
             currDir = currDir + StartDirectory;
 
-            currDir = TextLineCutter(currDir, UntilX - FromX);
+            currDir = ClassLibrary.Do.TextLineCutter(currDir, UntilX - FromX);
             Console.Write(currDir);
 
             TotalItems = 0;
@@ -84,10 +69,13 @@ namespace ConsoleFileManager
                     {
                         ClassLibrary.Do.SetCursorPosition(FromX, 2);
 
-                        string currDisk = $"Current Disk: ";
-                        if((currDisk + $"{drive.Name} Total:{GetFileSize(drive.TotalSize)} Free:{ GetFileSize(drive.TotalFreeSpace)}").Length > UntilX - FromX)
-                            currDisk = "";
-                        Console.Write(currDisk + $"{drive.Name} Total:{GetFileSize(drive.TotalSize)} Free:{ GetFileSize(drive.TotalFreeSpace)}");
+                        string currDisk = $"Current Disk: " + $"{drive.Name} Total:{GetFileSize(drive.TotalSize)} " +
+                            $"Free:{ GetFileSize(drive.TotalFreeSpace)}";
+                        if(currDisk.Length > UntilX - FromX)
+                            currDisk = $"{drive.Name} Total:{GetFileSize(drive.TotalSize)}";
+                        
+                        currDisk = ClassLibrary.Do.TextLineCutter(currDisk, UntilX - FromX);
+                        Console.Write(currDisk);
                     }
                 }
 
@@ -101,8 +89,7 @@ namespace ConsoleFileManager
                 }
                 catch (Exception e)
                 {
-                    ClassLibrary.Do.ShowAlert(e.Message, UntilX - FromX);
-                    //ShowAlert(e.Message);
+                    ClassLibrary.Do.ShowAlert($"File panel - when try to get dirs and files from {StartDirectory} Error - " + e.Message, UntilX - FromX);
                 }
                 // fill List<string>
                 dirsCount = dirs.Length;
@@ -164,10 +151,8 @@ namespace ConsoleFileManager
                 {
                     if(arrCurrent == i)
                     {
-                        Console.BackgroundColor = ConsoleColor.DarkGray;
-
-                        if (!IsActive)
-                            Console.ForegroundColor = ConsoleColor.Black;
+                        if (IsActive)
+                            Console.BackgroundColor = ConsoleColor.DarkGray;
                     }                        
                     
                     if (allItems[itemsToShow[i]].Equals("..")) // print parent Directory
@@ -190,17 +175,22 @@ namespace ConsoleFileManager
                             }
                             catch (Exception e)
                             {
-                                ClassLibrary.Do.ShowAlert(StartDirectory + " " + e.Message, UntilX - FromX);
-                                //ShowAlert(StartDirectory + " " + e.Message);
+                                ClassLibrary.Do.ShowAlert($"File panel - when try get data from file {allItems[itemsToShow[i]]} error - " + e.Message, UntilX - FromX);
                             }                            
                         }
                         else // dirs
                         {
-                            PrintStringToConsole(dirInfo.Name, dirInfo.Attributes.ToString(), dirInfo.CreationTime, 0, i);
+                            try
+                            {
+                                PrintStringToConsole(dirInfo.Name, dirInfo.Attributes.ToString(), dirInfo.CreationTime, 0, i);
+                            }
+                            catch (Exception e)
+                            {
+                                ClassLibrary.Do.ShowAlert($"File panel - when try get data from directory {allItems[itemsToShow[i]]} error - " + e.Message, UntilX - FromX);
+                            }                            
                         }
                     }
 
-                    Console.BackgroundColor = ConsoleColor.Black;
                     if (!IsActive)
                     {
                         Console.ForegroundColor = ConsoleColor.DarkGray;
@@ -208,7 +198,7 @@ namespace ConsoleFileManager
                     else
                     {
                         Console.ResetColor();
-                    }                        
+                    }
                 }
 
                 //fill all empty lines with spaces - delete previous data in panel
@@ -223,8 +213,32 @@ namespace ConsoleFileManager
             }
             else
             {
-                ClassLibrary.Do.SetCursorPosition(FromX, 2);
-                Console.Write("Path not found: " + StartDirectory);
+                ClassLibrary.Do.ShowAlert("Current directory path not found: " + StartDirectory, UntilX - FromX);
+
+                //is disk exist?
+                DirectoryInfo dir = new DirectoryInfo(StartDirectory);
+                if (StartDirectory.Contains(Path.DirectorySeparatorChar))
+                {
+                    dir = new DirectoryInfo(StartDirectory.Substring(0, StartDirectory.IndexOf(Path.DirectorySeparatorChar)));
+                }
+                
+                if(dir.Exists) // if exist - roll back on directory tree until find existing dir
+                {
+                    StartDirectory = StartDirectory.Substring(0, StartDirectory.LastIndexOf(Path.DirectorySeparatorChar));
+                }
+                else // find ready disk and set as StartDirectory
+                {
+                    foreach (DriveInfo drive in drives)
+                    {
+                        if (drive.IsReady)
+                        {
+                            StartDirectory = drive.RootDirectory.ToString();
+                            break;
+                        }
+                    }
+                }
+
+                ShowDirectoryContent();
             }
 
             // pagination summary:
@@ -310,60 +324,5 @@ namespace ConsoleFileManager
 
             return string.Format("{0:n2}{1}", dValue, SizeSuffixes[i]);
         }
-
-        //public void ShowAlert(string alertText)
-        //{
-        //    int cursorX = (UntilX - FromX) / 2;
-        //    int lineNumber = PanelHeight / 3;
-        //    string actionName = "Error when execute!";
-
-        //    //header
-        //    SetCursorPosition(cursorX, lineNumber);
-        //    Console.BackgroundColor = ConsoleColor.Red;
-        //    int padding = (cursorX) + (actionName.Length / 2);
-        //    Console.Write(actionName.PadRight(padding).PadLeft(UntilX - FromX));
-
-        //    //int delimeter = alertText.Length / (UntilX - FromX);
-        //    int charPointer = 0;
-        //    int charPointerEnd = (UntilX - FromX) - 2;
-        //    while (charPointer < alertText.Length)
-        //    {
-        //        SetCursorPosition(cursorX, ++lineNumber);
-        //        if (charPointerEnd > alertText.Length)
-        //        {
-        //            Console.WriteLine(" " + alertText.Substring(charPointer).PadRight(UntilX - (FromX + 2)) + " ");
-        //        }
-        //        else
-        //        {
-        //            Console.WriteLine(" " + alertText.Substring(charPointer, charPointerEnd) + " ");
-        //        }
-
-        //        charPointer = charPointerEnd;
-        //        charPointerEnd = charPointer + charPointerEnd;
-        //    }
-
-        //    //footer
-        //    SetCursorPosition(cursorX, ++lineNumber);
-        //    Console.Write(" ".PadRight(UntilX - FromX));
-        //    SetCursorPosition(cursorX, ++lineNumber);
-        //    Console.Write(" Press Enter to close alert.".PadRight(UntilX - FromX));
-
-        //    SetCursorPosition(cursorX + 29, lineNumber);
-        //    Console.ReadLine();
-
-        //    Console.BackgroundColor = ConsoleColor.Black;
-        //}
-
-        //private void SetCursorPosition1(int x, int y)
-        //{
-        //    try
-        //    {
-        //        Console.SetCursorPosition(x, y);
-        //    }
-        //    catch (System.ArgumentOutOfRangeException)
-        //    {
-
-        //    }
-        //}
     }
 }

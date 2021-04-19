@@ -114,10 +114,6 @@ namespace ConsoleFileManager
             bool exit = false;
             while (!exit)
             {
-                string pathConfigXML = "Resources/Config.xml";
-                XmlDocument xmlConfig = new XmlDocument();
-                xmlConfig.Load(pathConfigXML);
-
                 bool xmlBeSaved = false;
 
                 if (Console.WindowWidth != ConsoleWidth || Console.WindowHeight != ConsoleHeight)
@@ -125,15 +121,11 @@ namespace ConsoleFileManager
 
                     if (Console.WindowWidth != ConsoleWidth)
                     {
-                        XmlNode nodeWidth = xmlConfig.SelectSingleNode("//Width");
-                        nodeWidth.InnerText = Console.WindowWidth.ToString();
                         xmlBeSaved = true;
                     }
 
                     if (Console.WindowHeight != ConsoleHeight)
                     {
-                        XmlNode nodeHeight = xmlConfig.SelectSingleNode("//Height");
-                        nodeHeight.InnerText = Console.WindowHeight.ToString();
                         xmlBeSaved = true;
                     }
 
@@ -147,61 +139,82 @@ namespace ConsoleFileManager
                 //else values to xml check for changes
                 if (filePanelLeft.StartDirectory != StartDirectoryLeft)
                 {
-                    XmlNode nodeLastDirL = xmlConfig.SelectSingleNode("//LeftStartDir");
-                    nodeLastDirL.InnerText = filePanelLeft.StartDirectory;
                     xmlBeSaved = true;
                 }
 
                 if (filePanelRight.StartDirectory != StartDirectoryRight)
                 {
-                    XmlNode nodeLastDirR = xmlConfig.SelectSingleNode("//RightStartDir");
-                    nodeLastDirR.InnerText = filePanelRight.StartDirectory;
                     xmlBeSaved = true;
                 }
 
                 if (filePanelLeft.CurrentItem != CurrentItemLeft)
                 {
-                    XmlNode nodeLeftActive = xmlConfig.SelectSingleNode("//LeftActiveItem");
-                    nodeLeftActive.InnerText = filePanelLeft.CurrentItem.ToString();
                     xmlBeSaved = true;
                 }
 
                 if (filePanelRight.CurrentItem != CurrentItemRight)
                 {
-                    XmlNode nodeRightActive = xmlConfig.SelectSingleNode("//RightActiveItem");
-                    nodeRightActive.InnerText = filePanelRight.CurrentItem.ToString();
                     xmlBeSaved = true;
                 }
 
                 if (filePanelLeft.IsActive != LeftIsActive)
                 {
-                    XmlNode nodeActive = xmlConfig.SelectSingleNode("//LeftIsActive");
-                    nodeActive.InnerText = filePanelLeft.IsActive.ToString();
                     xmlBeSaved = true;
                     LeftIsActive = filePanelLeft.IsActive;
                 }
 
                 if (xmlBeSaved)
                 {
+                    string pathConfigXML = "Resources/Config.xml";
+                    XmlDocument xmlConfig = new XmlDocument();
+                    xmlConfig.Load(pathConfigXML);
+
+                    XmlNode nodeWidth = xmlConfig.SelectSingleNode("//Width");
+                    nodeWidth.InnerText = Console.WindowWidth.ToString();
+
+                    XmlNode nodeHeight = xmlConfig.SelectSingleNode("//Height");
+                    nodeHeight.InnerText = Console.WindowHeight.ToString();
+
+                    XmlNode nodeLastDirL = xmlConfig.SelectSingleNode("//LeftStartDir");
+                    nodeLastDirL.InnerText = filePanelLeft.StartDirectory;
+
+                    XmlNode nodeLastDirR = xmlConfig.SelectSingleNode("//RightStartDir");
+                    nodeLastDirR.InnerText = filePanelRight.StartDirectory;
+
+                    XmlNode nodeLeftActive = xmlConfig.SelectSingleNode("//LeftActiveItem");
+                    nodeLeftActive.InnerText = filePanelLeft.CurrentItem.ToString();
+
+                    XmlNode nodeRightActive = xmlConfig.SelectSingleNode("//RightActiveItem");
+                    nodeRightActive.InnerText = filePanelRight.CurrentItem.ToString();
+
+                    XmlNode nodeActive = xmlConfig.SelectSingleNode("//LeftIsActive");
+                    nodeActive.InnerText = filePanelLeft.IsActive.ToString();
+
                     try
                     {
                         xmlConfig.Save(pathConfigXML);
                     }
                     catch (Exception s)
                     {
-                        ClassLibrary.Do.ShowAlert($"Can't save data to xml file {pathConfigXML}.\r" + s.Message, ConsoleWidth / 2);
-                        //Active.ShowAlert($"Can't save data to xml file {pathConfigXML}.\r" + s.Message);
+                        ClassLibrary.Do.ShowAlert($"Save to configuration XML file {pathConfigXML} Error - " + s.Message, ConsoleWidth / 2);
                     }
                 }
 
+                Actions newActon = new Actions(Active, Passive, ConsoleWidth);
                 if (Console.KeyAvailable)
                 {
                     ConsoleKeyInfo userKey = Console.ReadKey(true);
 
+                    if ((ConsoleModifiers.Control & userKey.Modifiers) != 0 && userKey.Key == ConsoleKey.E)
+                    {
+                        NewCommandText = newActon.GetCommandsHystory();
+
+                        PrintFileManager(filePanelLeft, filePanelRight, border);
+                    }
+
                     if (Char.IsControl(userKey.KeyChar))
                     {
                         bool isConfirmed = false;
-                        Actions newActon = new Actions(Active, Passive, ConsoleWidth);
 
                         switch (userKey.Key)
                         {
@@ -212,7 +225,8 @@ namespace ConsoleFileManager
                                 Active.IsActive = true;
                                 Passive.IsActive = false;
                                 filePanelLeft.ShowDirectoryContent();
-                                filePanelRight.ShowDirectoryContent();                                
+                                filePanelRight.ShowDirectoryContent();
+                                ClassLibrary.Do.WriteCommandToFile($"cd {Active.StartDirectory}");
                                 break;
 
                             case ConsoleKey.DownArrow:
@@ -290,7 +304,7 @@ namespace ConsoleFileManager
                                     if (NewCommandText.Length > 0)
                                     {
                                         newActon.AnalizeCommand(NewCommandText, true);
-
+                                        ClassLibrary.Do.WriteCommandToFile(NewCommandText);
                                         NewCommandText = "";                                        
                                     }
                                     else
@@ -309,26 +323,19 @@ namespace ConsoleFileManager
                             default:
                                 break;
                         }
-                        //// return pointer at command line
-                        //PrintUserCommand();
                     }
                     else
                     {
                         if ((userKey.Modifiers & ConsoleModifiers.Shift) != 0)
                         {
                             NewCommandText = NewCommandText + userKey.KeyChar;
-                            Console.Write(userKey.KeyChar);
                         }
                         else
                         {
                             NewCommandText = NewCommandText + userKey.KeyChar.ToString().ToLower();
-                            Console.Write(userKey.KeyChar.ToString().ToLower());
                         }
-
-                        //PrintUserCommand();
                     }
 
-                    // return pointer at command line
                     PrintUserCommand();
                 }
             }
@@ -341,21 +348,51 @@ namespace ConsoleFileManager
         {
             ClassLibrary.Do.SetCursorPosition(1, ConsoleHeight - 6);
 
+            string f1 = "[F1 Help]";
+            string f3 = "[F3 Info]";
+            string f5 = "[F5 Copy]";
+            string f6 = "[F6 Move]";
+            string f7 = "[F7 MkDir]";
+            string f8 = "[F8 Del]";
+            string f9 = "[F9 Rename]";
+            string exit = "[Alt F4 Exit]";
+            int exitLenght = 14;
+            int totalLenght = 80;
+
+            if(ConsoleWidth < totalLenght)
+            {
+                f1 = "[F1]";
+                f3 = "[F3]";
+                f5 = "[F5]";
+                f6 = "[F6]";
+                f7 = "[F7]";
+                f8 = "[F8]";
+                f9 = "[F9]";
+                exit = "[Alt F4]";
+                exitLenght = 9;
+                totalLenght = 32;
+            }
+
             //80 = all symbols lenght
-            int padding = (ConsoleWidth - 80) / 8; // delimeter between [F] text
+            int padding = (ConsoleWidth - totalLenght) / 8; // delimeter between [F] text
             if (padding < 0)
                 padding = 0;
 
-            Console.Write("[F1 Help]" + new string(' ', padding));
-            Console.Write("[F3 Info]" + new string(' ', padding));
-            Console.Write("[F5 Copy]" + new string(' ', padding));
-            Console.Write("[F6 Move]" + new string(' ', padding));
-            Console.Write("[F7 NewDir]" + new string(' ', padding));
-            Console.Write("[F8 Del]" + new string(' ', padding));
-            Console.Write("[F9 Rename]");
+            Console.Write(f1 + new string(' ', padding));
+            Console.Write(f3 + new string(' ', padding));
+            Console.Write(f5 + new string(' ', padding));
+            Console.Write(f6 + new string(' ', padding));
+            Console.Write(f7 + new string(' ', padding));
+            Console.Write(f8 + new string(' ', padding));
+            Console.Write(f9);
             
-            ClassLibrary.Do.SetCursorPosition(ConsoleWidth - 14, ConsoleHeight - 6);          
-            Console.Write("[Alt F4 Exit]");
+            int padddingLast = ConsoleWidth - exitLenght - Console.CursorLeft;
+            if (padddingLast < 0)
+                padddingLast = 0;
+            Console.Write(" ".PadRight(padddingLast));//paint line till [Alt F4 Exit]
+
+            ClassLibrary.Do.SetCursorPosition(ConsoleWidth - exitLenght, ConsoleHeight - 6);          
+            Console.Write(exit);
         }
 
         /// <summary>
@@ -363,8 +400,6 @@ namespace ConsoleFileManager
         /// </summary>
         private void PrintUserCommand()
         {
-            //string info = "";
-
             if (NewCommandText.Length > 0)
             {
                 Actions newUserAction = new Actions(Active, Passive, ConsoleWidth);
@@ -372,14 +407,11 @@ namespace ConsoleFileManager
             }
 
             ClassLibrary.Do.SetCursorPosition(1, ConsoleHeight - 3);
-            Console.Write("Command:" + NewCommandText);
 
-            int cursor = Console.CursorLeft;
-            int pad = ConsoleWidth - (NewCommandText.Length + 10);
-            if (pad < 0)
-                pad = 0;
-            Console.Write("*".PadRight(pad, '*'));
-            Console.CursorLeft = cursor;
+            string commandOnConsole = ClassLibrary.Do.TextLineCutter("Command:" + NewCommandText, Console.WindowWidth - 2);
+            Console.Write(commandOnConsole);
+            
+            ClassLibrary.Do.SetCursorPosition(("Command:" + NewCommandText).Length + 1, Console.CursorTop);
         }
     }
 }

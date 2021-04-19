@@ -251,16 +251,16 @@ namespace ConsoleFileManager
         private void CreateFile(string pathConfigXML, string defaultDrive)
         {
             string text = $"" +
-                $"<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" +
-                "<Settings>\r\n" +
-                "   <LeftIsActive>True</LeftIsActive>\r\n" +
-                "   <LeftStartDir>" + defaultDrive + "</LeftStartDir>\r\n" +
-                "   <RightStartDir>" + defaultDrive + "</RightStartDir>\r\n" +
-                "   <LeftActiveItem>0</LeftActiveItem>\r\n" +
-                "   <RightActiveItem>0</RightActiveItem>\r\n" +
-                "   <Width>100</Width>\r\n" +
-                "   <Height>40</Height>\r\n" +
-                "</Settings>\r\n";
+                $"<?xml version=\"1.0\" encoding=\"utf-8\"?>" + Environment.NewLine +
+                "<Settings>" + Environment.NewLine +
+                "   <LeftIsActive>True</LeftIsActive>" + Environment.NewLine +
+                "   <LeftStartDir>" + defaultDrive + "</LeftStartDir>" + Environment.NewLine +
+                "   <RightStartDir>" + defaultDrive + "</RightStartDir>" + Environment.NewLine +
+                "   <LeftActiveItem>0</LeftActiveItem>" + Environment.NewLine +
+                "   <RightActiveItem>0</RightActiveItem>" + Environment.NewLine +
+                "   <Width>100</Width>" + Environment.NewLine +
+                "   <Height>40</Height>" + Environment.NewLine +
+                "</Settings>" + Environment.NewLine;
             try
             {
                 using (StreamWriter sw = new StreamWriter(pathConfigXML, false, System.Text.Encoding.Default))
@@ -272,7 +272,7 @@ namespace ConsoleFileManager
             }
             catch (Exception e)
             {
-                ClassLibrary.Do.ShowAlert("Save XML Error " + e.Message, 20);
+                ClassLibrary.Do.ShowAlert($"Save to configuration XML file {pathConfigXML} Error - " + e.Message, 20);
             }
         }
 
