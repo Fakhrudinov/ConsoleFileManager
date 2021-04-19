@@ -18,6 +18,11 @@ namespace ClassLibrary
             Console.WriteLine(text.PadRight(lenght));
         }
 
+        /// <summary>
+        /// Show alert. text, xCursor = width
+        /// </summary>
+        /// <param name="alertText"></param>
+        /// <param name="xCursor"></param>
         public static void ShowAlert(string alertText, int xCursor)
         {
             int cursorX = (xCursor) / 2;
@@ -58,19 +63,31 @@ namespace ClassLibrary
 
             Console.BackgroundColor = ConsoleColor.Black;
 
-            //Check directory exist
-            CheckCreateDirectory("Log");
-
             //save info to file
             WriteAlertToFile(alertText);
         }
 
+        /// <summary>
+        /// split long (text > maxLenght) like 123..890
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="maxLenght"></param>
+        /// <returns></returns>
         public static string TextLineCutter(string text, int maxLenght)
         {
             if (text.Length > maxLenght)
             {
-                string text1 = text.Substring(0, maxLenght / 2 - 1) + "..";
-                text = text1 + text.Substring((text.Length - (maxLenght / 2) + 1));
+                int even = maxLenght % 2;
+                string text1 = text.Substring(0, maxLenght / 2 + even);
+                if (text.Length - maxLenght == 1)
+                {
+                    text1 = text1 + ".";
+                }
+                if (text.Length - maxLenght > 1)
+                {
+                    text1 = text1.Substring(0, text1.Length - 1) + "..";
+                }
+                text = text1 + text.Substring(text.Length - (maxLenght / 2) + 1);
             }
             else
             {
@@ -99,11 +116,17 @@ namespace ClassLibrary
 
         private static void WriteAlertToFile(string alertText)
         {
+            //Check directory exist
+            string dirName = "Log";
+            CheckCreateDirectory(dirName);
+
             DateTime dt = DateTime.Now;
-            string fileName = ".\\Errors\\Alerts_" + dt.ToString("yyyy_MMM_dd") + ".log";
+            string fileName = "Alerts_" + dt.ToString("yyyy_MMM_dd") + ".log";
             try
             {
-                File.AppendAllLines(fileName, new[] { dt.ToString("hh:mm:ss"), alertText, "" });
+                DirectoryInfo dir = new DirectoryInfo(Path.Combine(dirName, fileName));
+                string str = dir.FullName;
+                File.AppendAllLines(str, new[] { dt.ToString("hh:mm:ss"), alertText, "" });
             }
             catch
             {

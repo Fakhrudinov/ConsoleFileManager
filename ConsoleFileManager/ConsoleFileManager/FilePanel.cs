@@ -151,10 +151,8 @@ namespace ConsoleFileManager
                 {
                     if(arrCurrent == i)
                     {
-                        Console.BackgroundColor = ConsoleColor.DarkGray;
-
-                        if (!IsActive)
-                            Console.ForegroundColor = ConsoleColor.Black;
+                        if (IsActive)
+                            Console.BackgroundColor = ConsoleColor.DarkGray;
                     }                        
                     
                     if (allItems[itemsToShow[i]].Equals("..")) // print parent Directory
@@ -193,7 +191,6 @@ namespace ConsoleFileManager
                         }
                     }
 
-                    Console.BackgroundColor = ConsoleColor.Black;
                     if (!IsActive)
                     {
                         Console.ForegroundColor = ConsoleColor.DarkGray;
@@ -201,7 +198,7 @@ namespace ConsoleFileManager
                     else
                     {
                         Console.ResetColor();
-                    }                        
+                    }
                 }
 
                 //fill all empty lines with spaces - delete previous data in panel
@@ -216,8 +213,32 @@ namespace ConsoleFileManager
             }
             else
             {
-                ClassLibrary.Do.SetCursorPosition(FromX, 2);
-                Console.Write("Path not found: " + StartDirectory);
+                ClassLibrary.Do.ShowAlert("Current directory path not found: " + StartDirectory, UntilX - FromX);
+
+                //is disk exist?
+                DirectoryInfo dir = new DirectoryInfo(StartDirectory);
+                if (StartDirectory.Contains(Path.DirectorySeparatorChar))
+                {
+                    dir = new DirectoryInfo(StartDirectory.Substring(0, StartDirectory.IndexOf(Path.DirectorySeparatorChar)));
+                }
+                
+                if(dir.Exists) // if exist - roll back on directory tree until find existing dir
+                {
+                    StartDirectory = StartDirectory.Substring(0, StartDirectory.LastIndexOf(Path.DirectorySeparatorChar));
+                }
+                else // find ready disk and set as StartDirectory
+                {
+                    foreach (DriveInfo drive in drives)
+                    {
+                        if (drive.IsReady)
+                        {
+                            StartDirectory = drive.RootDirectory.ToString();
+                            break;
+                        }
+                    }
+                }
+
+                ShowDirectoryContent();
             }
 
             // pagination summary:

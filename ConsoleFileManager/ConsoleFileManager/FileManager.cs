@@ -329,16 +329,13 @@ namespace ConsoleFileManager
                         if ((userKey.Modifiers & ConsoleModifiers.Shift) != 0)
                         {
                             NewCommandText = NewCommandText + userKey.KeyChar;
-                            Console.Write(userKey.KeyChar);
                         }
                         else
                         {
                             NewCommandText = NewCommandText + userKey.KeyChar.ToString().ToLower();
-                            Console.Write(userKey.KeyChar.ToString().ToLower());
                         }
                     }
 
-                    // return pointer at command line
                     PrintUserCommand();
                 }
             }
@@ -351,21 +348,51 @@ namespace ConsoleFileManager
         {
             ClassLibrary.Do.SetCursorPosition(1, ConsoleHeight - 6);
 
+            string f1 = "[F1 Help]";
+            string f3 = "[F3 Info]";
+            string f5 = "[F5 Copy]";
+            string f6 = "[F6 Move]";
+            string f7 = "[F7 MkDir]";
+            string f8 = "[F8 Del]";
+            string f9 = "[F9 Rename]";
+            string exit = "[Alt F4 Exit]";
+            int exitLenght = 14;
+            int totalLenght = 80;
+
+            if(ConsoleWidth < totalLenght)
+            {
+                f1 = "[F1]";
+                f3 = "[F3]";
+                f5 = "[F5]";
+                f6 = "[F6]";
+                f7 = "[F7]";
+                f8 = "[F8]";
+                f9 = "[F9]";
+                exit = "[Alt F4]";
+                exitLenght = 9;
+                totalLenght = 32;
+            }
+
             //80 = all symbols lenght
-            int padding = (ConsoleWidth - 80) / 8; // delimeter between [F] text
+            int padding = (ConsoleWidth - totalLenght) / 8; // delimeter between [F] text
             if (padding < 0)
                 padding = 0;
 
-            Console.Write("[F1 Help]" + new string(' ', padding));
-            Console.Write("[F3 Info]" + new string(' ', padding));
-            Console.Write("[F5 Copy]" + new string(' ', padding));
-            Console.Write("[F6 Move]" + new string(' ', padding));
-            Console.Write("[F7 NewDir]" + new string(' ', padding));
-            Console.Write("[F8 Del]" + new string(' ', padding));
-            Console.Write("[F9 Rename]");
+            Console.Write(f1 + new string(' ', padding));
+            Console.Write(f3 + new string(' ', padding));
+            Console.Write(f5 + new string(' ', padding));
+            Console.Write(f6 + new string(' ', padding));
+            Console.Write(f7 + new string(' ', padding));
+            Console.Write(f8 + new string(' ', padding));
+            Console.Write(f9);
             
-            ClassLibrary.Do.SetCursorPosition(ConsoleWidth - 14, ConsoleHeight - 6);          
-            Console.Write("[Alt F4 Exit]");
+            int padddingLast = ConsoleWidth - exitLenght - Console.CursorLeft;
+            if (padddingLast < 0)
+                padddingLast = 0;
+            Console.Write(" ".PadRight(padddingLast));//paint line till [Alt F4 Exit]
+
+            ClassLibrary.Do.SetCursorPosition(ConsoleWidth - exitLenght, ConsoleHeight - 6);          
+            Console.Write(exit);
         }
 
         /// <summary>
@@ -381,11 +408,10 @@ namespace ConsoleFileManager
 
             ClassLibrary.Do.SetCursorPosition(1, ConsoleHeight - 3);
 
-            string commandOnConsole = ClassLibrary.Do.TextLineCutter("Command:" + NewCommandText, ConsoleWidth - 3);
+            string commandOnConsole = ClassLibrary.Do.TextLineCutter("Command:" + NewCommandText, Console.WindowWidth - 2);
             Console.Write(commandOnConsole);
             
-            if(("Command:" + NewCommandText).Length < ConsoleWidth - 2)
-                ClassLibrary.Do.SetCursorPosition(("Command:" + NewCommandText).Length + 1, Console.CursorTop);
+            ClassLibrary.Do.SetCursorPosition(("Command:" + NewCommandText).Length + 1, Console.CursorTop);
         }
     }
 }
