@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ReportingLib;
+using ReportingLib.Models;
+using System;
 using System.IO;
 
 namespace ConsoleFileManager
@@ -532,7 +534,9 @@ namespace ConsoleFileManager
             int lineNumber = Height / 4;            
             Console.BackgroundColor = ConsoleColor.DarkBlue;
             int totalLenght = 35; // ( Last writed: 14.04.2021 20:32:13 ).lenght
-            int xCursor = (Width - totalLenght) / 2;         
+            int xCursor = (Width - totalLenght) / 2;
+
+            IReport report = new Report();
 
             if (Active.CurrentItem != 0) // not a parent dir
             {
@@ -543,6 +547,15 @@ namespace ConsoleFileManager
                 if (!dirInfo.Attributes.ToString().Contains("Directory")) //  files
                 {
                     FileInfo fileInf = new FileInfo(Path.Combine(Active.StartDirectory, Active.CurrentItemName));
+
+                    FileInfoModel file = new FileInfoModel();
+                    file.FullName = fileInf.FullName;
+                    file.Name = fileInf.Name;
+                    file.IsReadOnly = fileInf.IsReadOnly;
+                    file.FileSize = fileInf.Length;
+                    file.Created = fileInf.CreationTime;
+                    file.LastModyfied = fileInf.LastWriteTime;
+
                     ClassLibrary.Do.PrintLinePanelText( "        File", xCursor, ++lineNumber, totalLenght);
                     ClassLibrary.Do.PrintLinePanelText($"        Name: {fileInf.Name}", xCursor, ++lineNumber, totalLenght);
                     ClassLibrary.Do.PrintLinePanelText($"     Created: {fileInf.CreationTime}", xCursor, ++lineNumber, totalLenght);
@@ -552,14 +565,26 @@ namespace ConsoleFileManager
 
                     if (fileInf.Attributes.ToString().Contains(','))
                     {
-                        string[] attr = fileInf.Attributes.ToString().Split(',');
-                        lineNumber = ShowAttributes(attr, xCursor, lineNumber);
+                        file.Attributes = fileInf.Attributes.ToString().Split(',');
+
+                        lineNumber = ShowAttributes(file.Attributes, xCursor, lineNumber);
                     }
                     else
+                    {
                         ClassLibrary.Do.PrintLinePanelText($"  Attributes: {fileInf.Attributes}", xCursor, ++lineNumber, totalLenght);
+                        file.Attributes = new string [] { fileInf.Attributes.ToString() };                            
+                    }                        
+
+                    report.ReportAboutCurrentFile(file);
                 }
                 else // dirs
                 {
+                    DirectoryInfoModel dir = new DirectoryInfoModel();
+                    dir.FullName = dirInfo.FullName;
+                    dir.Name = dirInfo.Name;
+                    dir.Created = dirInfo.CreationTime;
+                    dir.LastModyfied = dirInfo.LastWriteTime;
+
                     ClassLibrary.Do.PrintLinePanelText( "   Directory", xCursor, ++lineNumber, totalLenght);
                     ClassLibrary.Do.PrintLinePanelText($"        Name: {dirInfo.Name}", xCursor, ++lineNumber, totalLenght);
                     ClassLibrary.Do.PrintLinePanelText($"     Created: {dirInfo.CreationTime}", xCursor, ++lineNumber, totalLenght);
@@ -567,11 +592,15 @@ namespace ConsoleFileManager
 
                     if (dirInfo.Attributes.ToString().Contains(','))
                     {
-                        string[] attr = dirInfo.Attributes.ToString().Split(',');
-                        lineNumber = ShowAttributes(attr, xCursor, lineNumber);
+                        dir.Attributes = dirInfo.Attributes.ToString().Split(',');
+
+                        lineNumber = ShowAttributes(dir.Attributes, xCursor, lineNumber);
                     }
                     else
-                        ClassLibrary.Do.PrintLinePanelText($"  Attributes: {dirInfo.Attributes}", xCursor, ++lineNumber, totalLenght);
+                        ClassLibrary.Do.PrintLinePanelText($"  Attributes: {dirInfo.Attributes}", xCursor, ++lineNumber, totalLenght);                   
+
+
+                    report.ReportAboutCurrentDirectory(dir);
                 }
             }
             else
