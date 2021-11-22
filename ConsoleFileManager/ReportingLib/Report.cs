@@ -55,20 +55,7 @@ namespace ReportingLib
             );
 
             ListContent listItems = new ListContent("AttributesList");
-            listItems = GetAttributes(file.Attributes, listItems);
-
-            //if (file.Attributes != null)
-            //{
-            //    foreach (string attr in file.Attributes)
-            //    {
-            //        listItems.AddItem(new FieldContent("AttrItem", attr));
-            //    }
-            //}
-            //else
-            //{
-            //    listItems.AddItem(new FieldContent("AttrItem", "нет атрибутов"));
-            //}
-            
+            listItems = GetAttributes(file.Attributes, listItems);            
             valuesToFill.Lists.Add(listItems);
 
             SetValuesToFile(pathResultedReport, valuesToFill);
@@ -102,20 +89,7 @@ namespace ReportingLib
             );
             
             ListContent listItems = new ListContent("AttributesList");
-            listItems = GetAttributes(directory.Attributes, listItems);
-
-            //if (directory.Attributes != null)
-            //{
-            //    foreach (string attr in directory.Attributes)
-            //    {
-            //        listItems.AddItem(new FieldContent("AttrItem", attr));
-            //    }
-            //}
-            //else
-            //{
-            //    listItems.AddItem(new FieldContent("AttrItem", "нет атрибутов"));
-            //}
-            
+            listItems = GetAttributes(directory.Attributes, listItems);            
             valuesToFill.Lists.Add(listItems);
 
             SetValuesToFile(pathResultedReport, valuesToFill);
@@ -135,7 +109,6 @@ namespace ReportingLib
 
         private ListContent GetAttributes(string[] attributes, ListContent listItems)
         {
-            //ListContent listItems = new ListContent("AttributesList");
             if (attributes != null)
             {
                 foreach (string attr in attributes)

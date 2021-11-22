@@ -567,7 +567,7 @@ namespace ConsoleFileManager
                     {
                         file.Attributes = fileInf.Attributes.ToString().Split(',');
 
-                        lineNumber = ShowAttributes(file.Attributes, xCursor, lineNumber);
+                        lineNumber = ShowAttributes(file.Attributes, xCursor, lineNumber, totalLenght);
                     }
                     else
                     {
@@ -594,7 +594,7 @@ namespace ConsoleFileManager
                     {
                         dir.Attributes = dirInfo.Attributes.ToString().Split(',');
 
-                        lineNumber = ShowAttributes(dir.Attributes, xCursor, lineNumber);
+                        lineNumber = ShowAttributes(dir.Attributes, xCursor, lineNumber, totalLenght);
                     }
                     else
                         ClassLibrary.Do.PrintLinePanelText($"  Attributes: {dirInfo.Attributes}", xCursor, ++lineNumber, totalLenght);                   
@@ -629,13 +629,13 @@ namespace ConsoleFileManager
         /// <param name="xCursor"></param>
         /// <param name="lineNumber"></param>
         /// <returns></returns>
-        private int ShowAttributes(string[] attr, int xCursor, int lineNumber)
+        private int ShowAttributes(string[] attr, int xCursor, int lineNumber, int totalLenght)
         {
-            ClassLibrary.Do.PrintLinePanelText($"  Attributes: {attr[0]}", xCursor, ++lineNumber, xCursor * 2);
+            ClassLibrary.Do.PrintLinePanelText($"  Attributes: {attr[0]}", xCursor, ++lineNumber, totalLenght);
 
             for (int i = 1; i < attr.Length; i++)
             {
-                ClassLibrary.Do.PrintLinePanelText($"             {attr[i]}", xCursor, ++lineNumber, xCursor * 2);
+                ClassLibrary.Do.PrintLinePanelText($"             {attr[i]}", xCursor, ++lineNumber, totalLenght);
             }
 
             return lineNumber;
