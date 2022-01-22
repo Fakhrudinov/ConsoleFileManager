@@ -1,6 +1,7 @@
 ﻿using ReportingLib;
 using ReportingLib.Models;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace ConsoleFileManager
@@ -646,42 +647,75 @@ namespace ConsoleFileManager
         /// </summary>
         internal void ShowHelp()
         {
-            int lineNumber = (_height - 25) / 2;
-            string longest = " arrows Up and Down, PgUp PgDown, Home End - navigate inside panel"; // longest text lenght
-            int xCursor = (_untilX - _fromX) - (longest.Length / 2);
-            int totalLenght = longest.Length + 1;
-            Console.BackgroundColor = ConsoleColor.DarkBlue;
+            List<string> helpText = new List<string>()
+            {
+                "Help",//header
+                "F1 - Help Panel",
+                "F3 - File or Directory Information",
+                "F5 - Copy File or Directory",
+                "F6 - Move File or Directory",
+                "F7 - Create new Directory",
+                "F8 - Delete File or Directory",
+                "F9 - Rename File or Directory",
+                "arrows Up and Down, PgUp PgDown, Home End - navigate inside panel",
+                "Tab - switch between panels",
+                "",
+                "Manual commands, commands - case insensitive.",
+                "(Ctrl + Enter): Copy current element to command line",
+                "(Ctrl + E): Command history select dialog",
+                "Set passive panel same as active: equal",
+                "Change directory: cd NewPath",
+                "Copy: cp sourcePath (to passive panel)",
+                "Move: mv sourcePath (to passive panel)",
+                "Remove: rm sourcePath",
+                "New Directory: mkdir newName",
+                "Execute File: run FileName",
+                "Rename: name sourcePath, newName",
+                "Press Enter to close panel."//footer
+            };
 
-            //header
-            ClassLibrary.Do.PrintDialogHeader("Help", xCursor, lineNumber, totalLenght);
+            PrintInfoPanel(helpText, ConsoleColor.DarkBlue);
+        }
 
-            ClassLibrary.Do.PrintLinePanelText(" F1 - Help Panel", xCursor, ++lineNumber, totalLenght);
-            ClassLibrary.Do.PrintLinePanelText(" F3 - File or Directory Information", xCursor, ++lineNumber, totalLenght);
-            ClassLibrary.Do.PrintLinePanelText(" F5 - Copy File or Directory", xCursor, ++lineNumber, totalLenght);
-            ClassLibrary.Do.PrintLinePanelText(" F6 - Move File or Directory", xCursor, ++lineNumber, totalLenght);
-            ClassLibrary.Do.PrintLinePanelText(" F7 - Create new Directory", xCursor, ++lineNumber, totalLenght);
-            ClassLibrary.Do.PrintLinePanelText(" F8 - Delete File or Directory", xCursor, ++lineNumber, totalLenght);
-            ClassLibrary.Do.PrintLinePanelText(" F9 - Rename File or Directory", xCursor, ++lineNumber, totalLenght);
-            ClassLibrary.Do.PrintLinePanelText(longest, xCursor, ++lineNumber, totalLenght);
-            ClassLibrary.Do.PrintLinePanelText(" Tab - switch between panels", xCursor, ++lineNumber, totalLenght);
-            ClassLibrary.Do.PrintLinePanelText(" ", xCursor, ++lineNumber, totalLenght);
-            ClassLibrary.Do.PrintLinePanelText(" Manual commands, commands - case insensitive.", xCursor, ++lineNumber, totalLenght);
-            ClassLibrary.Do.PrintLinePanelText(" (Ctrl + Enter): Copy current element to command line", xCursor, ++lineNumber, totalLenght);
-            ClassLibrary.Do.PrintLinePanelText(" (Ctrl + E): Command history select dialog", xCursor, ++lineNumber, totalLenght);
-            ClassLibrary.Do.PrintLinePanelText(" Set passive panel same as active: equal", xCursor, ++lineNumber, totalLenght);
-            ClassLibrary.Do.PrintLinePanelText(" Change directory: cd NewPath ", xCursor, ++lineNumber, totalLenght);
-            ClassLibrary.Do.PrintLinePanelText(" Copy: cp sourcePath (to passive panel)", xCursor, ++lineNumber, totalLenght);
-            ClassLibrary.Do.PrintLinePanelText(" Move: mv sourcePath (to passive panel)", xCursor, ++lineNumber, totalLenght);
-            ClassLibrary.Do.PrintLinePanelText(" Remove: rm sourcePath", xCursor, ++lineNumber, totalLenght);
-            ClassLibrary.Do.PrintLinePanelText(" New Directory: mkdir newName", xCursor, ++lineNumber, totalLenght);
-            ClassLibrary.Do.PrintLinePanelText(" Execute File: run FileName", xCursor, ++lineNumber, totalLenght);
-            ClassLibrary.Do.PrintLinePanelText(" Rename: name sourcePath, newName", xCursor, ++lineNumber, totalLenght);
-            ClassLibrary.Do.PrintLinePanelText(" ", xCursor, ++lineNumber, totalLenght);
-            ClassLibrary.Do.PrintLinePanelText(" Press Enter to close panel.", xCursor, ++lineNumber, totalLenght);
+        private void PrintInfoPanel(List<string> panelText, ConsoleColor bgColor)
+        {
+            //calculate panel size
+            int numbersOfLines = panelText.Count;
+            int longestLine = 1;
+            foreach (string line in panelText)
+            {
+                if (line.Length > longestLine)
+                {
+                    longestLine = line.Length + 1;
+                }
+            }
+            //set cursor and sizes
+            int xCursor = (_untilX - _fromX) - (longestLine / 2);
+            int totalLenght = longestLine + 1;
+            int lineNumber = (_height - numbersOfLines) / 2;
 
-            ClassLibrary.Do.SetCursorPosition(xCursor + 28, lineNumber);
+            //Print
+            Console.BackgroundColor = bgColor;
+            //Print header
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            ClassLibrary.Do.PrintDialogHeader(" " + panelText[0], xCursor, lineNumber, totalLenght);
+            Console.ForegroundColor = ConsoleColor.White;
+
+            //Print body
+            for (int i = 1; i < panelText.Count - 1; i++)
+            {
+                ClassLibrary.Do.PrintLinePanelText(" " + panelText[i], xCursor, ++lineNumber, totalLenght);
+            }
+
+            //Print footer
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            ClassLibrary.Do.PrintDialogHeader(" " + panelText[panelText.Count - 1], xCursor, ++lineNumber, totalLenght);
+            Console.ForegroundColor = ConsoleColor.White;
+
+            //set cursor at the end and wait 'Enter'
+            ClassLibrary.Do.SetCursorPosition(_untilX - _fromX, lineNumber);
             Console.ReadLine();
-
+            //reset bg color
             Console.BackgroundColor = ConsoleColor.Black;
         }
 
