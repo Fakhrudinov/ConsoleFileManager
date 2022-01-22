@@ -532,18 +532,11 @@ namespace ConsoleFileManager
         /// <param name="itemPath"></param>
         internal void ShowInfo()
         {
-            //int lineNumber = _height / 4;            
-            //Console.BackgroundColor = ConsoleColor.DarkBlue;
-            //int totalLenght = 35; // ( Last writed: 14.04.2021 20:32:13 ).lenght
-            //int xCursor = (_width - totalLenght) / 2;
-
             IReport report = new Report();
             List<string> infoText = new List<string>() { "Information" };
 
             if (_active.CurrentItem != 0) // not a parent dir
             {
-                //ClassLibrary.Do.PrintDialogHeader("Information", xCursor, lineNumber, totalLenght);
-
                 DirectoryInfo dirInfo = new DirectoryInfo(Path.Combine(_active.StartDirectory, _active.CurrentItemName));                 
                 if (!dirInfo.Attributes.ToString().Contains("Directory")) //  files
                 {
@@ -557,20 +550,12 @@ namespace ConsoleFileManager
                     file.Created = fileInf.CreationTime;
                     file.LastModyfied = fileInf.LastWriteTime;
 
-                    //ClassLibrary.Do.PrintLinePanelText( "        File", xCursor, ++lineNumber, totalLenght);
-                    //ClassLibrary.Do.PrintLinePanelText($"        Name: {fileInf.Name}", xCursor, ++lineNumber, totalLenght);
-                    //ClassLibrary.Do.PrintLinePanelText($"     Created: {fileInf.CreationTime}", xCursor, ++lineNumber, totalLenght);
-                    //ClassLibrary.Do.PrintLinePanelText($" Last writed: {fileInf.LastWriteTime}", xCursor, ++lineNumber, totalLenght);
-                    //ClassLibrary.Do.PrintLinePanelText($"    ReadOnly: {fileInf.IsReadOnly}", xCursor, ++lineNumber, totalLenght);
-                    //ClassLibrary.Do.PrintLinePanelText($" Size, bytes: {fileInf.Length}", xCursor, ++lineNumber, totalLenght);
-
                     infoText.Add( "       File");
                     infoText.Add($"       Name: {fileInf.Name}");
                     infoText.Add($"    Created: {fileInf.CreationTime}");
                     infoText.Add($"Last writed: {fileInf.LastWriteTime}");
                     infoText.Add($"   ReadOnly: {fileInf.IsReadOnly}");
                     infoText.Add($"Size, bytes: {fileInf.Length}");
-
 
                     if (fileInf.Attributes.ToString().Contains(','))
                     {
@@ -579,15 +564,11 @@ namespace ConsoleFileManager
                         infoText.Add($" Attributes: {file.Attributes[0]}");
                         for (int i = 1; i < file.Attributes.Length; i++)
                         {
-                            //ClassLibrary.Do.PrintLinePanelText($"             {attr[i]}", xCursor, ++lineNumber, totalLenght);
                             infoText.Add($"            {file.Attributes[i]}");
                         }
-
-                        //lineNumber = ShowAttributes(file.Attributes, xCursor, lineNumber, totalLenght);
                     }
                     else
                     {
-                        //ClassLibrary.Do.PrintLinePanelText($"  Attributes: {fileInf.Attributes}", xCursor, ++lineNumber, totalLenght);
                         infoText.Add($"Size, bytes: {fileInf.Length}");
                         file.Attributes = new string [] { fileInf.Attributes.ToString() };                            
                     }                        
@@ -602,11 +583,6 @@ namespace ConsoleFileManager
                     dir.Created = dirInfo.CreationTime;
                     dir.LastModyfied = dirInfo.LastWriteTime;
 
-                    //ClassLibrary.Do.PrintLinePanelText( "   Directory", xCursor, ++lineNumber, totalLenght);
-                    //ClassLibrary.Do.PrintLinePanelText($"        Name: {dirInfo.Name}", xCursor, ++lineNumber, totalLenght);
-                    //ClassLibrary.Do.PrintLinePanelText($"     Created: {dirInfo.CreationTime}", xCursor, ++lineNumber, totalLenght);
-                    //ClassLibrary.Do.PrintLinePanelText($" Last writed: {dirInfo.LastWriteTime}", xCursor, ++lineNumber, totalLenght);
-
                     infoText.Add( "  Directory");
                     infoText.Add($"       Name: {dirInfo.Name}");
                     infoText.Add($"    Created: {dirInfo.CreationTime}");
@@ -619,15 +595,11 @@ namespace ConsoleFileManager
                         infoText.Add($" Attributes: {dir.Attributes[0]}");
                         for (int i = 1; i < dir.Attributes.Length; i++)
                         {
-                            //ClassLibrary.Do.PrintLinePanelText($"             {attr[i]}", xCursor, ++lineNumber, totalLenght);
                             infoText.Add($"            {dir.Attributes[i]}");
                         }
-
-                        //lineNumber = ShowAttributes(dir.Attributes, xCursor, lineNumber, totalLenght);
                     }
                     else
-                    {
-                        //ClassLibrary.Do.PrintLinePanelText($"  Attributes: {dirInfo.Attributes}", xCursor, ++lineNumber, totalLenght);  
+                    { 
                         infoText.Add($" Attributes: {dirInfo.Attributes}");
                     }
 
@@ -636,47 +608,15 @@ namespace ConsoleFileManager
             }
             else
             {
-                //totalLenght = 39;
-                //header
-                //ClassLibrary.Do.PrintDialogHeader("Information", xCursor, lineNumber, totalLenght);
-
-                //ClassLibrary.Do.PrintLinePanelText(" Parent directory info not avaliable.", xCursor, ++lineNumber, totalLenght);
-                //ClassLibrary.Do.PrintLinePanelText(" Firstly go there and select directory", xCursor, ++lineNumber, totalLenght);
-
                 infoText.Add("Parent directory info not avaliable.");
                 infoText.Add("Firstly go there and select directory.");
             }
 
             //footer
             infoText.Add("Press Enter to close panel.");
-            //ClassLibrary.Do.PrintLinePanelText(" ", xCursor, ++lineNumber, totalLenght);
-            //ClassLibrary.Do.PrintLinePanelText(" Press Enter to close panel.", xCursor, ++lineNumber, totalLenght);
-            //ClassLibrary.Do.SetCursorPosition(xCursor + 28, lineNumber);
-            //Console.ReadLine();
-
-            //Console.BackgroundColor = ConsoleColor.Black;
 
             PrintInfoPanel(infoText, ConsoleColor.DarkBlue);
         }
-
-        ///// <summary>
-        ///// part of F3 panel
-        ///// </summary>
-        ///// <param name="attr"></param>
-        ///// <param name="xCursor"></param>
-        ///// <param name="lineNumber"></param>
-        ///// <returns></returns>
-        //private int ShowAttributes(string[] attr, int xCursor, int lineNumber, int totalLenght)
-        //{
-        //    ClassLibrary.Do.PrintLinePanelText($"  Attributes: {attr[0]}", xCursor, ++lineNumber, totalLenght);
-
-        //    for (int i = 1; i < attr.Length; i++)
-        //    {
-        //        ClassLibrary.Do.PrintLinePanelText($"             {attr[i]}", xCursor, ++lineNumber, totalLenght);
-        //    }
-
-        //    return lineNumber;
-        //}
 
         /// <summary>
         /// show help panel with all avaliable actions
@@ -686,13 +626,10 @@ namespace ConsoleFileManager
             List<string> helpText = new List<string>()
             {
                 "Help",//header
-                "F1 - Help Panel",
-                "F3 - File or Directory Information",
-                "F5 - Copy File or Directory",
-                "F6 - Move File or Directory",
-                "F7 - Create new Directory",
-                "F8 - Delete File or Directory",
-                "F9 - Rename File or Directory",
+                "F1 - Help Panel                F3 - File or Folder Info",
+                "F5 - Copy File or Folder       F6 - Move File or Folder",
+                "F7 - Create new Folder         F8 - Delete File or Folder",
+                "F9 - Rename File or Folder     Alt+F4 - Exit",
                 "arrows Up and Down, PgUp PgDown, Home End - navigate inside panel",
                 "Tab - switch between panels",
                 "",
@@ -704,7 +641,7 @@ namespace ConsoleFileManager
                 "Copy: cp sourcePath (to passive panel)",
                 "Move: mv sourcePath (to passive panel)",
                 "Remove: rm sourcePath",
-                "New Directory: mkdir newName",
+                "New Folder: mkdir newName",
                 "Execute File: run FileName",
                 "Rename: name sourcePath, newName",
                 "Press Enter to close panel."//footer
