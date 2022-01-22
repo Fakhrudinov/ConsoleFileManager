@@ -4,79 +4,79 @@ using System.Xml;
 
 namespace ConsoleFileManager
 {
-    public class FileManager
+    internal class FileManager
     {
-        public string StartDirectoryLeft { get; set; }
-        public string StartDirectoryRight { get; set; }
-        public int ConsoleWidth { get; set; }
+        private string _startDirectoryLeft { get; set; }
+        private string _startDirectoryRight { get; set; }
+        private int _consoleWidth { get; set; }
 
-        int consoleHeight;
-        public int ConsoleHeight
+        private int _consoleHeight;
+        internal int ConsoleHeight
         {
             get
             {
-                return consoleHeight;
+                return _consoleHeight;
             }
             set
             {
                 if (value > 6)
-                    consoleHeight = value;
+                    _consoleHeight = value;
                 else
                 {
-                    consoleHeight = 7;
+                    _consoleHeight = 7;
                     Console.WindowHeight = 7;
                 }
             }
         }
 
-        public int CurrentItemLeft { get; set; }
-        public int CurrentItemRight { get; set; }
-        public bool LeftIsActive { get; set; }
-        FilePanel Active { get; set; }
-        FilePanel Passive { get; set; }
-        public string NewCommandText { get; set; }
+        private int _currentItemLeft { get; set; }
+        private int _currentItemRight { get; set; }
+        private bool _leftIsActive { get; set; }
+        private FilePanel _active { get; set; }
+        private FilePanel _passive { get; set; }
+        private string _newCommandText { get; set; }
 
-        public FileManager()
+        internal FileManager()
         {
             DataXML xml = new DataXML();
             xml.GetDataFromXML();
 
-            ConsoleWidth = xml.XMLConsoleWidth;
+            _consoleWidth = xml.XMLConsoleWidth;
             ConsoleHeight = xml.XMLConsoleHeight;
-            StartDirectoryLeft = xml.XMLStartDirectoryLeft;
-            StartDirectoryRight = xml.XMLStartDirectoryRight;
-            NewCommandText = "";
+            _startDirectoryLeft = xml.XMLStartDirectoryLeft;
+            _startDirectoryRight = xml.XMLStartDirectoryRight;
+            _newCommandText = "";
             bool leftIsActive = xml.LeftIsActive;
 
-            Console.SetWindowSize(ConsoleWidth, ConsoleHeight);
+            Console.SetWindowSize(_consoleWidth, ConsoleHeight);
             //Console.SetBufferSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
 
             Borders border = new Borders();
-            FilePanel filePanelLeft = new FilePanel(StartDirectoryLeft, 1, ConsoleWidth / 2 - 1);
+            FilePanel filePanelLeft = new FilePanel(_startDirectoryLeft, 1, _consoleWidth / 2 - 1);
             filePanelLeft.CurrentItem = xml.XMLLeftActiveItem;
 
 
-            FilePanel filePanelRight = new FilePanel(StartDirectoryRight, ConsoleWidth / 2, ConsoleWidth - 1);
+            FilePanel filePanelRight = new FilePanel(_startDirectoryRight, _consoleWidth / 2, _consoleWidth - 1);
             filePanelRight.CurrentItem = xml.XMLRightActiveItem;
 
             if (leftIsActive)
             {
                 filePanelLeft.IsActive = true;
-                Active = filePanelLeft;
+                _active = filePanelLeft;
                 filePanelRight.IsActive = false;
-                Passive = filePanelRight;
+                _passive = filePanelRight;
             }
             else
             {
                 filePanelLeft.IsActive = false;
-                Active = filePanelRight;
+                _active = filePanelRight;
                 filePanelRight.IsActive = true;
-                Passive = filePanelLeft;
+                _passive = filePanelLeft;
             }
 
-            CurrentItemLeft = filePanelLeft.CurrentItem;
-            CurrentItemRight = filePanelRight.CurrentItem;
-            LeftIsActive = filePanelLeft.IsActive;
+            _currentItemLeft = filePanelLeft.CurrentItem;
+            _currentItemRight = filePanelRight.CurrentItem;
+            _leftIsActive = filePanelLeft.IsActive;
 
             PrintFileManager(filePanelLeft, filePanelRight, border);
 
@@ -85,17 +85,17 @@ namespace ConsoleFileManager
 
         private void PrintFileManager(FilePanel filePanelLeft, FilePanel filePanelRight, Borders border)
         {
-            border.BorderWidth = ConsoleWidth;
+            border.BorderWidth = _consoleWidth;
             border.BorderHeight = ConsoleHeight;
             border.PrintBorders();
 
             filePanelLeft.PanelHeight = ConsoleHeight;
-            filePanelLeft.UntilX = ConsoleWidth / 2 - 1;
+            filePanelLeft.UntilX = _consoleWidth / 2 - 1;
             filePanelLeft.ShowDirectoryContent();
 
             filePanelRight.PanelHeight = ConsoleHeight;
-            filePanelRight.FromX = ConsoleWidth / 2;
-            filePanelRight.UntilX = ConsoleWidth - 1;
+            filePanelRight.FromX = _consoleWidth / 2;
+            filePanelRight.UntilX = _consoleWidth - 1;
             filePanelRight.ShowDirectoryContent();
 
             PrintSingleKeyCommands(); // like F1 F2 etc.
@@ -109,17 +109,17 @@ namespace ConsoleFileManager
         /// <param name="filePanelLeft"></param>
         /// <param name="filePanelRight"></param>
         /// <param name="border"></param>
-        public void GetUserCommands(FilePanel filePanelLeft, FilePanel filePanelRight, Borders border)
+        private void GetUserCommands(FilePanel filePanelLeft, FilePanel filePanelRight, Borders border)
         {
             bool exit = false;
             while (!exit)
             {
                 bool xmlBeSaved = false;
 
-                if (Console.WindowWidth != ConsoleWidth || Console.WindowHeight != ConsoleHeight)
+                if (Console.WindowWidth != _consoleWidth || Console.WindowHeight != ConsoleHeight)
                 {
 
-                    if (Console.WindowWidth != ConsoleWidth)
+                    if (Console.WindowWidth != _consoleWidth)
                     {
                         xmlBeSaved = true;
                     }
@@ -130,37 +130,37 @@ namespace ConsoleFileManager
                     }
 
                     Console.Clear();
-                    ConsoleWidth = Console.WindowWidth;
+                    _consoleWidth = Console.WindowWidth;
                     ConsoleHeight = Console.WindowHeight;
 
                     PrintFileManager(filePanelLeft, filePanelRight, border);
                 }
 
                 //else values to xml check for changes
-                if (filePanelLeft.StartDirectory != StartDirectoryLeft)
+                if (filePanelLeft.StartDirectory != _startDirectoryLeft)
                 {
                     xmlBeSaved = true;
                 }
 
-                if (filePanelRight.StartDirectory != StartDirectoryRight)
+                if (filePanelRight.StartDirectory != _startDirectoryRight)
                 {
                     xmlBeSaved = true;
                 }
 
-                if (filePanelLeft.CurrentItem != CurrentItemLeft)
+                if (filePanelLeft.CurrentItem != _currentItemLeft)
                 {
                     xmlBeSaved = true;
                 }
 
-                if (filePanelRight.CurrentItem != CurrentItemRight)
+                if (filePanelRight.CurrentItem != _currentItemRight)
                 {
                     xmlBeSaved = true;
                 }
 
-                if (filePanelLeft.IsActive != LeftIsActive)
+                if (filePanelLeft.IsActive != _leftIsActive)
                 {
                     xmlBeSaved = true;
-                    LeftIsActive = filePanelLeft.IsActive;
+                    _leftIsActive = filePanelLeft.IsActive;
                 }
 
                 if (xmlBeSaved)
@@ -196,18 +196,18 @@ namespace ConsoleFileManager
                     }
                     catch (Exception s)
                     {
-                        ClassLibrary.Do.ShowAlert($"Save to configuration XML file {pathConfigXML} Error - " + s.Message, ConsoleWidth / 2);
+                        ClassLibrary.Do.ShowAlert($"Save to configuration XML file {pathConfigXML} Error - " + s.Message, _consoleWidth / 2);
                     }
                 }
 
-                Actions newActon = new Actions(Active, Passive, ConsoleWidth);
+                Actions newActon = new Actions(_active, _passive, _consoleWidth);
                 if (Console.KeyAvailable)
                 {
                     ConsoleKeyInfo userKey = Console.ReadKey(true);
 
                     if ((ConsoleModifiers.Control & userKey.Modifiers) != 0 && userKey.Key == ConsoleKey.E)
                     {
-                        NewCommandText = newActon.GetCommandsHystory();
+                        _newCommandText = newActon.GetCommandsHystory();
 
                         PrintFileManager(filePanelLeft, filePanelRight, border);
                     }
@@ -219,14 +219,14 @@ namespace ConsoleFileManager
                         switch (userKey.Key)
                         {
                             case ConsoleKey.Tab:
-                                FilePanel temp = Active;
-                                Active = Passive;
-                                Passive = temp;
-                                Active.IsActive = true;
-                                Passive.IsActive = false;
+                                FilePanel temp = _active;
+                                _active = _passive;
+                                _passive = temp;
+                                _active.IsActive = true;
+                                _passive.IsActive = false;
                                 filePanelLeft.ShowDirectoryContent();
                                 filePanelRight.ShowDirectoryContent();
-                                ClassLibrary.Do.WriteCommandToFile($"cd {Active.StartDirectory}");
+                                ClassLibrary.Do.WriteCommandToFile($"cd {_active.StartDirectory}");
                                 break;
 
                             case ConsoleKey.DownArrow:
@@ -264,16 +264,16 @@ namespace ConsoleFileManager
                                 break;
 
                             case ConsoleKey.F5:
-                                isConfirmed = newActon.UserConfirmAction("Copy", Passive.StartDirectory);
+                                isConfirmed = newActon.UserConfirmAction("Copy", _passive.StartDirectory);
                                 if (isConfirmed)
                                     newActon.CopyFromPanel();
                                 PrintFileManager(filePanelLeft, filePanelRight, border);
                                 break;
 
                             case ConsoleKey.F6:
-                                isConfirmed = newActon.UserConfirmAction("Move", Passive.StartDirectory);
+                                isConfirmed = newActon.UserConfirmAction("Move", _passive.StartDirectory);
                                 if(isConfirmed)
-                                    newActon.MoveItemTo(Passive.StartDirectory);
+                                    newActon.MoveItemTo(_passive.StartDirectory);
                                 PrintFileManager(filePanelLeft, filePanelRight, border);
                                 break;
 
@@ -283,9 +283,9 @@ namespace ConsoleFileManager
                                 break;
 
                             case ConsoleKey.F8:
-                                isConfirmed = newActon.UserConfirmAction("Delete", Active.CurrentItemName);
-                                if (isConfirmed && Active.CurrentItem != 0)
-                                    newActon.DeleteItem(Path.Combine(Active.StartDirectory, Active.CurrentItemName));
+                                isConfirmed = newActon.UserConfirmAction("Delete", _active.CurrentItemName);
+                                if (isConfirmed && _active.CurrentItem != 0)
+                                    newActon.DeleteItem(Path.Combine(_active.StartDirectory, _active.CurrentItemName));
                                 PrintFileManager(filePanelLeft, filePanelRight, border);
                                 break;
 
@@ -297,15 +297,15 @@ namespace ConsoleFileManager
                             case ConsoleKey.Enter:
                                 if ((userKey.Modifiers & ConsoleModifiers.Control) != 0)
                                 {
-                                    NewCommandText = NewCommandText + Active.CurrentItemName;
+                                    _newCommandText = _newCommandText + _active.CurrentItemName;
                                 }
                                 else
                                 {
-                                    if (NewCommandText.Length > 0)
+                                    if (_newCommandText.Length > 0)
                                     {
-                                        newActon.AnalizeCommand(NewCommandText, true);
-                                        ClassLibrary.Do.WriteCommandToFile(NewCommandText);
-                                        NewCommandText = "";                                        
+                                        newActon.AnalizeCommand(_newCommandText, true);
+                                        ClassLibrary.Do.WriteCommandToFile(_newCommandText);
+                                        _newCommandText = "";                                        
                                     }
                                     else
                                     {
@@ -316,8 +316,8 @@ namespace ConsoleFileManager
                                 break;
 
                             case ConsoleKey.Backspace:
-                                if (NewCommandText.Length > 0)
-                                    NewCommandText = NewCommandText.Substring(0, NewCommandText.Length - 1);
+                                if (_newCommandText.Length > 0)
+                                    _newCommandText = _newCommandText.Substring(0, _newCommandText.Length - 1);
                                 break;
 
                             default:
@@ -328,11 +328,11 @@ namespace ConsoleFileManager
                     {
                         if ((userKey.Modifiers & ConsoleModifiers.Shift) != 0)
                         {
-                            NewCommandText = NewCommandText + userKey.KeyChar;
+                            _newCommandText = _newCommandText + userKey.KeyChar;
                         }
                         else
                         {
-                            NewCommandText = NewCommandText + userKey.KeyChar.ToString().ToLower();
+                            _newCommandText = _newCommandText + userKey.KeyChar.ToString().ToLower();
                         }
                     }
 
@@ -359,7 +359,7 @@ namespace ConsoleFileManager
             int exitLenght = 14;
             int totalLenght = 80;
 
-            if(ConsoleWidth < totalLenght)
+            if(_consoleWidth < totalLenght)
             {
                 f1 = "[F1]";
                 f3 = "[F3]";
@@ -374,9 +374,11 @@ namespace ConsoleFileManager
             }
 
             //80 = all symbols lenght
-            int padding = (ConsoleWidth - totalLenght) / 8; // delimeter between [F] text
+            int padding = (_consoleWidth - totalLenght) / 8; // delimeter between [F] text
             if (padding < 0)
                 padding = 0;
+
+            Console.BackgroundColor = ConsoleColor.Black;//to clean leftovers from Info panels
 
             Console.Write(f1 + new string(' ', padding));
             Console.Write(f3 + new string(' ', padding));
@@ -386,12 +388,12 @@ namespace ConsoleFileManager
             Console.Write(f8 + new string(' ', padding));
             Console.Write(f9);
             
-            int padddingLast = ConsoleWidth - exitLenght - Console.CursorLeft;
+            int padddingLast = _consoleWidth - exitLenght - Console.CursorLeft;
             if (padddingLast < 0)
                 padddingLast = 0;
             Console.Write(" ".PadRight(padddingLast));//paint line till [Alt F4 Exit]
 
-            ClassLibrary.Do.SetCursorPosition(ConsoleWidth - exitLenght, ConsoleHeight - 6);          
+            ClassLibrary.Do.SetCursorPosition(_consoleWidth - exitLenght, ConsoleHeight - 6);          
             Console.Write(exit);
         }
 
@@ -400,18 +402,18 @@ namespace ConsoleFileManager
         /// </summary>
         private void PrintUserCommand()
         {
-            if (NewCommandText.Length > 0)
+            if (_newCommandText.Length > 0)
             {
-                Actions newUserAction = new Actions(Active, Passive, ConsoleWidth);
-                newUserAction.AnalizeCommand(NewCommandText, false);
+                Actions newUserAction = new Actions(_active, _passive, _consoleWidth);
+                newUserAction.AnalizeCommand(_newCommandText, false);
             }
 
             ClassLibrary.Do.SetCursorPosition(1, ConsoleHeight - 3);
 
-            string commandOnConsole = ClassLibrary.Do.TextLineCutter("Command:" + NewCommandText, Console.WindowWidth - 2);
+            string commandOnConsole = ClassLibrary.Do.TextLineCutter("Command:" + _newCommandText, Console.WindowWidth - 2);
             Console.Write(commandOnConsole);
             
-            ClassLibrary.Do.SetCursorPosition(("Command:" + NewCommandText).Length + 1, Console.CursorTop);
+            ClassLibrary.Do.SetCursorPosition(("Command:" + _newCommandText).Length + 1, Console.CursorTop);
         }
     }
 }

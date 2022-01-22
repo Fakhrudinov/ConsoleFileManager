@@ -4,34 +4,34 @@ using System.Text;
 
 namespace ConsoleFileManager
 {
-    public class Borders
+    internal class Borders
     {
-        public int BorderWidth { get; set; }
-        public int BorderHeight { get; set; }
+        internal int BorderWidth { get; set; }
+        internal int BorderHeight { get; set; }
 
 
-        char lineHoriz = '═';
-        char lineVert = '║';
+        private char _lineHoriz = '═';
+        private char _lineVert = '║';
 
         //type 1
-        char cornerTopRight = '╗';
-        char cornerTopLeft = '╔';
+        private char _cornerTopRight = '╗';
+        private char _cornerTopLeft = '╔';
 
         //type 2
-        char cornerBottomRight = '╝';
-        char cornerBottomLeft = '╚';
+        private char _cornerBottomRight = '╝';
+        private char _cornerBottomLeft = '╚';
 
         //type 3
-        char connertorLeft = '╠';
-        char connertorRight = '╣';
+        private char _connertorLeft = '╠';
+        private char _connertorRight = '╣';
 
         //type 4
-        char connertorTop = '╦';
-        char connertorBottom = '╩';
-        
+        private char _connertorTop = '╦';
+        private char _connertorBottom = '╩';
+
         //type 5 - no connectors
 
-        public void PrintBorders()
+        internal void PrintBorders()
         {
             //top 
             PrintHorizontalLine(0, BorderWidth - 1, 0, 1);
@@ -68,7 +68,7 @@ namespace ConsoleFileManager
             Console.Write("╬");
         }
 
-        public void PrintVerticalLine(int startY, int finishY, int x, int connectorType)
+        private void PrintVerticalLine(int startY, int finishY, int x, int connectorType)
         {
             bool exeption = ClassLibrary.Do.SetCursorPosition(x, startY);
             int shift = 0; // shift y in case of connectors absent
@@ -77,7 +77,7 @@ namespace ConsoleFileManager
             {
                 if (connectorType == 4)
                 {
-                    Console.WriteLine(connertorTop);
+                    Console.WriteLine(_connertorTop);
                     shift = 1;
                 }
             }
@@ -91,44 +91,44 @@ namespace ConsoleFileManager
                     {
                         break;
                     }
-                    Console.WriteLine(lineVert);
+                    Console.WriteLine(_lineVert);
                 }
 
                 if (connectorType == 4)
                 {
                     ClassLibrary.Do.SetCursorPosition(x, finishY);
-                    Console.WriteLine(connertorBottom);
+                    Console.WriteLine(_connertorBottom);
                 }
             }
         }
 
-        public void PrintHorizontalLine(int startX, int finishX, int y, int connectorType)
+        private void PrintHorizontalLine(int startX, int finishX, int y, int connectorType)
         {
             bool exeption = ClassLibrary.Do.SetCursorPosition(finishX, y);
             if (exeption == false)
             {
                 if (connectorType == 1)
-                    Console.WriteLine(cornerTopRight);
+                    Console.WriteLine(_cornerTopRight);
                 if (connectorType == 2)
-                    Console.WriteLine(cornerBottomRight);
+                    Console.WriteLine(_cornerBottomRight);
                 if (connectorType == 3)
-                    Console.WriteLine(connertorRight);
+                    Console.WriteLine(_connertorRight);
             }
 
             exeption = ClassLibrary.Do.SetCursorPosition(startX, y);
             if (exeption == false)
             {
                 if (connectorType == 1)
-                    Console.WriteLine(cornerTopLeft);
+                    Console.WriteLine(_cornerTopLeft);
                 if (connectorType == 2)
-                    Console.WriteLine(cornerBottomLeft);
+                    Console.WriteLine(_cornerBottomLeft);
                 if (connectorType == 3)
-                    Console.WriteLine(connertorLeft);
+                    Console.WriteLine(_connertorLeft);
                 ClassLibrary.Do.SetCursorPosition(startX + 1, y);
             }
 
             if (exeption == false)
-                Console.WriteLine(lineHoriz.ToString().PadLeft(finishX - startX - 1, lineHoriz));
+                Console.WriteLine(_lineHoriz.ToString().PadLeft(finishX - startX - 1, _lineHoriz));
         }
     }
 }

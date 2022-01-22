@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ClassLibrary\ClassLibrary.csproj" />
+    <ProjectReference Include="..\ReportingLib\ReportingLib.csproj" />
   </ItemGroup>
 
   <ItemGroup>

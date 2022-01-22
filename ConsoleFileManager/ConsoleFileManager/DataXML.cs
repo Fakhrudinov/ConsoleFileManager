@@ -4,17 +4,17 @@ using System.Xml;
 
 namespace ConsoleFileManager
 {
-    public class DataXML
+    internal class DataXML
     {
-        public int XMLConsoleWidth { get; set; }
-        public int XMLConsoleHeight { get; set; }
-        public int XMLLeftActiveItem { get; set; }
-        public int XMLRightActiveItem { get; set; }
-        public bool LeftIsActive { get; set; }
-        public string XMLStartDirectoryLeft { get; set; }
-        public string XMLStartDirectoryRight { get; set; }
+        internal int XMLConsoleWidth { get; set; }
+        internal int XMLConsoleHeight { get; set; }
+        internal int XMLLeftActiveItem { get; set; }
+        internal int XMLRightActiveItem { get; set; }
+        internal bool LeftIsActive { get; set; }
+        internal string XMLStartDirectoryLeft { get; set; }
+        internal string XMLStartDirectoryRight { get; set; }
 
-        public void GetDataFromXML()
+        internal void GetDataFromXML()
         {
             string pathConfigXML = "Resources/Config.xml";
 
