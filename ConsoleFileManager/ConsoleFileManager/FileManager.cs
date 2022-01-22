@@ -378,6 +378,8 @@ namespace ConsoleFileManager
             if (padding < 0)
                 padding = 0;
 
+            Console.BackgroundColor = ConsoleColor.Black;//to clean leftovers from Info panels
+
             Console.Write(f1 + new string(' ', padding));
             Console.Write(f3 + new string(' ', padding));
             Console.Write(f5 + new string(' ', padding));

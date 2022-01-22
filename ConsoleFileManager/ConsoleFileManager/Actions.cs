@@ -587,6 +587,7 @@ namespace ConsoleFileManager
                     infoText.Add($"       Name: {dirInfo.Name}");
                     infoText.Add($"    Created: {dirInfo.CreationTime}");
                     infoText.Add($"Last writed: {dirInfo.LastWriteTime}");
+                    infoText.Add($" Total size: {GetDirectorySize(dirInfo)} bytes");
 
                     if (dirInfo.Attributes.ToString().Contains(','))
                     {
@@ -617,6 +618,32 @@ namespace ConsoleFileManager
 
             PrintInfoPanel(infoText, ConsoleColor.DarkBlue);
         }
+
+        /// <summary>
+        /// Get total size of directory with all subDirectories
+        /// </summary>
+        /// <param name="dir">Start directory</param>
+        /// <returns></returns>        
+        // Slow on big folders! 
+        private long GetDirectorySize(DirectoryInfo dir)
+        {
+            long resultSize = 0;
+
+            FileInfo[] files = dir.GetFiles();
+            foreach (FileInfo file in files)
+            {
+                resultSize += file.Length;
+            }
+            // subdirectory
+            DirectoryInfo[] subDirectorys = dir.GetDirectories();
+            foreach (DirectoryInfo subDir in subDirectorys)
+            {
+                resultSize += GetDirectorySize(subDir);
+            }
+            return resultSize;
+        }
+
+
 
         /// <summary>
         /// show help panel with all avaliable actions
