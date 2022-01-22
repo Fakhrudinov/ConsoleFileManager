@@ -5,39 +5,39 @@ using System.IO;
 
 namespace ConsoleFileManager
 {
-    public class FilePanel
+    internal class FilePanel
     {
-        public string StartDirectory { get; set; }
-        public bool IsActive { get; set; }
-        public int CurrentItem { get; set; }
-        public string CurrentItemName { get; set; }
-        public int TotalItems { get; set; }
-        int itemsOnPage;
-        public int ItemsOnPage
+        internal string StartDirectory { get; set; }
+        internal bool IsActive { get; set; }
+        internal int CurrentItem { get; set; }
+        internal string CurrentItemName { get; set; }
+        internal int TotalItems { get; set; }
+        private int _itemsOnPage;
+        internal int ItemsOnPage
         {
             get
             {
-                return itemsOnPage;
+                return _itemsOnPage;
             }
             set
             {
                 if (value > 0)
-                itemsOnPage = value;
+                _itemsOnPage = value;
             }
         }
-        public int FromX { get; set; }
-        public int UntilX { get; set; }
-        public int PanelHeight { get; set; }
-        public List<string> AllItems { get; set; }
+        internal int FromX { get; set; }
+        internal int UntilX { get; set; }
+        internal int PanelHeight { get; set; }
+        internal List<string> AllItems { get; set; }
 
-        public FilePanel(string StartDir, int fromX, int untilX)
+        internal FilePanel(string StartDir, int fromX, int untilX)
         {
             StartDirectory = StartDir;
             FromX = fromX;
             UntilX = untilX;
         }
 
-        public void ShowDirectoryContent()
+        internal void ShowDirectoryContent()
         {
             if (!IsActive)
                 Console.ForegroundColor = ConsoleColor.DarkGray;
