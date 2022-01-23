@@ -3,6 +3,7 @@ using ReportingLib.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace ConsoleFileManager
 {
@@ -280,6 +281,63 @@ namespace ConsoleFileManager
         }
 
         /// <summary>
+        /// Show dialog when user input mask for new search
+        /// </summary>
+        /// <returns>mask</returns>
+        internal string GetNameForMaskedSearh()
+        {
+            return GetNameFromUser("Find by mask", "Enter mask for search. '*' for a sequence of any characters, '?' to replace one character in the search. Leave empty for cancel request.");
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="newSearch"></param>
+        internal void ShowFindedItems(string newSearch)
+        {
+            var findedItems = new List<String>();
+            DirectoryInfo currentDirectory = new DirectoryInfo(_active.StartDirectory);
+
+            foreach (DirectoryInfo dir in currentDirectory.GetDirectories(newSearch))
+            {
+                findedItems.Add(dir.Name);
+            }
+
+            foreach (FileInfo file in currentDirectory.GetFiles(newSearch))
+            {
+                findedItems.Add(file.Name);
+            }
+            
+            if(findedItems.Count == 0)
+            {
+                //show alert
+                List<string> helpText = new List<string>()
+            {
+                "Search results",//header
+                "Nothing found for your search:",
+                newSearch,
+                "Press Enter to close panel."//footer
+            };
+
+                PrintInfoPanel(helpText, ConsoleColor.DarkMagenta);
+            }
+            else
+            {
+                //show selector
+                string choise = SelectDialogFromArray(findedItems.ToArray(), 0, "Search results");
+                
+                if (!choise.Equals("Select nothing"))
+                {
+                    //set up new current item
+                    choise = Path.Combine(_active.StartDirectory, choise);//_active.StartDirectory
+
+                    _active.CurrentItem = _active.AllItems.IndexOf(choise); ;
+                    _active.ShowDirectoryContent();
+                }
+                //else do nothing
+            }
+        }
+
+        /// <summary>
         /// run current object
         /// </summary>
         /// <param name="itemToExe"></param>
@@ -352,26 +410,53 @@ namespace ConsoleFileManager
         }
 
         /// <summary>
-        /// user select new disk or command from hystory, navigate with arrows
+        /// user select new disk or command from hystory or masked search, navigate with arrows
         /// </summary>
         /// <param name="lines"></param>
         /// <param name="selected"></param>
         /// <param name="dialogName"></param>
         /// <returns></returns>
-        private string SelectDialogFromArray(string[] lines, int selected, string dialogName)
+        private string SelectDialogFromArray(string[] linesInitial, int selected, string dialogName)
         {
+            string[] lines;
+            bool showWarning = false;
+
+            if (!dialogName.Equals("Search results"))
+            {
+                lines = linesInitial;
+            }
+            else
+            {
+                lines = new string[linesInitial.Length + 1];
+                lines[0] = "Select nothing";
+                Array.Copy(linesInitial, 0, lines, 1, linesInitial.Length);                
+            }
+
             bool quit = false;
             while (quit == false)
             {
-                int lineNumber = (_height - lines.Length) / 2;
+                //to future do - make pagination here.
+                // now - just shrink array to fit on page                
+                if (linesInitial.Length > _height - 11)
+                {
+                    lines = new string[_height - 10];
+                    lines[0] = "Select nothing";
+                    Array.Copy(linesInitial, 0, lines, 1, _height - 11);
+                    showWarning = true;
+                }
+
+                int lineNumber = ((_height - lines.Length) / 2) - 2;//-2 for header(1string), and footer(2strings)
                 int xCursor = 2;
                 int totalLenght = _width - 4;
 
                 Console.BackgroundColor = ConsoleColor.DarkBlue;
 
                 //header
+                Console.ForegroundColor = ConsoleColor.Yellow;
                 ClassLibrary.Do.PrintDialogHeader(dialogName, xCursor, lineNumber, totalLenght);
+                Console.ForegroundColor = ConsoleColor.Gray;
 
+                //body
                 for (int i = 0; i < lines.Length; i++)
                 {
                     if (selected == i)
@@ -387,8 +472,17 @@ namespace ConsoleFileManager
                     Console.BackgroundColor = ConsoleColor.DarkBlue;
                 }
 
-                ClassLibrary.Do.PrintLinePanelText(" Press UpArrow or DownArrow to select line", xCursor, ++lineNumber, totalLenght);
-                ClassLibrary.Do.PrintLinePanelText(" Enter to choise.", xCursor, ++lineNumber, totalLenght);
+                //warning about shrinked result - remove when pagination being implemented!!!!!!
+                if (showWarning)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    ClassLibrary.Do.PrintLinePanelText(" Other results is skipped. Specify you search.", xCursor, ++lineNumber, totalLenght);
+                } 
+                //footer
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                ClassLibrary.Do.PrintDialogHeader(" Press UpArrow or DownArrow to select line", xCursor, ++lineNumber, totalLenght);
+                ClassLibrary.Do.PrintDialogHeader(" Enter to choise.", xCursor, ++lineNumber, totalLenght);
+                Console.ForegroundColor = ConsoleColor.Gray;
                 Console.BackgroundColor = ConsoleColor.Black;
 
                 ConsoleKeyInfo keyInfo = Console.ReadKey(true);
@@ -659,10 +753,11 @@ namespace ConsoleFileManager
                 "F9 - Rename File or Folder     Alt+F4 - Exit",
                 "arrows Up and Down, PgUp PgDown, Home End - navigate inside panel",
                 "Tab - switch between panels",
+                "(Ctrl + E): Command history select dialog",
+                "(Ctrl + S): Search by mask dialog",
                 "",
                 "Manual commands, commands - case insensitive.",
-                "(Ctrl + Enter): Copy current element to command line",
-                "(Ctrl + E): Command history select dialog",
+                "(Ctrl + Enter): Copy current element to command line",                
                 "Set passive panel same as active: equal",
                 "Change directory: cd NewPath",
                 "Copy: cp sourcePath (to passive panel)",
@@ -699,8 +794,7 @@ namespace ConsoleFileManager
             //Print header
             Console.ForegroundColor = ConsoleColor.Yellow;
             ClassLibrary.Do.PrintDialogHeader(" " + panelText[0], xCursor, lineNumber, totalLenght);
-            Console.ForegroundColor = ConsoleColor.White;
-
+            Console.ForegroundColor = ConsoleColor.Gray;
             //Print body
             for (int i = 1; i < panelText.Count - 1; i++)
             {
@@ -710,7 +804,7 @@ namespace ConsoleFileManager
             //Print footer
             Console.ForegroundColor = ConsoleColor.Yellow;
             ClassLibrary.Do.PrintDialogHeader(" " + panelText[panelText.Count - 1], xCursor, ++lineNumber, totalLenght);
-            Console.ForegroundColor = ConsoleColor.White;
+            Console.ResetColor();
 
             //set cursor at the end and wait 'Enter'
             ClassLibrary.Do.SetCursorPosition(_untilX - _fromX, lineNumber);
@@ -1367,9 +1461,6 @@ namespace ConsoleFileManager
             int totalLenght = requestText.Length + 1;
             Console.BackgroundColor = ConsoleColor.Blue;
 
-            //header
-            
-
             if (_width - 4 < totalLenght) // shorten text
             {
                 totalLenght = _width - 4;
@@ -1389,6 +1480,85 @@ namespace ConsoleFileManager
             ClassLibrary.Do.SetCursorPosition(xCursor + 1, lineNumber);
             string newName = Console.ReadLine();
 
+            Console.BackgroundColor = ConsoleColor.Black;
+
+            return newName;
+        }
+
+        private string GetNameFromUser(string header, string requestText)
+        {
+            List<string> textLines = new List<string>();
+
+            // raw panel size calculation
+            int xCursor;
+            int totalLenght = _width - 4;
+            if (totalLenght > 50)
+            {
+                //xCursor = (_width / 3) / 2;
+                totalLenght = (_width / 3) * 2; // 2/3
+            }
+
+            //calculate request lines number
+            if (requestText.Length + 2 > totalLenght) //+2 spaces at both sides
+            {
+                List<string> words = requestText.Split(' ').ToList();
+                // split
+                string newLine = " ";
+                foreach (string word in words)
+                {
+                    if ((newLine + word + " ").Length > totalLenght)
+                    {
+                        textLines.Add(newLine);
+                        newLine = " " + word + " ";
+                    }
+                    else
+                    {
+                        newLine = newLine + word + " ";
+                    }
+                }
+                // add last line
+                textLines.Add(newLine);
+            }
+            else
+            {
+                textLines.Add(requestText);
+            }
+
+            // exact panel size calculation
+            int numbersOfLines = textLines.Count + 2; // +2 for header and input string
+            int longestLine = 1;
+            foreach (string line in textLines)
+            {
+                if (line.Length > longestLine)
+                {
+                    longestLine = line.Length;
+                }
+            }
+            //set cursor and sizes
+            xCursor = (_width - longestLine) / 2;
+            totalLenght = longestLine;
+            int lineNumber = (_height - numbersOfLines) / 2;
+
+            //Print
+            Console.BackgroundColor = ConsoleColor.Blue;
+            //Print header
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            ClassLibrary.Do.PrintDialogHeader(header, xCursor, lineNumber, totalLenght);
+            Console.ForegroundColor = ConsoleColor.Gray;
+
+            //Print body
+            for (int i = 0; i < textLines.Count; i++)
+            {
+                ClassLibrary.Do.PrintLinePanelText(textLines[i], xCursor, ++lineNumber, totalLenght);
+            }
+
+            //Print footer
+            ClassLibrary.Do.PrintLinePanelText(" ", xCursor, ++lineNumber, totalLenght);
+
+            //set cursor at the input line and wait 'Enter'
+            ClassLibrary.Do.SetCursorPosition(xCursor + 1, lineNumber);
+            string newName = Console.ReadLine();
+            //reset bg color
             Console.BackgroundColor = ConsoleColor.Black;
 
             return newName;
