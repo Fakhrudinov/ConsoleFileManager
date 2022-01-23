@@ -3,6 +3,7 @@ using ReportingLib.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace ConsoleFileManager
 {
@@ -276,6 +277,46 @@ namespace ConsoleFileManager
 
                 _active.CurrentItem = 0;
                 _active.ShowDirectoryContent();
+            }
+        }
+
+
+        internal string GetNameForMaskedSearh()
+        {
+            return GetNameFromUser("Find by mask", "Enter mask for search. '*' for a sequence of any characters, '?' to replace one character in the search. Leave empty for cancel request.");
+        }
+        internal void ShowFindedItems(string newSearch)
+        {
+            var findedItems = new List<String>();
+            DirectoryInfo currentDirectory = new DirectoryInfo(_active.StartDirectory);
+
+            foreach (DirectoryInfo dir in currentDirectory.GetDirectories(newSearch))
+            {
+                findedItems.Add(dir.Name);
+            }
+
+            foreach (FileInfo file in currentDirectory.GetFiles(newSearch))
+            {
+                findedItems.Add(file.Name);
+            }
+            
+            if(findedItems.Count == 0)
+            {
+                //show alert
+                List<string> helpText = new List<string>()
+            {
+                "Search results",//header
+                "Nothing found for your search:",
+                newSearch,
+                "Press Enter to close panel."//footer
+            };
+
+                PrintInfoPanel(helpText, ConsoleColor.DarkMagenta);
+            }
+            else
+            {
+                //show selector
+
             }
         }
 
@@ -1367,9 +1408,6 @@ namespace ConsoleFileManager
             int totalLenght = requestText.Length + 1;
             Console.BackgroundColor = ConsoleColor.Blue;
 
-            //header
-            
-
             if (_width - 4 < totalLenght) // shorten text
             {
                 totalLenght = _width - 4;
@@ -1389,6 +1427,85 @@ namespace ConsoleFileManager
             ClassLibrary.Do.SetCursorPosition(xCursor + 1, lineNumber);
             string newName = Console.ReadLine();
 
+            Console.BackgroundColor = ConsoleColor.Black;
+
+            return newName;
+        }
+
+        private string GetNameFromUser(string header, string requestText)
+        {
+            List<string> textLines = new List<string>();
+
+            // raw panel size calculation
+            int xCursor;
+            int totalLenght = _width - 4;
+            if (totalLenght > 50)
+            {
+                //xCursor = (_width / 3) / 2;
+                totalLenght = (_width / 3) * 2; // 2/3
+            }
+
+            //calculate request lines number
+            if (requestText.Length + 2 > totalLenght) //+2 spaces at both sides
+            {
+                List<string> words = requestText.Split(' ').ToList();
+                // split
+                string newLine = " ";
+                foreach (string word in words)
+                {
+                    if ((newLine + word + " ").Length > totalLenght)
+                    {
+                        textLines.Add(newLine);
+                        newLine = " " + word + " ";
+                    }
+                    else
+                    {
+                        newLine = newLine + word + " ";
+                    }
+                }
+                // add last line
+                textLines.Add(newLine);
+            }
+            else
+            {
+                textLines.Add(requestText);
+            }
+
+            // exact panel size calculation
+            int numbersOfLines = textLines.Count + 2; // +2 for header and input string
+            int longestLine = 1;
+            foreach (string line in textLines)
+            {
+                if (line.Length > longestLine)
+                {
+                    longestLine = line.Length;
+                }
+            }
+            //set cursor and sizes
+            xCursor = (_width - longestLine) / 2;
+            totalLenght = longestLine;
+            int lineNumber = (_height - numbersOfLines) / 2;
+
+            //Print
+            Console.BackgroundColor = ConsoleColor.Blue;
+            //Print header
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            ClassLibrary.Do.PrintDialogHeader(header, xCursor, lineNumber, totalLenght);
+            Console.ForegroundColor = ConsoleColor.White;
+
+            //Print body
+            for (int i = 0; i < textLines.Count; i++)
+            {
+                ClassLibrary.Do.PrintLinePanelText(textLines[i], xCursor, ++lineNumber, totalLenght);
+            }
+
+            //Print footer
+            ClassLibrary.Do.PrintLinePanelText(" ", xCursor, ++lineNumber, totalLenght);
+
+            //set cursor at the input line and wait 'Enter'
+            ClassLibrary.Do.SetCursorPosition(xCursor + 1, lineNumber);
+            string newName = Console.ReadLine();
+            //reset bg color
             Console.BackgroundColor = ConsoleColor.Black;
 
             return newName;

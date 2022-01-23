@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 
@@ -205,9 +206,22 @@ namespace ConsoleFileManager
                 {
                     ConsoleKeyInfo userKey = Console.ReadKey(true);
 
+                    //show commands history
                     if ((ConsoleModifiers.Control & userKey.Modifiers) != 0 && userKey.Key == ConsoleKey.E)
                     {
                         _newCommandText = newActon.GetCommandsHystory();
+
+                        PrintFileManager(filePanelLeft, filePanelRight, border);
+                    }
+                    // search something with mask like *.*
+                    else if ((ConsoleModifiers.Control & userKey.Modifiers) != 0 && userKey.Key == ConsoleKey.S)// S - because Ctrl+F already reserved with windows search
+                    {
+                        string newSearch = newActon.GetNameForMaskedSearh();
+                        if (newSearch.Length > 0)
+                        {
+                            PrintFileManager(filePanelLeft, filePanelRight, border);
+                            newActon.ShowFindedItems(newSearch);
+                        }
 
                         PrintFileManager(filePanelLeft, filePanelRight, border);
                     }
