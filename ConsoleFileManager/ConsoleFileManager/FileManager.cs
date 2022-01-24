@@ -219,6 +219,8 @@ namespace ConsoleFileManager
                         string newSearch = newActon.GetNameForMaskedSearh();
                         if (newSearch.Length > 0)
                         {
+                            ClassLibrary.Do.WriteCommandToFile($"find " + newSearch);
+
                             PrintFileManager(filePanelLeft, filePanelRight, border);
                             newActon.ShowFindedItems(newSearch);
                         }

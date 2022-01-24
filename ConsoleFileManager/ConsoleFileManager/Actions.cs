@@ -19,6 +19,7 @@ namespace ConsoleFileManager
             RunFile,        // 5
             EqualisePanels, // 6
             Rename,         // 7
+            Find,           // 8
             Unknown
         }
 
@@ -747,10 +748,10 @@ namespace ConsoleFileManager
             List<string> helpText = new List<string>()
             {
                 "Help",//header
-                "F1 - Help Panel                F3 - File or Folder Info",
-                "F5 - Copy File or Folder       F6 - Move File or Folder",
-                "F7 - Create new Folder         F8 - Delete File or Folder",
-                "F9 - Rename File or Folder     Alt+F4 - Exit",
+                "F1 - Help Panel                    F3 - File or Folder Info",
+                "F5 - Copy File or Folder           F6 - Move File or Folder",
+                "F7 - Create new Folder             F8 - Delete File or Folder",
+                "F9 - Rename File or Folder         Alt+F4 - Exit",
                 "arrows Up and Down, PgUp PgDown, Home End - navigate inside panel",
                 "Tab - switch between panels",
                 "(Ctrl + E): Command history select dialog",
@@ -759,12 +760,12 @@ namespace ConsoleFileManager
                 "Manual commands, commands - case insensitive.",
                 "(Ctrl + Enter): Copy current element to command line",                
                 "Set passive panel same as active: equal",
-                "Change directory: cd NewPath",
                 "Copy: cp sourcePath (to passive panel)",
                 "Move: mv sourcePath (to passive panel)",
-                "Remove: rm sourcePath",
-                "New Folder: mkdir newName",
-                "Execute File: run FileName",
+                "Change directory: cd NewPath       Execute File: run FileName",
+                "Remove: rm sourcePath              New Folder: mkdir newName",
+                //"New Folder: mkdir newName",
+                //"Execute File: run FileName",
                 "Rename: name sourcePath, newName",
                 "Press Enter to close panel."//footer
             };
@@ -951,6 +952,12 @@ namespace ConsoleFileManager
                             if (newCommandText.Length > 4)
                                 CommandController(Command.Rename, newCommandText.Substring(4));
                         }
+                        else if (newCommandText.Substring(0, 4).ToLower().Equals("find"))
+                        {
+                            _info = "Find by mask: Find [search mask, '*' and '?' availible to use]";
+                            if (newCommandText.Length > 4)
+                                CommandController(Command.Find, newCommandText.Substring(4));
+                        }
                         else if (newCommandText.Length >= 5)
                         {
                             if (newCommandText.Substring(0, 5).ToLower().Equals("mkdir"))
@@ -1045,6 +1052,9 @@ namespace ConsoleFileManager
                 case (int)Command.Copy:
                     CopyFromCommandLine();
                     break;
+                case (int)Command.Find:
+                    ShowFindedItems(_argumentSource);
+                    break;
                 case (int)Command.ChangeDir:
                     _active.CurrentItem = 0;
                     _active.StartDirectory = _argumentSource;
@@ -1119,10 +1129,20 @@ namespace ConsoleFileManager
                     if (checkArguments)
                         _commandType = (int)Command.Move;
                     break;
+
                 case Command.Copy:
                     checkArguments = CheckPairExist(arguments, false, false);
                     if (checkArguments)
                         _commandType = (int)Command.Copy;
+                    break;
+
+                case Command.Find:
+                    if (arguments.Length > 1)
+                    {
+                        _canBeExecute = true;
+                        _commandType = (int)Command.Find;
+                        _argumentSource = arguments.Substring(1);
+                    }
                     break;
             }
         }
