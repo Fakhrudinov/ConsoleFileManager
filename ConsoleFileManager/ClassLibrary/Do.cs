@@ -150,7 +150,7 @@ namespace ClassLibrary
 
         private static void WriteFile(string fileName, string text)
         {
-            int maxLineCount = 20;
+            int maxLineCount = 10;
             string[] linesActual = File.ReadAllLines(fileName);
 
             if (maxLineCount <= linesActual.Length)
